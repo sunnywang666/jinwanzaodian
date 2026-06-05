@@ -3,12 +3,15 @@ import { AppShell } from './components/AppShell'
 import { Home } from './pages/Home'
 import { Menu } from './pages/Menu'
 import { GuestBook } from './pages/GuestBook'
+import { GuestDetail } from './pages/GuestDetail'
 import { Logbook } from './pages/Logbook'
 import { SpiritHut } from './pages/SpiritHut'
+import { SpiritChatPage } from './pages/SpiritChatPage'
 import { Onboarding } from './pages/Onboarding'
 import { EveningPrepare } from './pages/EveningPrepare'
 import { NightClosing } from './pages/NightClosing'
-import { createDefaultLogEntries, sceneCopy } from './lib/demoData'
+import { DemoMode } from './pages/DemoMode'
+import { createDefaultLogEntries, guests, sceneCopy, type GuestEntry } from './lib/demoData'
 import {
   clearDemoStorage,
   loadDemoScene,
@@ -54,6 +57,7 @@ function updateLatestLogEntry(entries: LogEntry[], closeTime: string): LogEntry[
 
 export default function App() {
   const [activePage, setActivePage] = useState<AppPage>('home')
+  const [selectedGuest, setSelectedGuest] = useState<GuestEntry>(guests[0])
   const [onboardingProfile, setOnboardingProfile] = useState<OnboardingProfile | null>(() => loadOnboardingProfile())
   const [spiritForm, setSpiritForm] = useState<SpiritForm>(() => loadSpiritForm())
   const [demoScene, setDemoScene] = useState(() => loadDemoScene())
@@ -123,10 +127,12 @@ export default function App() {
 
   const statusText =
     activePage === 'eveningPrepare'
-      ? '傍晚在准备明天，也在替今晚留一点余地。'
+      ? '傍晚先把今晚安排轻一点。'
       : activePage === 'nightClosing'
-        ? '夜里只做一件事：把铺子收好，然后把手机放下。'
-        : `${sceneCopy[demoScene].title} · 默认关灯时间 ${eveningPrepare.plannedLightsOffTime}`
+        ? '把铺子收好，再把手机放下。'
+        : activePage === 'spiritChat'
+          ? `${onboardingProfile.spiritName} 在柜台后等你。`
+          : `${sceneCopy[demoScene].title} · 关灯时间 ${eveningPrepare.plannedLightsOffTime}`
 
   const latestLog = logEntries[0] ?? createDefaultLogEntries()[0]
 
@@ -136,9 +142,9 @@ export default function App() {
       onNavigate={setActivePage}
       statusText={statusText}
       headerAction={{
-        label: '重置开店',
+        label: '重置',
         onClick: () => {
-          if (!window.confirm('要清空 onboarding、演示状态和本地记录吗？')) {
+          if (!window.confirm('要清空开店流程和本地演示记录吗？')) {
             return
           }
 
@@ -154,29 +160,40 @@ export default function App() {
       }}
     >
       {activePage === 'home' ? (
-        <Home
-          scene={demoScene}
-          spiritName={onboardingProfile.spiritName}
-          tonightClosed={tonightClosed}
-          onSceneChange={(scene) => {
-            setDemoScene(scene)
-            if (scene !== 'lightsOff') {
-              setTonightClosed(false)
-            }
-          }}
-          onOpenEveningPrepare={() => setActivePage('eveningPrepare')}
-          onOpenNightClosing={() => setActivePage('nightClosing')}
-        />
+        <Home scene={demoScene} tonightClosed={tonightClosed} onNavigate={setActivePage} />
       ) : null}
 
       {activePage === 'menu' ? <Menu /> : null}
-      {activePage === 'guestbook' ? <GuestBook /> : null}
+      {activePage === 'guestbook' ? (
+        <GuestBook
+          onSelectGuest={(guest) => {
+            setSelectedGuest(guest)
+            setActivePage('guestDetail')
+          }}
+        />
+      ) : null}
+      {activePage === 'guestDetail' ? (
+        <GuestDetail guest={selectedGuest} onBack={() => setActivePage('guestbook')} />
+      ) : null}
       {activePage === 'logbook' ? <Logbook entries={logEntries} spiritName={onboardingProfile.spiritName} /> : null}
       {activePage === 'spiritHut' ? (
         <SpiritHut
           currentForm={spiritForm}
           spiritName={onboardingProfile.spiritName}
           onSelectForm={setSpiritForm}
+          onNavigate={setActivePage}
+        />
+      ) : null}
+      {activePage === 'spiritChat' ? <SpiritChatPage spiritName={onboardingProfile.spiritName} /> : null}
+      {activePage === 'demoMode' ? (
+        <DemoMode
+          scene={demoScene}
+          onSceneChange={(scene) => {
+            setDemoScene(scene)
+            if (scene !== 'lightsOff') {
+              setTonightClosed(false)
+            }
+          }}
         />
       ) : null}
       {activePage === 'eveningPrepare' ? (

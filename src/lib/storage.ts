@@ -13,10 +13,13 @@ export type AppPage =
   | 'home'
   | 'menu'
   | 'guestbook'
+  | 'guestDetail'
   | 'logbook'
   | 'spiritHut'
+  | 'spiritChat'
   | 'eveningPrepare'
   | 'nightClosing'
+  | 'demoMode'
 
 export type NightType =
   | '报复型'
@@ -31,6 +34,17 @@ export type ShopMood = '热闹' | '平常' | '安静'
 
 export interface OnboardingProfile {
   nightType: NightType
+  personaAnswers: string[]
+  spiritAppearance: 'base' | 'xiaolongbao'
+  spiritName: string
+  defaultLightsOffTime: string
+}
+
+export interface OnboardingDraft {
+  step: number
+  questionIndex: number
+  personaAnswers: string[]
+  nightType: NightType | null
   spiritAppearance: 'base' | 'xiaolongbao'
   spiritName: string
   defaultLightsOffTime: string
@@ -53,12 +67,23 @@ export interface LogEntry {
 
 const STORAGE_KEYS = {
   onboarding: 'jinwanzaodian:onboarding',
+  onboardingDraft: 'jinwanzaodian:onboarding-draft',
   spiritForm: 'jinwanzaodian:spirit-form',
   demoScene: 'jinwanzaodian:demo-scene',
   eveningPrepare: 'jinwanzaodian:evening-prepare',
   tonightClosed: 'jinwanzaodian:tonight-closed',
   logbook: 'jinwanzaodian:logbook',
 } as const
+
+export const defaultOnboardingDraft: OnboardingDraft = {
+  step: 0,
+  questionIndex: 0,
+  personaAnswers: [],
+  nightType: null,
+  spiritAppearance: 'base',
+  spiritName: '阿团',
+  defaultLightsOffTime: '23:00',
+}
 
 function canUseStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
@@ -95,6 +120,20 @@ export function loadOnboardingProfile() {
 
 export function saveOnboardingProfile(value: OnboardingProfile) {
   writeValue(STORAGE_KEYS.onboarding, value)
+}
+
+export function loadOnboardingDraft() {
+  return readValue<OnboardingDraft>(STORAGE_KEYS.onboardingDraft, defaultOnboardingDraft)
+}
+
+export function saveOnboardingDraft(value: OnboardingDraft) {
+  writeValue(STORAGE_KEYS.onboardingDraft, value)
+}
+
+export function clearOnboardingDraft() {
+  if (canUseStorage()) {
+    window.localStorage.removeItem(STORAGE_KEYS.onboardingDraft)
+  }
 }
 
 export function loadSpiritForm() {

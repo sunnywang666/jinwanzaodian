@@ -1,6 +1,5 @@
 import { demoSceneOptions } from '../lib/demoData'
 import type { DemoScene } from '../lib/storage'
-import { SoftButton } from './SoftButton'
 
 interface DemoControlsProps {
   currentScene: DemoScene
@@ -9,16 +8,20 @@ interface DemoControlsProps {
 
 export function DemoControls({ currentScene, onChange }: DemoControlsProps) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="grid grid-cols-2 gap-2">
       {demoSceneOptions.map((option) => (
-        <SoftButton
+        <button
           key={option.key}
           type="button"
-          active={currentScene === option.key}
+          className={`rounded-3xl border px-4 py-3 text-sm transition ${
+            currentScene === option.key
+              ? 'border-brown bg-butter text-ink'
+              : 'border-line bg-white/75 text-ink/75'
+          }`}
           onClick={() => onChange(option.key)}
         >
           {option.label}
-        </SoftButton>
+        </button>
       ))}
     </div>
   )

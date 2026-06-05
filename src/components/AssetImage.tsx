@@ -1,9 +1,19 @@
 import { useEffect, useState } from 'react'
 
+type AssetVariant = 'scene' | 'character' | 'placeholder'
+
 interface AssetImageProps {
   src: string
   alt: string
+  variant?: AssetVariant
+  fallbackSrc?: string
   className?: string
+}
+
+const variantClassName: Record<AssetVariant, string> = {
+  scene: 'w-full object-contain',
+  character: 'h-24 w-auto object-contain mx-auto',
+  placeholder: 'w-full',
 }
 
 function getExpectedName(src: string) {
@@ -11,19 +21,29 @@ function getExpectedName(src: string) {
   return parts[parts.length - 1] || src
 }
 
-export function AssetImage({ src, alt, className = '' }: AssetImageProps) {
+export function AssetImage({
+  src,
+  alt,
+  variant = 'scene',
+  fallbackSrc,
+  className = '',
+}: AssetImageProps) {
+  const [currentSrc, setCurrentSrc] = useState(src)
   const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
+    setCurrentSrc(src)
     setHasError(false)
   }, [src])
 
   if (hasError) {
     return (
-      <div className={`paper-dashed flex items-center justify-center p-5 text-center ${className}`}>
+      <div
+        className={`paper-dashed flex min-h-24 items-center justify-center p-4 text-center ${variantClassName.placeholder} ${className}`}
+      >
         <div className="space-y-2">
           <p className="text-sm font-semibold tracking-[0.08em] text-brown">缺少素材</p>
-          <p className="text-xs text-ink/75">{getExpectedName(src)}</p>
+          <p className="break-all text-xs text-ink/75">{getExpectedName(currentSrc)}</p>
         </div>
       </div>
     )
@@ -31,10 +51,17 @@ export function AssetImage({ src, alt, className = '' }: AssetImageProps) {
 
   return (
     <img
-      src={src}
+      src={currentSrc}
       alt={alt}
-      className={className}
-      onError={() => setHasError(true)}
+      className={`${variantClassName[variant]} ${className}`}
+      onError={() => {
+        if (fallbackSrc && currentSrc !== fallbackSrc) {
+          setCurrentSrc(fallbackSrc)
+          return
+        }
+
+        setHasError(true)
+      }}
     />
   )
 }

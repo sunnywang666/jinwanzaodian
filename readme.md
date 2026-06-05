@@ -52,3 +52,15 @@
 ## 每次修改后请运行
 
 npm run build
+
+## 裁剪透明 PNG 素材
+
+角色资产优先读取 `public/assets/trimmed/` 下的裁剪版本。
+
+运行方式：
+
+```bash
+npm run trim-assets
+```
+
+脚本会处理 `public/assets` 里的 PNG，裁掉透明边缘，并输出到 `public/assets/trimmed/`，文件名保持不变。

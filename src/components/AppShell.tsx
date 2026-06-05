@@ -1,6 +1,5 @@
 import type { PropsWithChildren } from 'react'
 import type { AppPage } from '../lib/storage'
-import { SoftButton } from './SoftButton'
 
 interface AppShellProps extends PropsWithChildren {
   activePage: AppPage
@@ -25,6 +24,14 @@ function getShellPage(activePage: AppPage) {
     return activePage
   }
 
+  if (activePage === 'guestDetail') {
+    return 'guestbook'
+  }
+
+  if (activePage === 'spiritChat') {
+    return 'spiritHut'
+  }
+
   return 'home'
 }
 
@@ -36,31 +43,34 @@ export function AppShell({ activePage, onNavigate, statusText, headerAction, chi
   }).format(new Date())
 
   return (
-    <div className="mx-auto min-h-screen max-w-[430px] px-3 py-4">
-      <div className="paper-panel flex min-h-[calc(100vh-2rem)] flex-col overflow-hidden">
-        <header className="border-b border-line px-4 py-4">
+    <div className="mx-auto flex min-h-screen max-w-[430px] flex-col px-3 py-3">
+      <div className="paper-panel flex min-h-[calc(100vh-1.5rem)] flex-1 flex-col overflow-hidden">
+        <header className="shrink-0 border-b border-line bg-paper px-4 py-3">
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="paper-label">今晚早点</p>
-              <h1 className="mt-3 text-2xl font-semibold tracking-[0.04em] text-ink">今晚早点</h1>
-              <p className="mt-2 text-sm text-ink/75">{statusText}</p>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="paper-label">今晚早点</span>
+                <span className="paper-label">{nowLabel}</span>
+              </div>
+              <p className="mt-2 line-clamp-2 text-sm leading-5 text-ink/75">{statusText}</p>
             </div>
-            <div className="flex flex-col items-end gap-2">
-              <span className="paper-label">{nowLabel}</span>
-              {headerAction ? (
-                <SoftButton type="button" variant="ghost" onClick={headerAction.onClick}>
-                  {headerAction.label}
-                </SoftButton>
-              ) : null}
-            </div>
+            {headerAction ? (
+              <button
+                type="button"
+                className="shrink-0 rounded-full border border-line bg-white/70 px-3 py-1.5 text-xs text-brown"
+                onClick={headerAction.onClick}
+              >
+                {headerAction.label}
+              </button>
+            ) : null}
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(255,249,241,0.75),rgba(246,239,226,0.95))] px-4 py-4">
+        <main className="min-h-0 flex-1 overflow-hidden bg-[linear-gradient(180deg,rgba(255,249,241,0.82),rgba(246,239,226,0.96))]">
           {children}
         </main>
 
-        <nav className="grid grid-cols-5 gap-2 border-t border-line bg-white/70 px-3 py-3">
+        <nav className="grid shrink-0 grid-cols-5 gap-2 border-t border-line bg-white/75 px-3 py-2">
           {navItems.map((item) => {
             const active = shellPage === item.page
 
@@ -68,7 +78,7 @@ export function AppShell({ activePage, onNavigate, statusText, headerAction, chi
               <button
                 key={item.page}
                 type="button"
-                className={`rounded-2xl border px-2 py-2 text-xs transition ${
+                className={`min-h-12 rounded-2xl border px-1.5 text-[11px] transition ${
                   active
                     ? 'border-brown bg-butter/80 text-ink'
                     : 'border-transparent bg-transparent text-ink/70 hover:border-line hover:bg-white/70'

@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.2
+
+Single-screen app prototype restructure.
+
+Included in this version:
+- Rebuilt onboarding as a step-by-step page flow.
+- Converted the home screen into a single-screen shop view with four main app entrances.
+- Reworked the menu into a paged recipe book.
+- Reworked the guest book into a collectible grid with a guest detail page.
+- Reworked the logbook into paged handwritten records.
+- Added a fixed-response spirit chat page with chat bubbles and quick replies.
+- Split scene and character image rendering rules in `AssetImage`.
+- Added trimmed asset lookup for character PNG files with fallback to original assets.
+- Added `scripts/trim-transparent-assets.mjs` and `npm run trim-assets`.
+
 ## v1.1
 
 GitHub Pages deployment setup.

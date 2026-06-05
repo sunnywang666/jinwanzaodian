@@ -1,52 +1,46 @@
 import { guestAssets } from '../lib/assets'
 import { guests } from '../lib/demoData'
+import type { GuestEntry } from '../lib/demoData'
 import { AssetImage } from '../components/AssetImage'
 
-export function GuestBook() {
-  return (
-    <div className="space-y-4">
-      <section className="paper-panel px-4 py-4">
-        <p className="paper-label">电话本</p>
-        <h2 className="mt-3 text-xl font-semibold text-ink">来过铺子的客人</h2>
-        <p className="mt-2 ink-note">
-          客人不是精灵的替代品。他们只是会在不同清晨出现的小动物，慢慢和你把关系处熟。
-        </p>
-      </section>
+interface GuestBookProps {
+  onSelectGuest: (guest: GuestEntry) => void
+}
 
-      <div className="grid grid-cols-1 gap-3">
-        {guests.map((guest) => (
-          <article key={guest.name} className="paper-panel overflow-hidden">
-            <div className="grid grid-cols-[112px_1fr] gap-0">
-              <AssetImage
-                src={guestAssets[guest.key]}
-                alt={guest.name}
-                className="h-full min-h-[148px] w-full bg-cream object-cover"
-              />
-              <div className="space-y-3 px-4 py-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-lg font-semibold text-ink">{guest.name}</h3>
-                  <span className="paper-label">{guest.closeness}</span>
-                </div>
-                <p className="text-sm text-ink/75">{guest.line}</p>
-                <dl className="grid grid-cols-1 gap-2 text-sm text-ink/80">
-                  <div className="flex items-center justify-between gap-3 rounded-2xl bg-paper px-3 py-2">
-                    <dt>喜欢的早点</dt>
-                    <dd>{guest.favorite}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-3 rounded-2xl bg-paper px-3 py-2">
-                    <dt>来访次数</dt>
-                    <dd>{guest.visits}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-3 rounded-2xl bg-paper px-3 py-2">
-                    <dt>熟络程度</dt>
-                    <dd>{guest.closeness}</dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-          </article>
-        ))}
+export function GuestBook({ onSelectGuest }: GuestBookProps) {
+  return (
+    <section className="flex h-full flex-col px-4 py-4">
+      <div>
+        <p className="paper-label">客人图鉴</p>
+        <h1 className="mt-2 text-2xl font-semibold text-ink">来过铺子的客人</h1>
       </div>
-    </div>
+
+      <div className="mt-5 grid grid-cols-3 gap-3">
+        {guests.map((guest) => {
+          const asset = guestAssets[guest.key]
+
+          return (
+            <button
+              key={guest.name}
+              type="button"
+              className="rounded-[24px] border border-line bg-white/80 px-2 py-3 text-center shadow-sm"
+              onClick={() => onSelectGuest(guest)}
+            >
+              <div className="flex h-24 items-center justify-center rounded-[18px] bg-cream">
+                <AssetImage
+                  src={asset.src}
+                  fallbackSrc={asset.fallbackSrc}
+                  alt={guest.name}
+                  variant="character"
+                  className="h-20"
+                />
+              </div>
+              <p className="mt-2 line-clamp-1 text-sm font-semibold text-ink">{guest.name}</p>
+              <p className="mt-1 text-xs text-brown">{guest.status}</p>
+            </button>
+          )
+        })}
+      </div>
+    </section>
   )
 }
