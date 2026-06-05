@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.1
+
+GitHub Pages deployment setup.
+
+Included in this version:
+- Added a GitHub Actions workflow to build and deploy the Vite app to GitHub Pages.
+- Updated the Vite base path for the `sunnywang666/jinwanzaodian` repository deployment.
+- Bumped the project version from `1.0.0` to `1.1.0`.
+
 ## v1.0
 
 Initial demo release.
