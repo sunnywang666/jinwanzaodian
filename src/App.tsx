@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { AppShell } from './components/AppShell'
 import { Home } from './pages/Home'
 import { Onboarding } from './pages/Onboarding'
-import { createDefaultLogEntries, sceneCopy } from './lib/demoData'
+import { createDefaultLogEntries } from './lib/demoData'
 import {
   clearDemoStorage,
   loadDemoScene,
@@ -10,6 +10,7 @@ import {
   loadLogbook,
   loadOnboardingProfile,
   loadSpiritForm,
+  loadOnboardingDraft,
   loadTonightClosed,
   saveDemoScene,
   saveEveningPrepare,
@@ -24,12 +25,10 @@ import {
 } from './lib/storage'
 import { RecipeBookOverlay } from './overlays/RecipeBookOverlay'
 import { GuestBookOverlay } from './overlays/GuestBookOverlay'
-import { LogbookOverlay } from './overlays/LogbookOverlay'
 import { SpiritHutOverlay } from './overlays/SpiritHutOverlay'
 import { RadioChatOverlay } from './overlays/RadioChatOverlay'
-import { MessageBoardOverlay } from './overlays/MessageBoardOverlay'
 
-type OverlayKey = 'recipeBook' | 'guestBook' | 'logbook' | 'spiritHut' | 'radio' | 'blackboard' | null
+type ActiveView = 'home' | 'recipeBook' | 'guestBook' | 'radio' | 'spiritHut'
 
 export default function App() {
   const [onboardingProfile, setOnboardingProfile] = useState<OnboardingProfile | null>(() => loadOnboardingProfile())
@@ -40,7 +39,7 @@ export default function App() {
   const [eveningPrepare, setEveningPrepare] = useState<EveningPrepareState>(() =>
     loadEveningPrepare(loadOnboardingProfile()?.defaultLightsOffTime ?? '23:00'),
   )
-  const [overlay, setOverlay] = useState<OverlayKey>(null)
+  const [activeView, setActiveView] = useState<ActiveView>('home')
   const [debugHotspots, setDebugHotspots] = useState(false)
 
   useEffect(() => {
@@ -85,37 +84,39 @@ export default function App() {
     )
   }
 
-  const statusText = overlay
-    ? `${onboardingProfile.spiritName} 的铺子正在翻开一本册子。`
-    : `${sceneCopy[demoScene].title} · 关灯时间 ${eveningPrepare.plannedLightsOffTime}${tonightClosed ? ' · 今晚已熄灯' : ''}`
-
   return (
     <AppShell
-      statusText={statusText}
-      headerAction={{
-        label: '重置',
-        onClick: () => {
-          if (!window.confirm('要清空开店流程和本地演示记录吗？')) {
-            return
-          }
+      topChrome={activeView === 'home' ? (
+        <div className="flex justify-end px-3 pt-3">
+          <button
+            type="button"
+            className="pointer-events-auto rounded-full border border-line bg-paper/85 px-3 py-1.5 text-xs text-brown shadow-sm backdrop-blur"
+            onClick={() => {
+              if (!window.confirm('要清空开店流程和本地演示记录吗？')) {
+                return
+              }
 
-          clearDemoStorage()
-          setOnboardingProfile(null)
-          setSpiritForm('base')
-          setDemoScene('cover')
-          setTonightClosed(false)
-          setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
-          setLogEntries(createDefaultLogEntries())
-          setOverlay(null)
-          setDebugHotspots(false)
-        },
-      }}
+              clearDemoStorage()
+              setOnboardingProfile(null)
+              setSpiritForm('base')
+              setDemoScene('cover')
+              setTonightClosed(false)
+              setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
+              setLogEntries(createDefaultLogEntries())
+              setActiveView('home')
+              setDebugHotspots(false)
+            }}
+          >
+            重置
+          </button>
+        </div>
+      ) : null}
     >
       <Home
         scene={demoScene}
         debugHotspots={debugHotspots}
         onToggleDebugHotspots={() => setDebugHotspots((current) => !current)}
-        onOpenHotspot={(hotspotId) => setOverlay(hotspotId)}
+        onOpenHotspot={(target) => setActiveView(target)}
         onSceneChange={(scene) => {
           setDemoScene(scene)
           if (scene !== 'lightsOff') {
@@ -124,19 +125,19 @@ export default function App() {
         }}
       />
 
-      {overlay === 'recipeBook' ? <RecipeBookOverlay onClose={() => setOverlay(null)} /> : null}
-      {overlay === 'guestBook' ? <GuestBookOverlay onClose={() => setOverlay(null)} /> : null}
-      {overlay === 'logbook' ? <LogbookOverlay entries={logEntries} onClose={() => setOverlay(null)} /> : null}
-      {overlay === 'spiritHut' ? (
+      {activeView === 'recipeBook' ? <RecipeBookOverlay onClose={() => setActiveView('home')} /> : null}
+      {activeView === 'guestBook' ? <GuestBookOverlay onClose={() => setActiveView('home')} /> : null}
+      {activeView === 'radio' ? (
+        <RadioChatOverlay spiritName={onboardingProfile.spiritName} onClose={() => setActiveView('home')} />
+      ) : null}
+      {activeView === 'spiritHut' ? (
         <SpiritHutOverlay
           spiritName={onboardingProfile.spiritName}
           currentForm={spiritForm}
           onSelectForm={setSpiritForm}
-          onClose={() => setOverlay(null)}
+          onClose={() => setActiveView('home')}
         />
       ) : null}
-      {overlay === 'radio' ? <RadioChatOverlay spiritName={onboardingProfile.spiritName} onClose={() => setOverlay(null)} /> : null}
-      {overlay === 'blackboard' ? <MessageBoardOverlay onClose={() => setOverlay(null)} /> : null}
     </AppShell>
   )
 }

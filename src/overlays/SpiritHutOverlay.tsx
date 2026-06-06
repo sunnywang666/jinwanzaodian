@@ -16,8 +16,8 @@ export function SpiritHutOverlay({ spiritName, currentForm, onSelectForm, onClos
 
   return (
     <GameOverlay title="精灵小屋" onClose={onClose}>
-      <section className="flex h-full flex-col px-4 py-4">
-        <div className="rounded-[30px] border border-line bg-cream px-4 py-5 text-center">
+      <section className="flex h-full flex-col bg-[#f5ead8] px-4 pb-5 pt-[11dvh]">
+        <div className="rounded-[28px] border border-line bg-paper/84 px-4 py-5 text-center shadow-sm">
           <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-butter/35">
             <AssetImage
               src={currentAsset.src}
@@ -31,13 +31,13 @@ export function SpiritHutOverlay({ spiritName, currentForm, onSelectForm, onClos
           <p className="mt-2 text-sm leading-6 text-ink/72">它只是一个漂浮的小圆面团，可以隔空揉面，没有手脚。</p>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-4 grid grid-cols-2 gap-3 overflow-y-auto">
           {spiritOptions.map((option) => (
             <button
               key={option.form}
               type="button"
-              className={`rounded-[24px] border px-3 py-4 text-center ${
-                currentForm === option.form ? 'border-brown bg-butter/35' : 'border-line bg-white/80'
+              className={`rounded-[24px] border px-3 py-4 text-center shadow-sm ${
+                currentForm === option.form ? 'border-brown bg-butter/35' : 'border-line bg-paper/84'
               }`}
               onClick={() => onSelectForm(option.form)}
             >

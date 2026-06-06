@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.0
+
+Full-screen scene app rebuild.
+
+Included in this version:
+- Rebuilt the home screen into a true full-screen shop scene without the previous outer card shell or large section blocks.
+- Replaced text hotspot entry areas with positioned PNG scene items for the recipe book, guest book, radio, and spirit.
+- Added a centralized `sceneItems` configuration and a new scene item button interaction with tap glow and delayed open.
+- Rebuilt the recipe book as a full-screen inner-book template with absolutely positioned dish content overlays.
+- Rebuilt the guest book into a cover page plus single-guest inner pages using the provided guest-book template instead of a grid.
+- Converted item pages from card-like overlays into full-screen game-style views with lightweight page transitions.
+
 ## v2.1
 
 GitHub Pages asset path fix.

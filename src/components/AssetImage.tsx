@@ -8,6 +8,7 @@ interface AssetImageProps {
   variant?: AssetVariant
   fallbackSrc?: string
   className?: string
+  renderFallbackCard?: boolean
 }
 
 const variantClassName: Record<AssetVariant, string> = {
@@ -29,6 +30,7 @@ export function AssetImage({
   variant = 'scene',
   fallbackSrc,
   className = '',
+  renderFallbackCard = true,
 }: AssetImageProps) {
   const [currentSrc, setCurrentSrc] = useState(src)
   const [hasError, setHasError] = useState(false)
@@ -37,6 +39,10 @@ export function AssetImage({
     setCurrentSrc(src)
     setHasError(false)
   }, [src])
+
+  if (hasError && !renderFallbackCard) {
+    return null
+  }
 
   if (hasError) {
     return (
@@ -58,10 +64,12 @@ export function AssetImage({
       className={`${variantClassName[variant]} ${className}`}
       onError={() => {
         if (fallbackSrc && currentSrc !== fallbackSrc) {
+          console.warn(`[AssetImage] primary asset failed, falling back: ${currentSrc}`)
           setCurrentSrc(fallbackSrc)
           return
         }
 
+        console.warn(`[AssetImage] missing asset: ${currentSrc}`)
         setHasError(true)
       }}
     />

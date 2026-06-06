@@ -17,20 +17,22 @@ export function GameOverlay({ title, onClose, children }: GameOverlayProps) {
   }, [])
 
   return (
-    <div className="absolute inset-0 z-30 flex items-end bg-[#4e403733] p-2">
-      <div className="flex h-[92%] w-full animate-[overlayEnter_220ms_ease-out] flex-col overflow-hidden rounded-[34px] border border-line bg-paper shadow-paper">
-        <header className="flex items-center justify-between border-b border-line bg-[#f7efe2] px-4 py-3">
-          <p className="paper-label">{title ?? '铺子'}</p>
-          <button
-            type="button"
-            className="rounded-full border border-line bg-white/80 px-3 py-1.5 text-xs text-brown"
-            onClick={onClose}
-          >
-            关闭
-          </button>
-        </header>
-        <div className="min-h-0 flex-1 overflow-hidden">{children}</div>
+    <div className="absolute inset-0 z-30 animate-[pageIn_220ms_ease-out] bg-[#f5ead8]">
+      <div className="absolute inset-x-0 top-0 z-10 flex items-start justify-between px-3 pt-3">
+        <button
+          type="button"
+          className="pointer-events-auto rounded-full border border-line bg-paper/88 px-4 py-2 text-sm text-ink shadow-sm backdrop-blur"
+          onClick={onClose}
+        >
+          返回铺子
+        </button>
+        {title ? (
+          <span className="rounded-full border border-line bg-paper/80 px-3 py-2 text-xs tracking-[0.08em] text-brown shadow-sm backdrop-blur">
+            {title}
+          </span>
+        ) : null}
       </div>
+      <div className="relative h-full w-full overflow-hidden">{children}</div>
     </div>
   )
 }

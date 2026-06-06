@@ -1,49 +1,62 @@
-import type { DemoScene } from '../lib/storage'
-import { sceneCopy } from '../lib/demoData'
 import { DemoControls } from '../components/DemoControls'
 import { ShopSceneInteractive } from '../components/ShopSceneInteractive'
+import { sceneCopy } from '../lib/demoData'
+import type { SceneItemTarget } from '../lib/sceneItems'
+import type { DemoScene } from '../lib/storage'
 
 interface HomeProps {
   scene: DemoScene
   debugHotspots: boolean
   onToggleDebugHotspots: () => void
-  onOpenHotspot: (hotspotId: 'recipeBook' | 'guestBook' | 'logbook' | 'spiritHut' | 'radio' | 'blackboard') => void
+  onOpenHotspot: (target: SceneItemTarget) => void
   onSceneChange: (scene: DemoScene) => void
 }
 
 export function Home({ scene, debugHotspots, onToggleDebugHotspots, onOpenHotspot, onSceneChange }: HomeProps) {
   const copy = sceneCopy[scene]
+  const nowLabel = new Intl.DateTimeFormat('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date())
 
   return (
-    <section className="flex h-full flex-col px-4 py-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="paper-label">铺子主场景</p>
-          <h1 className="mt-2 text-xl font-semibold text-ink">{copy.title}</h1>
+    <section className="relative h-full w-full">
+      <ShopSceneInteractive scene={scene} debug={debugHotspots} onItemOpen={onOpenHotspot} />
+
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#f5ead8]/92 via-[#f5ead8]/36 to-transparent" />
+
+      <div className="absolute left-3 top-3 z-20 flex max-w-[72%] flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <span className="rounded-full border border-line bg-paper/85 px-3 py-1.5 text-xs text-brown shadow-sm backdrop-blur">
+            今晚早点
+          </span>
+          <span className="rounded-full border border-line bg-paper/85 px-3 py-1.5 text-xs text-brown shadow-sm backdrop-blur">
+            {nowLabel}
+          </span>
         </div>
+        <p className="rounded-[20px] border border-line bg-paper/82 px-3 py-2 text-xs leading-5 text-ink/78 shadow-sm backdrop-blur">
+          {copy.body}
+        </p>
+      </div>
+
+      <div className="absolute right-3 top-3 z-20 flex flex-col items-end gap-2">
         <button
           type="button"
-          className={`rounded-full border px-3 py-2 text-xs ${
-            debugHotspots ? 'border-brown bg-butter text-ink' : 'border-line bg-white/80 text-ink/70'
+          className={`rounded-full border px-3 py-1.5 text-xs shadow-sm backdrop-blur ${
+            debugHotspots ? 'border-brown bg-butter/90 text-ink' : 'border-line bg-paper/85 text-ink/75'
           }`}
           onClick={onToggleDebugHotspots}
         >
-          显示热区
+          DEBUG
         </button>
       </div>
 
-      <div className="mt-4">
-        <ShopSceneInteractive debug={debugHotspots} onHotspotClick={onOpenHotspot} />
-      </div>
-
-      <div className="mt-4 rounded-[28px] border border-line bg-white/80 px-4 py-3">
-        <p className="text-sm leading-6 text-ink/75">{copy.body}</p>
-      </div>
-
-      <div className="mt-auto pt-4">
-        <p className="mb-2 text-sm text-ink/65">演示模式</p>
-        <DemoControls currentScene={scene} onChange={onSceneChange} />
-      </div>
+      {debugHotspots ? (
+        <div className="absolute inset-x-3 bottom-3 z-20 rounded-[24px] border border-line bg-paper/90 px-3 py-3 shadow-sm backdrop-blur">
+          <p className="mb-2 text-xs tracking-[0.08em] text-brown">场景调试</p>
+          <DemoControls currentScene={scene} onChange={onSceneChange} />
+        </div>
+      ) : null}
     </section>
   )
 }
