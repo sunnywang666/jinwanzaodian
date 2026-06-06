@@ -1,4 +1,5 @@
-import { guestAssets, spiritAssets } from './assets'
+import { animalAssets, foodAssets, spiritAssets } from './assets'
+import type { AssetSource } from './assets'
 import type { DemoScene, LogEntry, NightType, ShopMood, SpiritForm } from './storage'
 
 export interface PersonaOption {
@@ -15,16 +16,16 @@ export interface PersonaQuestion {
 export interface Dish {
   key: string
   name: string
-  image: string
-  unlocked: boolean
+  image: AssetSource
   description: string
   lovedBy: string
   origin: string
 }
 
 export interface GuestEntry {
-  key: keyof typeof guestAssets
+  key: keyof typeof animalAssets
   name: string
+  image: AssetSource
   favorite: string
   visits: number
   closeness: string
@@ -37,9 +38,10 @@ export interface SpiritOption {
   form: SpiritForm
   name: string
   note: string
-  unlocked: boolean
+  image: AssetSource
   src: string
   fallbackSrc?: string
+  unlocked: boolean
 }
 
 export interface ChatMessage {
@@ -81,10 +83,10 @@ export const personaQuestions: PersonaQuestion[] = [
 export const personaCopy: Record<NightType, string> = {
   报复型: '你不是不困，只是想把一点属于自己的时间拿回来。',
   惯性型: '你知道差不多该停了，只是手和眼睛还没一起停下来。',
-  焦虑型: '夜里最吵的不是手机，是脑子里还没有放下的事情。',
+  焦虑型: '夜里最吵的不是手机，是脑子里还没放下的事情。',
   工作型: '你总想把事情做完再休息，可铺子也需要店长先关灯。',
-  猫头鹰型: '你的节奏天生更晚一点，铺子会用更柔和的方式陪你调整。',
-  说不清: '今晚没有标准答案，先让铺子陪你慢慢看清自己的节奏。',
+  猫头鹰型: '你的节奏天生更晚一点，铺子会更柔和地陪你调整。',
+  说不清: '今晚先不用急着定义自己，铺子会慢慢陪你看清节奏。',
 }
 
 export const demoSceneOptions: Array<{ key: DemoScene; label: string }> = [
@@ -98,107 +100,57 @@ export const demoSceneOptions: Array<{ key: DemoScene; label: string }> = [
 ]
 
 export const sceneCopy: Record<DemoScene, { title: string; body: string; mood: ShopMood }> = {
-  cover: {
-    title: '铺子刚刚开门',
-    body: '柜台后有一点暖光，今天也从这里开始。',
-    mood: '平常',
-  },
-  busy: {
-    title: '清晨热闹起来了',
-    body: '昨晚歇得早些，今天来吃早点的人也多些。',
-    mood: '热闹',
-  },
-  normal: {
-    title: '平常的一天',
-    body: '没有哪里需要被责怪，铺子稳稳开着。',
-    mood: '平常',
-  },
-  quiet: {
-    title: '今天安静一点',
-    body: '门照常开着，明天也还在。',
-    mood: '安静',
-  },
-  daytime: {
-    title: '白天在备菜',
-    body: '你和精灵一起揉面、擦柜台、准备明天。',
-    mood: '平常',
-  },
-  nap: {
-    title: '午后短短打个盹',
-    body: '这只是铺子里的松弛片刻，不算任务。',
-    mood: '平常',
-  },
-  evening: {
-    title: '傍晚准备明天',
-    body: '先把关灯时间和心事都写下来。',
-    mood: '平常',
-  },
-  night: {
-    title: '该关灯歇业了',
-    body: '把铺子收好，再把手机放远一点。',
-    mood: '安静',
-  },
-  lightsOff: {
-    title: '铺子已经熄灯',
-    body: '灯关了，剩下的夜晚会自己安静下来。',
-    mood: '安静',
-  },
+  cover: { title: '铺子刚刚开门', body: '柜台后有一点暖光，今天也从这里开始。', mood: '平常' },
+  busy: { title: '清晨热闹起来了', body: '昨晚歇得早些，今天来吃早点的人也多些。', mood: '热闹' },
+  normal: { title: '平常的一天', body: '没有哪里需要被责怪，铺子稳稳开着。', mood: '平常' },
+  quiet: { title: '今天安静一点', body: '门照常开着，明天也还在。', mood: '安静' },
+  daytime: { title: '白天在备菜', body: '你和精灵一起揉面、擦柜台、准备明天。', mood: '平常' },
+  nap: { title: '午后短短打个盹', body: '这只是铺子里的松弛片刻，不算任务。', mood: '平常' },
+  evening: { title: '傍晚准备明天', body: '先把关灯时间和心事都写下来。', mood: '平常' },
+  night: { title: '该关灯歇业了', body: '把铺子收好，再把手机放远一点。', mood: '安静' },
+  lightsOff: { title: '铺子已经熄灯', body: '灯关了，剩下的夜晚会自己安静下来。', mood: '安静' },
 }
 
 export const dishes: Dish[] = [
   {
-    key: 'baozi',
+    key: 'bun',
     name: '包子',
-    image: '/assets/dish-baozi.png',
-    unlocked: true,
-    description: '开张就会做的招牌早点，蒸笼一掀就有热气。',
+    image: foodAssets.bun,
+    description: '每天都能稳稳出锅。',
     lovedBy: '小熊栗子',
-    origin: '开张时就写在菜单板上。',
+    origin: '开张就会做的招牌手艺',
   },
   {
-    key: 'soy',
+    key: 'soy-milk',
     name: '豆浆',
-    image: '/assets/dish-soy-milk.png',
-    unlocked: true,
-    description: '慢慢磨出来的一杯温热，适合清晨第一口。',
-    lovedBy: '浣熊灰灰',
-    origin: '和精灵白天试了两次比例。',
+    image: foodAssets.soyMilk,
+    description: '越做越顺手，早晨最先卖完。',
+    lovedBy: '小兔小团',
+    origin: '和精灵白天试了两次比例',
   },
   {
     key: 'youtiao',
     name: '油条',
-    image: '/assets/dish-youtiao.png',
-    unlocked: true,
-    description: '外面酥一点，里面软一点，阿墨每次都会先看它。',
+    image: foodAssets.youtiao,
+    description: '阿墨每次来都先看它。',
     lovedBy: '黑猫阿墨',
-    origin: '清晨热闹起来后解锁。',
+    origin: '清晨热闹起来后解锁',
   },
   {
-    key: 'porridge',
-    name: '粥',
-    image: '/assets/dish-porridge.png',
-    unlocked: true,
-    description: '小火慢慢熬着，像铺子的底气。',
-    lovedBy: '白兔小团',
-    origin: '给安静的早晨留的一锅温热。',
+    key: 'millet-porridge',
+    name: '小米粥',
+    image: foodAssets.milletPorridge,
+    description: '慢慢喝完一整碗，心也会慢一点。',
+    lovedBy: '小狐狸橘橘',
+    origin: '连续几次好好打烊后研究出来',
   },
   {
-    key: 'croissant',
-    name: '可颂',
-    image: '/assets/dish-croissant.png',
-    unlocked: false,
-    description: '还没出现在铺子里，但菜单上已经留了空位。',
-    lovedBy: '猫头鹰夜灯',
-    origin: '等更多熄灯夜晚累积后解锁。',
-  },
-  {
-    key: 'donut',
-    name: '甜甜圈',
-    image: '/assets/dish-donut.png',
-    unlocked: false,
-    description: '也许某位熟客以后会带来一张配方。',
-    lovedBy: '还不知道',
-    origin: '也许会由熟客教给你。',
+    key: 'tremella-porridge',
+    name: '银耳枸杞粥',
+    image: foodAssets.tremellaPorridge,
+    description: '温柔一点的早晨限定。',
+    lovedBy: '小鸟蓝蓝',
+    origin: '熟客带来的家乡做法',
   },
 ]
 
@@ -206,52 +158,79 @@ export const guests: GuestEntry[] = [
   {
     key: 'cat',
     name: '黑猫阿墨',
+    image: animalAssets.cat,
     favorite: '油条',
     visits: 9,
     closeness: '已经会坐在窗边等开门',
     status: '熟客',
     line: '总是第一个来，但只轻轻点头。',
-    story: '它今天还是没说很多话，但把豆浆喝得很干净。离开前，它在门口停了一下，像是在确认明天还会开门。',
+    story: '它今天还是没说很多话，但把豆浆喝得很干净。',
   },
   {
     key: 'rabbit',
     name: '白兔小团',
+    image: animalAssets.rabbit,
     favorite: '粥',
     visits: 6,
     closeness: '见面会主动问你昨晚睡得如何',
     status: '常来',
     line: '喜欢慢慢喝完一整碗热粥。',
-    story: '它把碗捧得很近，坐在最靠近暖灯的位置。今天它说，粥里有一点像早晨的味道。',
+    story: '它把耳朵搭在碗边，等粥不烫了才开始喝。',
   },
   {
     key: 'raccoon',
-    name: '浣熊灰灰',
+    name: '小浣熊灰灰',
+    image: animalAssets.raccoon,
     favorite: '豆浆',
-    visits: 4,
-    closeness: '开始愿意把小故事讲长一点',
+    visits: 5,
+    closeness: '会把杯子整齐放回柜台',
     status: '渐熟',
-    line: '每次都说只坐一会儿，最后总会多留五分钟。',
-    story: '它把联络簿翻到自己的那一页，看了很久，然后小声说下次也许可以教你一杯新的豆浆。',
+    line: '手里总想拿点什么，停下来时反而很乖。',
+    story: '它今天没有东张西望，只是安静喝完了豆浆。',
   },
   {
     key: 'bear',
     name: '小熊栗子',
+    image: animalAssets.bear,
     favorite: '包子',
-    visits: 3,
-    closeness: '刚刚熟起来，已经记得你的招牌',
-    status: '新熟',
-    line: '看起来慢，其实总能很准时地出现。',
-    story: '它今天把包子分成两半慢慢吃。临走前，它认真看了看招牌，说这个名字很好记。',
+    visits: 4,
+    closeness: '已经记得自己的小凳子',
+    status: '常来',
+    line: '抱着热包子时最安心。',
+    story: '它把包子捧在手里很久，好像不急着吃。',
   },
   {
-    key: 'owl',
-    name: '猫头鹰夜灯',
-    favorite: '可颂',
+    key: 'fox',
+    name: '小狐狸橘橘',
+    image: animalAssets.fox,
+    favorite: '小米粥',
+    visits: 3,
+    closeness: '开始愿意在门口多坐一会儿',
+    status: '新熟',
+    line: '看起来很精神，其实也会困。',
+    story: '它今天来得很早，只说想喝一点暖的。',
+  },
+  {
+    key: 'sparrow',
+    name: '小麻雀啾啾',
+    image: animalAssets.sparrow,
+    favorite: '银耳枸杞粥',
     visits: 2,
-    closeness: '还是新客，但已经记住铺子的暖灯',
+    closeness: '还在熟悉铺子的味道',
     status: '新客',
-    line: '来得不算早，却总会安静地坐到最后。',
-    story: '它来得比其他客人晚一点，坐下时没有打扰谁。它说，安静的铺子也很好。',
+    line: '小小一只，但很认真地记得路。',
+    story: '它站在窗边看了很久，最后还是飞进来了。',
+  },
+  {
+    key: 'bird',
+    name: '小鸟蓝蓝',
+    image: animalAssets.bird,
+    favorite: '豆浆',
+    visits: 2,
+    closeness: '会在收音机旁边停一会儿',
+    status: '新客',
+    line: '喜欢安静的早晨声音。',
+    story: '今天收音机声音很轻，它好像很喜欢。',
   },
 ]
 
@@ -259,71 +238,66 @@ export const spiritOptions: SpiritOption[] = [
   {
     form: 'base',
     name: '白面团',
-    note: '最初的小圆面团，软软地漂在柜台边。',
+    note: '最初的小圆面团。',
+    image: spiritAssets.base,
+    src: spiritAssets.base.src,
+    fallbackSrc: spiritAssets.base.fallbackSrc,
     unlocked: true,
-    ...spiritAssets.base,
   },
   {
     form: 'xiaolongbao',
     name: '小笼包',
-    note: '第一层点心外表，还是同一双豆豆眼。',
+    note: '第一层点心外表。',
+    image: spiritAssets.xiaolongbao,
+    src: spiritAssets.xiaolongbao.src,
+    fallbackSrc: spiritAssets.xiaolongbao.fallbackSrc,
     unlocked: true,
-    ...spiritAssets.xiaolongbao,
-  },
-  {
-    form: 'sleep',
-    name: '打盹形态',
-    note: '预留给午后和熄灯后的睡觉状态素材。',
-    unlocked: false,
-    ...spiritAssets.sleep,
   },
   {
     form: 'croissant',
-    name: '可颂形态',
-    note: '预留给后续里程碑皮肤。',
+    name: '白面团版',
+    note: '更朴素的一团白面。',
+    image: spiritAssets.whiteDough,
+    src: spiritAssets.whiteDough.src,
+    fallbackSrc: spiritAssets.whiteDough.fallbackSrc,
     unlocked: false,
-    ...spiritAssets.croissant,
   },
   {
     form: 'donut',
-    name: '甜甜圈形态',
-    note: '预留给后续里程碑皮肤。',
+    name: '贝果',
+    note: '圆圆一圈，还是那双豆豆眼。',
+    image: spiritAssets.bagel,
+    src: spiritAssets.bagel.src,
+    fallbackSrc: spiritAssets.bagel.fallbackSrc,
     unlocked: false,
-    ...spiritAssets.donut,
+  },
+  {
+    form: 'sleep',
+    name: '迷茫贝果',
+    note: '有点刚睡醒的样子。',
+    image: spiritAssets.confusedBagel,
+    src: spiritAssets.confusedBagel.src,
+    fallbackSrc: spiritAssets.confusedBagel.fallbackSrc,
+    unlocked: false,
   },
 ]
 
 export const initialChatMessages: ChatMessage[] = [
-  {
-    id: 'intro-1',
-    speaker: 'spirit',
-    text: '店长，今天铺子开着。我在柜台后面，先陪你待一会儿。',
-  },
-  {
-    id: 'intro-2',
-    speaker: 'user',
-    text: '我只是来看看铺子。',
-  },
-  {
-    id: 'intro-3',
-    speaker: 'spirit',
-    text: '看看就好。今天不用急着把所有事都整理清楚。',
-  },
+  { id: 'intro-1', speaker: 'spirit', text: '店长，今天铺子开着。我在柜台后面，先陪你待一会儿。' },
+  { id: 'intro-2', speaker: 'user', text: '我只是来看看铺子。' },
+  { id: 'intro-3', speaker: 'spirit', text: '看看就好。今天不用急着把所有事都整理清楚。' },
 ]
 
 export const quickReplies: Array<{ label: string; response: string }> = [
-  {
-    label: '昨晚又晚了',
-    response: '那今天铺子就慢一点。不是坏掉了，只是灯光轻一点，客人少一点，明天还会开门。',
-  },
-  {
-    label: '今天有点累',
-    response: '累的时候先别给自己加一堆道理。我们把柜台擦一小块，就算今天做过一件事了。',
-  },
-  {
-    label: '今晚想早点关灯',
-    response: '那先把关灯时间定下来。到点以后，铺子收摊，我回小屋，你把手机放远一点。',
-  },
+  { label: '昨晚又晚了', response: '没关系，铺子今天只是安静一点。我们先把豆浆热上。' },
+  { label: '今天有点累', response: '那今天就少做一点，铺子也可以慢慢来。' },
+  { label: '今晚想早点关灯', response: '好呀，我们傍晚先把明天的小纸条写好。' },
+]
+
+export const messageBoardNotes = [
+  '今天的油条很好吃。——阿墨',
+  '早上窗边的光很安静。——蓝蓝',
+  '没关系，明天见。——铺子',
 ]
 
 function formatDate(date: Date) {

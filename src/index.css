@@ -44,6 +44,18 @@ textarea {
   font: inherit;
 }
 
+@keyframes overlayEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @layer components {
   .paper-panel {
     @apply rounded-paper border border-line bg-paper shadow-paper;

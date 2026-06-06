@@ -60,7 +60,13 @@ npm run build
 运行方式：
 
 ```bash
+npm run sync-assets
 npm run trim-assets
+npm run prepare-assets
 ```
 
-脚本会处理 `public/assets` 里的 PNG，裁掉透明边缘，并输出到 `public/assets/trimmed/`，文件名保持不变。
+`npm run sync-assets` 会把 `./堆` 和 `./public/assets` 中匹配到的中文命名 PNG 复制为统一英文文件名到 `public/assets`。
+
+`npm run trim-assets` 会处理 `public/assets` 里的 PNG，裁掉透明边缘，并输出到 `public/assets/trimmed/`，文件名保持不变。`shop-main-background.png` 和 `cover-shop.png` 会跳过，避免裁坏构图。
+
+`npm run prepare-assets` 会先同步，再裁边。

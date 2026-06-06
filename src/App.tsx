@@ -1,17 +1,8 @@
 import { useEffect, useState } from 'react'
 import { AppShell } from './components/AppShell'
 import { Home } from './pages/Home'
-import { Menu } from './pages/Menu'
-import { GuestBook } from './pages/GuestBook'
-import { GuestDetail } from './pages/GuestDetail'
-import { Logbook } from './pages/Logbook'
-import { SpiritHut } from './pages/SpiritHut'
-import { SpiritChatPage } from './pages/SpiritChatPage'
 import { Onboarding } from './pages/Onboarding'
-import { EveningPrepare } from './pages/EveningPrepare'
-import { NightClosing } from './pages/NightClosing'
-import { DemoMode } from './pages/DemoMode'
-import { createDefaultLogEntries, guests, sceneCopy, type GuestEntry } from './lib/demoData'
+import { createDefaultLogEntries, sceneCopy } from './lib/demoData'
 import {
   clearDemoStorage,
   loadDemoScene,
@@ -26,38 +17,21 @@ import {
   saveOnboardingProfile,
   saveSpiritForm,
   saveTonightClosed,
-  type AppPage,
   type EveningPrepareState,
   type LogEntry,
   type OnboardingProfile,
   type SpiritForm,
 } from './lib/storage'
+import { RecipeBookOverlay } from './overlays/RecipeBookOverlay'
+import { GuestBookOverlay } from './overlays/GuestBookOverlay'
+import { LogbookOverlay } from './overlays/LogbookOverlay'
+import { SpiritHutOverlay } from './overlays/SpiritHutOverlay'
+import { RadioChatOverlay } from './overlays/RadioChatOverlay'
+import { MessageBoardOverlay } from './overlays/MessageBoardOverlay'
 
-function getNowTime() {
-  const now = new Date()
-  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
-}
-
-function updateLatestLogEntry(entries: LogEntry[], closeTime: string): LogEntry[] {
-  if (entries.length === 0) {
-    return entries
-  }
-
-  const [latest, ...rest] = entries
-  return [
-    {
-      ...latest,
-      closeTime,
-      shopMood: '安静',
-      closingNote: '完成了夜晚打烊，把手机也放远了一点',
-    },
-    ...rest,
-  ]
-}
+type OverlayKey = 'recipeBook' | 'guestBook' | 'logbook' | 'spiritHut' | 'radio' | 'blackboard' | null
 
 export default function App() {
-  const [activePage, setActivePage] = useState<AppPage>('home')
-  const [selectedGuest, setSelectedGuest] = useState<GuestEntry>(guests[0])
   const [onboardingProfile, setOnboardingProfile] = useState<OnboardingProfile | null>(() => loadOnboardingProfile())
   const [spiritForm, setSpiritForm] = useState<SpiritForm>(() => loadSpiritForm())
   const [demoScene, setDemoScene] = useState(() => loadDemoScene())
@@ -66,6 +40,8 @@ export default function App() {
   const [eveningPrepare, setEveningPrepare] = useState<EveningPrepareState>(() =>
     loadEveningPrepare(loadOnboardingProfile()?.defaultLightsOffTime ?? '23:00'),
   )
+  const [overlay, setOverlay] = useState<OverlayKey>(null)
+  const [debugHotspots, setDebugHotspots] = useState(false)
 
   useEffect(() => {
     if (onboardingProfile) {
@@ -93,21 +69,6 @@ export default function App() {
     saveLogbook(logEntries)
   }, [logEntries])
 
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        return
-      }
-
-      if (activePage === 'nightClosing' && tonightClosed) {
-        setDemoScene('lightsOff')
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [activePage, tonightClosed])
-
   if (!onboardingProfile) {
     return (
       <Onboarding
@@ -119,27 +80,17 @@ export default function App() {
             worry: '',
             savedAt: null,
           })
-          setActivePage('home')
         }}
       />
     )
   }
 
-  const statusText =
-    activePage === 'eveningPrepare'
-      ? '傍晚先把今晚安排轻一点。'
-      : activePage === 'nightClosing'
-        ? '把铺子收好，再把手机放下。'
-        : activePage === 'spiritChat'
-          ? `${onboardingProfile.spiritName} 在柜台后等你。`
-          : `${sceneCopy[demoScene].title} · 关灯时间 ${eveningPrepare.plannedLightsOffTime}`
-
-  const latestLog = logEntries[0] ?? createDefaultLogEntries()[0]
+  const statusText = overlay
+    ? `${onboardingProfile.spiritName} 的铺子正在翻开一本册子。`
+    : `${sceneCopy[demoScene].title} · 关灯时间 ${eveningPrepare.plannedLightsOffTime}${tonightClosed ? ' · 今晚已熄灯' : ''}`
 
   return (
     <AppShell
-      activePage={activePage}
-      onNavigate={setActivePage}
       statusText={statusText}
       headerAction={{
         label: '重置',
@@ -155,71 +106,37 @@ export default function App() {
           setTonightClosed(false)
           setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
           setLogEntries(createDefaultLogEntries())
-          setActivePage('home')
+          setOverlay(null)
+          setDebugHotspots(false)
         },
       }}
     >
-      {activePage === 'home' ? (
-        <Home scene={demoScene} tonightClosed={tonightClosed} onNavigate={setActivePage} />
-      ) : null}
-
-      {activePage === 'menu' ? <Menu /> : null}
-      {activePage === 'guestbook' ? (
-        <GuestBook
-          onSelectGuest={(guest) => {
-            setSelectedGuest(guest)
-            setActivePage('guestDetail')
-          }}
-        />
-      ) : null}
-      {activePage === 'guestDetail' ? (
-        <GuestDetail guest={selectedGuest} onBack={() => setActivePage('guestbook')} />
-      ) : null}
-      {activePage === 'logbook' ? <Logbook entries={logEntries} spiritName={onboardingProfile.spiritName} /> : null}
-      {activePage === 'spiritHut' ? (
-        <SpiritHut
-          currentForm={spiritForm}
-          spiritName={onboardingProfile.spiritName}
-          onSelectForm={setSpiritForm}
-          onNavigate={setActivePage}
-        />
-      ) : null}
-      {activePage === 'spiritChat' ? <SpiritChatPage spiritName={onboardingProfile.spiritName} /> : null}
-      {activePage === 'demoMode' ? (
-        <DemoMode
-          scene={demoScene}
-          onSceneChange={(scene) => {
-            setDemoScene(scene)
-            if (scene !== 'lightsOff') {
-              setTonightClosed(false)
-            }
-          }}
-        />
-      ) : null}
-      {activePage === 'eveningPrepare' ? (
-        <EveningPrepare
-          initialValue={eveningPrepare}
-          spiritName={onboardingProfile.spiritName}
-          onSave={(value) => {
-            setEveningPrepare(value)
+      <Home
+        scene={demoScene}
+        debugHotspots={debugHotspots}
+        onToggleDebugHotspots={() => setDebugHotspots((current) => !current)}
+        onOpenHotspot={(hotspotId) => setOverlay(hotspotId)}
+        onSceneChange={(scene) => {
+          setDemoScene(scene)
+          if (scene !== 'lightsOff') {
             setTonightClosed(false)
-            setDemoScene('evening')
-          }}
-        />
-      ) : null}
-      {activePage === 'nightClosing' ? (
-        <NightClosing
+          }
+        }}
+      />
+
+      {overlay === 'recipeBook' ? <RecipeBookOverlay onClose={() => setOverlay(null)} /> : null}
+      {overlay === 'guestBook' ? <GuestBookOverlay onClose={() => setOverlay(null)} /> : null}
+      {overlay === 'logbook' ? <LogbookOverlay entries={logEntries} onClose={() => setOverlay(null)} /> : null}
+      {overlay === 'spiritHut' ? (
+        <SpiritHutOverlay
           spiritName={onboardingProfile.spiritName}
-          latestLog={latestLog}
-          tonightClosed={tonightClosed}
-          onComplete={() => {
-            const closeTime = getNowTime()
-            setTonightClosed(true)
-            setDemoScene('lightsOff')
-            setLogEntries((current) => updateLatestLogEntry(current, closeTime))
-          }}
+          currentForm={spiritForm}
+          onSelectForm={setSpiritForm}
+          onClose={() => setOverlay(null)}
         />
       ) : null}
+      {overlay === 'radio' ? <RadioChatOverlay spiritName={onboardingProfile.spiritName} onClose={() => setOverlay(null)} /> : null}
+      {overlay === 'blackboard' ? <MessageBoardOverlay onClose={() => setOverlay(null)} /> : null}
     </AppShell>
   )
 }

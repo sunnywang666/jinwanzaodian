@@ -11,15 +11,10 @@ export type DemoScene =
 
 export type AppPage =
   | 'home'
-  | 'menu'
-  | 'guestbook'
-  | 'guestDetail'
-  | 'logbook'
-  | 'spiritHut'
-  | 'spiritChat'
   | 'eveningPrepare'
   | 'nightClosing'
   | 'demoMode'
+  | 'spiritChat'
 
 export type NightType =
   | '报复型'
@@ -29,7 +24,15 @@ export type NightType =
   | '猫头鹰型'
   | '说不清'
 
-export type SpiritForm = 'base' | 'xiaolongbao' | 'sleep' | 'croissant' | 'donut'
+export type SpiritForm =
+  | 'base'
+  | 'whiteDough'
+  | 'xiaolongbao'
+  | 'bagel'
+  | 'confusedBagel'
+  | 'croissant'
+  | 'donut'
+  | 'sleep'
 export type ShopMood = '热闹' | '平常' | '安静'
 
 export interface OnboardingProfile {

@@ -1,13 +1,15 @@
 {
   "name": "jinwan-zaodian-demo",
   "private": true,
-  "version": "1.2.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "trim-assets": "node scripts/trim-transparent-assets.mjs"
+    "sync-assets": "node scripts/sync-assets.mjs",
+    "trim-assets": "node scripts/trim-transparent-assets.mjs",
+    "prepare-assets": "npm run sync-assets && npm run trim-assets"
   },
   "dependencies": {
     "react": "^18.3.1",

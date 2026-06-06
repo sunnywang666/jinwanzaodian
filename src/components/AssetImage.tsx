@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-type AssetVariant = 'scene' | 'character' | 'placeholder'
+type AssetVariant = 'scene' | 'book' | 'character' | 'item' | 'placeholder'
 
 interface AssetImageProps {
   src: string
@@ -12,7 +12,9 @@ interface AssetImageProps {
 
 const variantClassName: Record<AssetVariant, string> = {
   scene: 'w-full object-contain',
+  book: 'w-full object-contain',
   character: 'h-24 w-auto object-contain mx-auto',
+  item: 'h-20 w-auto object-contain mx-auto',
   placeholder: 'w-full',
 }
 

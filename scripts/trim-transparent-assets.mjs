@@ -4,8 +4,14 @@ import sharp from 'sharp'
 
 const assetsDir = path.resolve('public/assets')
 const outputDir = path.join(assetsDir, 'trimmed')
+const skipFiles = new Set(['shop-main-background.png', 'cover-shop.png'])
 
 async function trimPng(filename) {
+  if (skipFiles.has(filename)) {
+    console.log(`skipped ${filename}`)
+    return
+  }
+
   const input = path.join(assetsDir, filename)
   const output = path.join(outputDir, filename)
 

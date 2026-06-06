@@ -28,7 +28,13 @@ export function Menu() {
         {pageDishes.map((dish) => (
           <article key={dish.key} className="flex min-h-0 flex-col rounded-[24px] border border-line bg-paper p-3">
             <div className="flex h-28 items-center justify-center rounded-[20px] bg-cream">
-              <AssetImage src={dish.image} alt={dish.name} variant="character" className="h-20" />
+              <AssetImage
+                src={dish.image.src}
+                fallbackSrc={dish.image.fallbackSrc}
+                alt={dish.name}
+                variant="character"
+                className="h-20"
+              />
             </div>
             <h2 className="mt-3 text-lg font-semibold text-ink">{dish.name}</h2>
             <p className="mt-1 line-clamp-3 text-sm leading-5 text-ink/70">{dish.description}</p>

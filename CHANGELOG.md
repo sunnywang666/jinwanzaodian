@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.0
+
+Image-driven interactive scene rebuild.
+
+Included in this version:
+- Added asset sync and trim pipeline for the new source image set.
+- Rebuilt the home screen into a clickable shop scene with interactive hotspots.
+- Replaced section-style pages with game overlays for recipes, guest book, guest detail, spirit hut, radio chat, logbook, and message board.
+- Switched asset usage to centralized English-named paths with trimmed fallback handling.
+- Updated the demo data to use the new food, guest, and spirit image assets.
+
 ## v1.2
 
 Single-screen app prototype restructure.
