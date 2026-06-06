@@ -69,7 +69,12 @@ async function collectFiles() {
   return files
 }
 
-function findSource(files, patterns) {
+function findSource(files, patterns, targetName) {
+  const exactMatch = files.find((file) => file.name === targetName)
+  if (exactMatch) {
+    return exactMatch
+  }
+
   const normalizedPatterns = patterns.map(normalize)
 
   for (const file of files) {
@@ -88,13 +93,17 @@ async function main() {
   files.forEach((file) => console.log(`- ${file.name}`))
 
   for (const mapping of mappings) {
-    const source = findSource(files, mapping.patterns)
+    const source = findSource(files, mapping.patterns, mapping.target)
     if (!source) {
       console.log(`skip ${mapping.target}: source not found`)
       continue
     }
 
     const target = path.join(targetDir, mapping.target)
+    if (source.fullPath === target) {
+      console.log(`keep ${mapping.target}: already canonical source`)
+      continue
+    }
     await cp(source.fullPath, target, { force: true })
     console.log(`copied ${source.name} -> ${mapping.target}`)
   }

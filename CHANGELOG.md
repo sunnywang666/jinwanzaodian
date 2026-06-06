@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.1
+
+Spirit base art replacement.
+
+Included in this version:
+- Replaced the default dough spirit and xiaolongbao skin with the newly cut-out PNG versions.
+- Updated asset sync logic to prefer canonical asset filenames already placed in `public/assets`, so future `prepare-assets` runs do not overwrite these replacements with older source images.
+
 ## v3.0
 
 Full-screen scene app rebuild.
