@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.1
+
+GitHub Pages asset path fix.
+
+Included in this version:
+- Fixed all image asset URLs to respect the Vite `BASE_URL` instead of hardcoding `/assets/...`.
+- Restored image loading on the deployed GitHub Pages site under `/jinwanzaodian/`.
+
 ## v2.0
 
 Image-driven interactive scene rebuild.

@@ -5,14 +5,16 @@ export interface AssetSource {
   fallbackSrc?: string
 }
 
+const assetBase = `${import.meta.env.BASE_URL}assets/`
+
 function asset(filename: string): AssetSource {
-  return { src: `/assets/${filename}` }
+  return { src: `${assetBase}${filename}` }
 }
 
 function trimmedAsset(filename: string): AssetSource {
   return {
-    src: `/assets/trimmed/${filename}`,
-    fallbackSrc: `/assets/${filename}`,
+    src: `${assetBase}trimmed/${filename}`,
+    fallbackSrc: `${assetBase}${filename}`,
   }
 }
 
