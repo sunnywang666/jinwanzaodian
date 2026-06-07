@@ -64,7 +64,6 @@ function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
     [selectedIndex, count, items, onSelect],
   )
 
-  /* Touch events */
   const handleTouchStart = (event: React.TouchEvent) => {
     dragStartX.current = event.touches[0].clientX
     dragDeltaX.current = 0
@@ -82,7 +81,6 @@ function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
     }
   }
 
-  /* Mouse events (desktop) */
   const handleMouseDown = (event: React.MouseEvent) => {
     event.preventDefault()
     dragStartX.current = event.clientX
@@ -106,7 +104,6 @@ function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
     window.addEventListener('mouseup', handleMouseUp)
   }
 
-  /* Position each item on a virtual ring */
   function getItemStyle(index: number): React.CSSProperties {
     let offset = index - selectedIndex
     if (offset > count / 2) offset -= count
@@ -172,12 +169,10 @@ function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
         </div>
       </div>
 
-      {/* Name label */}
       <p className="mt-2 text-center text-lg font-semibold text-ink">
         {items[selectedIndex].name}
       </p>
 
-      {/* Dot indicators */}
       <div className="mt-3 flex gap-2">
         {items.map((item, index) => (
           <button
@@ -217,21 +212,39 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const setStep = (step: number) => setDraft((current) => updateDraft({ step }, current))
   const result: NightType = draft.nightType ?? resolvePersona(draft.personaAnswers)
 
-  /* ── Step 0: Welcome ── */
+  /* ── Step 0: Welcome (story-driven, full-bleed illustration) ── */
   if (draft.step === 0) {
     return (
       <OnboardingFrame onReset={reset}>
-        <section className="flex flex-1 flex-col px-5 py-5">
-          <div className="overflow-hidden rounded-[28px]">
-            <AssetImage src={getSceneAsset('cover')} alt="今晚早点铺子" variant="scene" className="h-[310px]" />
+        <section className="flex flex-1 flex-col">
+          {/* Full-width illustration — mix-blend-mode removes white background on cream */}
+          <div className="relative w-full flex-shrink-0 pt-8">
+            <img
+              src={getSceneAsset('cover')}
+              alt="今晚早点铺子"
+              className="h-auto w-full object-contain"
+              style={{ mixBlendMode: 'multiply' }}
+            />
           </div>
-          <div className="mt-auto pt-5">
-            <h1 className="text-3xl font-semibold leading-tight text-ink">欢迎来到你的早点铺</h1>
-            <p className="mt-3 text-base leading-7 text-ink/65">
-              这里不会催你，也不会评判你。先看看，哪一种夜晚最像你。
+
+          {/* Story text */}
+          <div className="mt-auto px-6 pb-10 pt-2">
+            <p className="text-xs tracking-[0.12em] text-ink/40">今晚早点</p>
+            <h1 className="mt-3 text-[28px] font-semibold leading-snug text-ink">
+              一家早点铺<br />在等你来开张
+            </h1>
+            <p className="mt-4 text-[15px] leading-7 text-ink/62">
+              清晨卖早点，夜里一起关灯歇着。<br />
+              好好早睡，客人明天还会来的。
             </p>
-            <SoftButton className="mt-5" type="button" variant="primary" block onClick={() => setStep(1)}>
-              开始开店
+            <SoftButton
+              className="mt-6"
+              type="button"
+              variant="primary"
+              block
+              onClick={() => setStep(1)}
+            >
+              领这家铺子
             </SoftButton>
           </div>
         </section>

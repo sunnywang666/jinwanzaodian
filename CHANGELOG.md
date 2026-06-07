@@ -1,5 +1,16 @@
 # Changelog
 
+## v4.4
+
+Onboarding welcome screen redesign.
+
+Included in this version:
+- Rebuilt Step 0 (welcome screen) as a story-driven full-bleed layout.
+- Illustration now fills the full screen width without a rounded bounding box, using mix-blend-mode: multiply to dissolve the white background against the warm cream, making the stall scene appear to float naturally.
+- Replaced generic "欢迎来到你的早点铺" heading with a narrative-driven framing: "一家早点铺在等你来开张", with supporting copy that positions the user as the new shop owner.
+- Changed CTA button from "开始开店" to "领这家铺子" to reinforce the shop handover narrative.
+- Added small brand subtitle "今晚早点" above the heading for context.
+
 ## v4.3
 
 Recipe book confirm flow, dish frame layout, and scene item hover effect.
