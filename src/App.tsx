@@ -59,30 +59,14 @@ export default function App() {
   const [debugHotspots, setDebugHotspots] = useState(false)
 
   useEffect(() => {
-    if (onboardingProfile) {
-      saveOnboardingProfile(onboardingProfile)
-    }
+    if (onboardingProfile) saveOnboardingProfile(onboardingProfile)
   }, [onboardingProfile])
 
-  useEffect(() => {
-    saveSpiritForm(spiritForm)
-  }, [spiritForm])
-
-  useEffect(() => {
-    saveDemoScene(demoScene)
-  }, [demoScene])
-
-  useEffect(() => {
-    saveTonightClosed(tonightClosed)
-  }, [tonightClosed])
-
-  useEffect(() => {
-    saveEveningPrepare(eveningPrepare)
-  }, [eveningPrepare])
-
-  useEffect(() => {
-    saveLogbook(logEntries)
-  }, [logEntries])
+  useEffect(() => { saveSpiritForm(spiritForm) }, [spiritForm])
+  useEffect(() => { saveDemoScene(demoScene) }, [demoScene])
+  useEffect(() => { saveTonightClosed(tonightClosed) }, [tonightClosed])
+  useEffect(() => { saveEveningPrepare(eveningPrepare) }, [eveningPrepare])
+  useEffect(() => { saveLogbook(logEntries) }, [logEntries])
 
   if (!onboardingProfile) {
     return (
@@ -108,9 +92,7 @@ export default function App() {
             type="button"
             className="pointer-events-auto rounded-full bg-ink/20 px-3 py-1.5 text-xs text-paper backdrop-blur-sm transition hover:bg-ink/30"
             onClick={() => {
-              if (!window.confirm('要清空开店流程和本地演示记录吗？')) {
-                return
-              }
+              if (!window.confirm('要清空开店流程和本地演示记录吗？')) return
               clearDemoStorage()
               setOnboardingProfile(null)
               setSpiritForm('base')
@@ -163,10 +145,20 @@ export default function App() {
         />
       ) : null}
       {view === 'spiritChat' ? (
-        <SpiritChatOverlay spiritName={onboardingProfile.spiritName} onGoToHut={() => setView('spiritHut')} onClose={() => setView('home')} />
+        <SpiritChatOverlay
+          spiritName={onboardingProfile.spiritName}
+          nightType={onboardingProfile.nightType}
+          onGoToHut={() => setView('spiritHut')}
+          onClose={() => setView('home')}
+        />
       ) : null}
       {view === 'spiritHut' ? (
-        <SpiritHutOverlay spiritName={onboardingProfile.spiritName} currentForm={spiritForm} onSelectForm={setSpiritForm} onClose={() => setView('home')} />
+        <SpiritHutOverlay
+          spiritName={onboardingProfile.spiritName}
+          currentForm={spiritForm}
+          onSelectForm={setSpiritForm}
+          onClose={() => setView('home')}
+        />
       ) : null}
       {view === 'radio' ? <RadioOverlay onClose={() => setView('home')} /> : null}
       {view === 'logbook' ? <LogbookOverlay entries={logEntries} onClose={() => setView('home')} /> : null}

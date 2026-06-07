@@ -20,6 +20,31 @@ interface OnboardingProps {
 
 const timeOptions = ['22:30', '23:00', '23:30', '00:00']
 
+/* ── Story beats for Step 0 ── */
+
+const storyBeats = [
+  {
+    title: '有一家叫「今晚早点」的铺子',
+    body: '清晨才开门，只卖早点，夜里跟着店长一起关灯歇业。',
+    cta: '继续',
+  },
+  {
+    title: '它的常客不多，但都很熟',
+    body: '黑猫阿橘总是第一个来，坐在门口等开门。白兔小团喜欢慢慢喝完一整碗热粥。精灵在柜台后揉着面，等店长回来。',
+    cta: '继续',
+  },
+  {
+    title: '可是店长不见了',
+    body: '铺子空了好些天，客人慢慢少了，精灵也没什么精神了。',
+    cta: '继续',
+  },
+  {
+    title: '精灵说：要不，你来试试？',
+    body: '规矩只有一条——好好早睡，才能早起开门。',
+    cta: '领这家铺子',
+  },
+]
+
 /* ── Shared frame ── */
 
 function OnboardingFrame({ children, onReset }: { children: ReactNode; onReset: () => void }) {
@@ -189,16 +214,13 @@ function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
   )
 }
 
-/* ── Helpers ── */
-
 function updateDraft(next: Partial<OnboardingDraft>, current: OnboardingDraft): OnboardingDraft {
   return { ...current, ...next }
 }
 
-/* ── Main component ── */
-
 export function Onboarding({ onComplete }: OnboardingProps) {
   const [draft, setDraft] = useState<OnboardingDraft>(() => loadOnboardingDraft())
+  const [beat, setBeat] = useState(0)
 
   useEffect(() => {
     saveOnboardingDraft(draft)
@@ -207,17 +229,21 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const reset = () => {
     clearOnboardingDraft()
     setDraft(defaultOnboardingDraft)
+    setBeat(0)
   }
 
   const setStep = (step: number) => setDraft((current) => updateDraft({ step }, current))
   const result: NightType = draft.nightType ?? resolvePersona(draft.personaAnswers)
 
-  /* ── Step 0: Welcome (story-driven, full-bleed illustration) ── */
+  /* ── Step 0: Story-driven welcome with multi-beat narrative ── */
   if (draft.step === 0) {
+    const currentBeat = storyBeats[beat]
+    const isLastBeat = beat === storyBeats.length - 1
+
     return (
       <OnboardingFrame onReset={reset}>
         <section className="flex flex-1 flex-col">
-          {/* Full-width illustration — mix-blend-mode removes white background on cream */}
+          {/* Hero illustration — full width, gradient fade at bottom removes color line */}
           <div className="relative w-full flex-shrink-0 pt-8">
             <img
               src={getSceneAsset('cover')}
@@ -225,27 +251,59 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               className="h-auto w-full object-contain"
               style={{ mixBlendMode: 'multiply' }}
             />
+            {/* Gradient overlay to seamlessly fade illustration into background */}
+            <div
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-28"
+              style={{
+                background: 'linear-gradient(to bottom, transparent, #f5ead8)',
+              }}
+            />
           </div>
 
-          {/* Story text */}
-          <div className="mt-auto px-6 pb-10 pt-2">
-            <p className="text-xs tracking-[0.12em] text-ink/40">今晚早点</p>
-            <h1 className="mt-3 text-[28px] font-semibold leading-snug text-ink">
-              一家早点铺<br />在等你来开张
-            </h1>
-            <p className="mt-4 text-[15px] leading-7 text-ink/62">
-              清晨卖早点，夜里一起关灯歇着。<br />
-              好好早睡，客人明天还会来的。
-            </p>
-            <SoftButton
-              className="mt-6"
-              type="button"
-              variant="primary"
-              block
-              onClick={() => setStep(1)}
-            >
-              领这家铺子
-            </SoftButton>
+          {/* Story beats area */}
+          <div className="mt-auto px-6 pb-10 pt-4">
+            {/* Beat progress dots */}
+            <div className="mb-5 flex gap-1.5">
+              {storyBeats.map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1 rounded-full transition-all duration-300 ${
+                    i <= beat ? 'bg-brown/50' : 'bg-ink/10'
+                  } ${i === beat ? 'w-6' : 'w-2'}`}
+                />
+              ))}
+            </div>
+
+            {/* Story content — key forces re-render for smooth feel */}
+            <div key={beat}>
+              <h1 className="text-[22px] font-semibold leading-snug text-ink">
+                {currentBeat.title}
+              </h1>
+              <p className="mt-3 text-[15px] leading-7 text-ink/60">
+                {currentBeat.body}
+              </p>
+            </div>
+
+            {isLastBeat ? (
+              <SoftButton
+                className="mt-6"
+                type="button"
+                variant="primary"
+                block
+                onClick={() => setStep(1)}
+              >
+                {currentBeat.cta}
+              </SoftButton>
+            ) : (
+              <button
+                type="button"
+                className="mt-6 flex w-full items-center justify-between rounded-[22px] bg-white/40 px-5 py-3 text-sm text-ink/55 transition hover:bg-white/60"
+                onClick={() => setBeat((b) => b + 1)}
+              >
+                <span>{currentBeat.cta}</span>
+                <span className="text-ink/30">→</span>
+              </button>
+            )}
           </div>
         </section>
       </OnboardingFrame>

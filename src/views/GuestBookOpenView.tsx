@@ -12,11 +12,7 @@ interface GuestBookOpenViewProps {
 
 function preloadImage(src?: string) {
   return new Promise<void>((resolve) => {
-    if (!src) {
-      resolve()
-      return
-    }
-
+    if (!src) { resolve(); return }
     const image = new Image()
     image.onload = () => resolve()
     image.onerror = () => resolve()
@@ -31,7 +27,6 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
 
   useEffect(() => {
     let active = true
-
     setIsVisible(false)
 
     void Promise.all([
@@ -40,24 +35,16 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
       preloadImage(guests[page]?.image.src),
       preloadImage(guests[page]?.image.fallbackSrc),
     ]).then(() => {
-      if (!active) {
-        return
-      }
-
+      if (!active) return
       setDisplayPage(page)
-
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          if (active) {
-            setIsVisible(true)
-          }
+          if (active) setIsVisible(true)
         })
       })
     })
 
-    return () => {
-      active = false
-    }
+    return () => { active = false }
   }, [page])
 
   return (
@@ -97,9 +84,10 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
             className="h-full w-full object-contain drop-shadow-[0_20px_26px_rgba(54,38,26,0.22)]"
           />
 
+          {/* Left page: character image */}
           <div
             className="absolute flex items-center justify-center overflow-hidden"
-            style={{ left: '17.5%', top: '24.5%', width: '23%', height: '25%' }}
+            style={{ left: '10%', top: '20%', width: '30%', height: '32%' }}
           >
             <AssetImage
               src={guest.image.src}
@@ -111,34 +99,81 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
             />
           </div>
 
+          {/* Left page: name */}
           <div
-            className="font-tianrandai absolute text-center text-[clamp(17px,2.9vw,23px)] leading-none text-ink"
-            style={{ left: '16%', top: '56.2%', width: '25%', whiteSpace: 'nowrap' }}
+            className="font-tianrandai absolute text-center leading-tight text-ink"
+            style={{
+              left: '9%',
+              top: '55%',
+              width: '32%',
+              fontSize: 'clamp(13px, 2.4vw, 18px)',
+            }}
           >
             {guest.name}
           </div>
 
+          {/* Left page: description (one short line) */}
           <p
-            className="font-tianrandai absolute text-left text-[clamp(11px,1.9vw,14px)] leading-[1.45] text-ink/82"
-            style={{ left: '16.8%', top: '66.2%', width: '24.5%' }}
+            className="font-tianrandai absolute leading-[1.4] text-ink/75"
+            style={{
+              left: '9%',
+              top: '63%',
+              width: '32%',
+              fontSize: 'clamp(9px, 1.5vw, 11px)',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}
           >
             {guest.description}
           </p>
 
+          {/* Right page: details */}
           <div
-            className="font-tianrandai absolute space-y-2 text-left text-[clamp(12px,1.95vw,14px)] leading-[1.42] text-ink/84"
-            style={{ left: '54.5%', top: '24.5%', width: '29.5%' }}
+            className="font-tianrandai absolute space-y-[3px] text-ink/84"
+            style={{
+              left: '52%',
+              top: '22%',
+              width: '36%',
+              fontSize: 'clamp(10px, 1.7vw, 12px)',
+              lineHeight: '1.5',
+            }}
           >
-            <p>喜欢的早点：{guest.favoriteFood}</p>
-            <p>来访次数：{guest.visitCount}</p>
-            <p>熟络程度：{guest.familiarity}</p>
-            <div className="space-y-1 pt-1">
-              <p>小故事</p>
-              <p className="line-clamp-3 text-[clamp(11px,1.82vw,13px)] leading-[1.45]">{guest.story}</p>
-            </div>
+            <p>喜欢：{guest.favoriteFood}</p>
+            <p>来访：{guest.visitCount} 次</p>
+            <p>熟络：<span style={{
+              display: '-webkit-box',
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}>{guest.familiarity}</span></p>
           </div>
 
-          <p className="font-tianrandai absolute left-1/2 top-[88%] -translate-x-1/2 text-[clamp(13px,2vw,16px)] text-brown/80">
+          {/* Right page: story */}
+          <div
+            className="font-tianrandai absolute text-ink/80"
+            style={{
+              left: '52%',
+              top: '50%',
+              width: '36%',
+              fontSize: 'clamp(9px, 1.6vw, 12px)',
+              lineHeight: '1.55',
+            }}
+          >
+            <p className="mb-[3px] font-semibold text-ink/60" style={{ fontSize: 'clamp(9px, 1.5vw, 11px)' }}>小故事</p>
+            <p style={{
+              display: '-webkit-box',
+              WebkitLineClamp: 4,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}>{guest.story}</p>
+          </div>
+
+          {/* Page number */}
+          <p className="font-tianrandai absolute left-1/2 -translate-x-1/2 text-brown/70"
+            style={{ top: '86%', fontSize: 'clamp(11px, 1.8vw, 14px)' }}
+          >
             {displayPage + 1} / {guests.length}
           </p>
         </div>

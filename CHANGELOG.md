@@ -1,5 +1,16 @@
 # Changelog
 
+## v4.6
+
+Story-driven onboarding, guest book layout fix, Claude API spirit chat.
+
+Included in this version:
+- Rebuilt onboarding Step 0 as a 4-beat tap-through story: setting → characters (阿橘/小团/精灵) → plot hook (shop needs a new owner) → invitation with CTA. Each beat advances on tap with a dot progress indicator.
+- Fixed color line between illustration and text on welcome screen: added a gradient div at the bottom of the image area that fades from transparent to #f5ead8, eliminating the hard edge.
+- Fixed GuestBookOpenView text overflow: reduced left-page character image area (width:30%), reduced name font size (clamp 13-18px), moved description up to top:63% with 2-line clamp. Right page: compressed field labels, story text with 4-line clamp. All content now fits within book page boundaries.
+- Added Claude API integration to SpiritChatOverlay: uses claude-3-haiku-20240307 with six personality-specific system prompts (one per NightType). API key stored in localStorage via a collapsible "接入 AI" button. Gracefully falls back to mock responses when no key is set. Shows animated typing indicator while waiting.
+- Updated App.tsx to pass nightType prop to SpiritChatOverlay.
+
 ## v4.5
 
 Bug fixes: spirit chat avatar, radio separation, hotspot positions, recipe layout.
