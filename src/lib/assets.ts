@@ -61,11 +61,11 @@ export const spiritAssets = {
   xiaolongbao: trimmedAsset('dough-spirit-xiaolongbao.png'),
   normal: trimmedAsset('dough-spirit-normal.png'),
   confusedAwake: trimmedAsset('dough-spirit-confused-awake.png'),
-  bagel: trimmedAsset('dough-spirit-confused-bagel.png'),
+  bagel: trimmedAsset('dough-spirit-bagel.png'),
   confusedBagel: trimmedAsset('dough-spirit-confused-bagel.png'),
-  sleep: trimmedAsset('dough-spirit-confused-awake.png'),
+  sleep: trimmedAsset('dough-spirit-confused-bagel.png'),
   croissant: trimmedAsset('dough-spirit-bagel.png'),
-  donut: trimmedAsset('dough-spirit-confused-bagel.png'),
+  donut: trimmedAsset('dough-spirit-bagel.png'),
 } satisfies Record<SpiritForm | 'normal' | 'confusedAwake', AssetSource>
 
 export const animalAssets = {

@@ -1,5 +1,14 @@
 # Changelog
 
+## v4.9
+
+Fixed scene container ratio, hotspot calibration, and spirit image mapping.
+
+Included in this version:
+- Changed `ShopSceneInteractive` to use a fixed `2:3` aspect-ratio container with `object-contain` instead of `object-cover`, matching the scene art and preventing hotspot drift across devices.
+- Applied the recalibrated hotspot positions and sizes from the matching `2:3` tuning pass in `sceneItems.ts`.
+- Fixed spirit image mapping in `assets.ts`: `bagel` now maps to `dough-spirit-bagel.png`, while `confusedBagel` and `sleep` use the confused bagel asset.
+
 ## v4.8
 
 Evening prepare and night closing flow integration.
