@@ -28,6 +28,7 @@ import { SpiritHutOverlay } from './overlays/SpiritHutOverlay'
 import { SpiritChatOverlay } from './overlays/SpiritChatOverlay'
 import { LogbookOverlay } from './overlays/LogbookOverlay'
 import { MessageBoardOverlay } from './overlays/MessageBoardOverlay'
+import { RecipeBookConfirmView } from './views/RecipeBookConfirmView'
 import { GuestBookConfirmView } from './views/GuestBookConfirmView'
 import { GuestBookOpenView } from './views/GuestBookOpenView'
 
@@ -137,7 +138,7 @@ export default function App() {
             return
           }
           if (target === 'recipeBook') {
-            setView('recipeBookOpen')
+            setView('recipeBookConfirm')
             return
           }
           if (target === 'radio') {
@@ -168,6 +169,12 @@ export default function App() {
         }}
       />
 
+      {view === 'recipeBookConfirm' ? (
+        <RecipeBookConfirmView
+          onConfirm={() => setView('recipeBookOpen')}
+          onCancel={() => setView('home')}
+        />
+      ) : null}
       {view === 'recipeBookOpen' ? <RecipeBookOverlay onClose={() => setView('home')} /> : null}
       {view === 'guestBookConfirm' ? (
         <GuestBookConfirmView

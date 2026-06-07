@@ -1,5 +1,17 @@
 # Changelog
 
+## v4.3
+
+Recipe book confirm flow, dish frame layout, and scene item hover effect.
+
+Included in this version:
+- Added RecipeBookConfirmView — clicking the recipe book in the scene now shows a full-screen confirm screen (matching the guest book flow) before opening the recipe overlay.
+- Updated App.tsx to route recipeBook → recipeBookConfirm → recipeBookOpen.
+- Rebuilt RecipeBookOverlay dish layout: each dish now uses the asset-dish-frame.png decorative border as a container; food image is centered inside the frame; name and description text flow below the frame cleanly.
+- Added page numbers to recipe book pages.
+- Added asset-dish-frame.png to public/assets.
+- Added hover interaction to SceneItemButton: items gently lift and glow on mouse hover, providing desktop click affordance.
+
 ## v4.2
 
 New scene items: logbook, message board, spirit hut.

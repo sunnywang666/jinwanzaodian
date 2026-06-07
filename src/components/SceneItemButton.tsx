@@ -10,6 +10,7 @@ interface SceneItemButtonProps {
 
 export function SceneItemButton({ item, debug = false, onOpen }: SceneItemButtonProps) {
   const [active, setActive] = useState(false)
+  const [hovered, setHovered] = useState(false)
 
   return (
     <button
@@ -22,6 +23,8 @@ export function SceneItemButton({ item, debug = false, onOpen }: SceneItemButton
         width: `${item.width}%`,
         zIndex: item.zIndex,
       }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       onClick={() => {
         setActive(true)
         window.setTimeout(() => {
@@ -31,9 +34,19 @@ export function SceneItemButton({ item, debug = false, onOpen }: SceneItemButton
       }}
     >
       <div
-        className={`relative transition duration-200 ${
-          active ? 'scale-[1.08] drop-shadow-[0_0_18px_rgba(250,224,156,0.95)]' : 'scale-100'
-        }`}
+        className="relative transition duration-200"
+        style={{
+          transform: active
+            ? 'scale(1.08)'
+            : hovered
+              ? 'scale(1.04) translateY(-2px)'
+              : 'scale(1)',
+          filter: active
+            ? 'drop-shadow(0 0 18px rgba(250,224,156,0.95))'
+            : hovered
+              ? 'drop-shadow(0 0 10px rgba(250,224,156,0.6)) brightness(1.04)'
+              : 'none',
+        }}
       >
         {debug ? (
           <div className="absolute inset-0 rounded-[18px] border-2 border-dashed border-brown/60 bg-butter/10" />

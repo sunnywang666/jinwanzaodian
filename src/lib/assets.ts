@@ -36,6 +36,7 @@ export const bookAssets = {
   recipeInner: asset('ui-recipe-book-inner.png'),
   guestBookCover: trimmedAsset('asset-guest-book-cover.png'),
   guestBookInner: asset('ui-guest-book-inner.png'),
+  dishFrame: asset('asset-dish-frame.png'),
 } as const
 
 export const toolAssets = {

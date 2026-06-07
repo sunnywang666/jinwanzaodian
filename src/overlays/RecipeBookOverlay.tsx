@@ -22,33 +22,56 @@ function RecipePage({
     return null
   }
 
-  const left = side === 'left' ? '16%' : '60%'
-  const pageLeft = side === 'left' ? '31%' : '70%'
+  const colLeft = side === 'left' ? '7%' : '53%'
+  const colWidth = '38%'
+  const pageNumLeft = side === 'left' ? '24%' : '70%'
 
   return (
     <>
-      <div className="absolute" style={{ left, top: '25%', width: '22%' }}>
-        <AssetImage
-          src={dish.image.src}
-          fallbackSrc={dish.image.fallbackSrc}
-          alt={dish.name}
-          variant="item"
-          className="h-auto w-full"
+      {/* Dish frame + food image stacked */}
+      <div className="absolute" style={{ left: colLeft, top: '12%', width: colWidth }}>
+        {/* Frame image */}
+        <img
+          src={bookAssets.dishFrame.src}
+          alt=""
+          aria-hidden
+          className="relative z-10 h-auto w-full"
         />
+        {/* Food image centered inside frame */}
+        <div className="absolute inset-[14%] flex items-center justify-center">
+          <AssetImage
+            src={dish.image.src}
+            fallbackSrc={dish.image.fallbackSrc}
+            alt={dish.name}
+            variant="item"
+            className="max-h-full max-w-full object-contain"
+          />
+        </div>
       </div>
-      <h2 className="absolute text-[clamp(15px,2.5vw,20px)] font-semibold text-ink" style={{ left, top: '48%' }}>
+
+      {/* Dish name */}
+      <h2
+        className="absolute text-[clamp(13px,2.2vw,18px)] font-semibold text-ink"
+        style={{ left: colLeft, top: '56%', width: colWidth, textAlign: 'center' }}
+      >
         {dish.name}
       </h2>
-      <p className="absolute w-[22%] text-[clamp(10px,1.8vw,13px)] leading-[1.6] text-ink/78" style={{ left, top: '56%' }}>
-        {dish.description}
-      </p>
-      <p className="absolute w-[22%] text-[clamp(10px,1.7vw,12px)] leading-[1.55] text-brown" style={{ left, top: '66%' }}>
-        喜欢它的客人：{dish.lovedBy}
-      </p>
-      <p className="absolute w-[22%] text-[clamp(10px,1.7vw,12px)] leading-[1.55] text-ink/72" style={{ left, top: '74%' }}>
-        解锁来源：{dish.origin}
-      </p>
-      <p className="absolute text-[11px] text-brown/80" style={{ left: pageLeft, top: '88%' }}>
+
+      {/* Description lines */}
+      <div
+        className="absolute space-y-[2px] text-[clamp(9px,1.5vw,11px)] leading-[1.55] text-ink/70"
+        style={{ left: colLeft, top: '63%', width: colWidth }}
+      >
+        <p>{dish.description}</p>
+        <p>喜欢它的客人：{dish.lovedBy}</p>
+        <p>解锁来源：{dish.origin}</p>
+      </div>
+
+      {/* Page number */}
+      <p
+        className="absolute text-[10px] text-brown/70"
+        style={{ left: pageNumLeft, top: '88%' }}
+      >
         {pageNumber}
       </p>
     </>
@@ -66,7 +89,7 @@ export function RecipeBookOverlay({ onClose }: RecipeBookOverlayProps) {
   return (
     <GameOverlay title="菜谱本" onClose={onClose}>
       <section className="relative flex h-full flex-col bg-[#f5ead8]">
-        <div className="relative mx-auto mt-[12dvh] w-full max-w-[430px] px-2">
+        <div className="relative mx-auto mt-[10dvh] w-full max-w-[430px] px-2">
           <div className="relative mx-auto aspect-square w-full">
             <AssetImage
               src={bookAssets.recipeInner.src}
