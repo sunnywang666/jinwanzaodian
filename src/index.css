@@ -68,6 +68,30 @@ textarea {
   }
 }
 
+@keyframes confirmBookIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7) rotate(-10deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(-6deg);
+  }
+}
+
+@keyframes bookOpenIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @layer components {
   .paper-panel {
     @apply rounded-paper border border-line bg-paper shadow-paper;

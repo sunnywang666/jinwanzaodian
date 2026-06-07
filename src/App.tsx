@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { AppShell } from './components/AppShell'
 import { Home } from './pages/Home'
 import { Onboarding } from './pages/Onboarding'
-import { createDefaultLogEntries } from './lib/demoData'
+import { createDefaultLogEntries, guests } from './lib/demoData'
 import {
   clearDemoStorage,
   loadDemoScene,
@@ -24,11 +24,19 @@ import {
   type SpiritForm,
 } from './lib/storage'
 import { RecipeBookOverlay } from './overlays/RecipeBookOverlay'
-import { GuestBookOverlay } from './overlays/GuestBookOverlay'
 import { SpiritHutOverlay } from './overlays/SpiritHutOverlay'
 import { RadioChatOverlay } from './overlays/RadioChatOverlay'
+import { GuestBookConfirmView } from './views/GuestBookConfirmView'
+import { GuestBookOpenView } from './views/GuestBookOpenView'
 
-type ActiveView = 'home' | 'recipeBook' | 'guestBook' | 'radio' | 'spiritHut'
+type AppView =
+  | 'home'
+  | 'guestBookConfirm'
+  | 'guestBookOpen'
+  | 'recipeBookConfirm'
+  | 'recipeBookOpen'
+  | 'radioChat'
+  | 'spiritHut'
 
 export default function App() {
   const [onboardingProfile, setOnboardingProfile] = useState<OnboardingProfile | null>(() => loadOnboardingProfile())
@@ -39,7 +47,8 @@ export default function App() {
   const [eveningPrepare, setEveningPrepare] = useState<EveningPrepareState>(() =>
     loadEveningPrepare(loadOnboardingProfile()?.defaultLightsOffTime ?? '23:00'),
   )
-  const [activeView, setActiveView] = useState<ActiveView>('home')
+  const [view, setView] = useState<AppView>('home')
+  const [guestBookPage, setGuestBookPage] = useState(0)
   const [debugHotspots, setDebugHotspots] = useState(false)
 
   useEffect(() => {
@@ -86,7 +95,7 @@ export default function App() {
 
   return (
     <AppShell
-      topChrome={activeView === 'home' ? (
+      topChrome={view === 'home' ? (
         <div className="flex justify-end px-3 pt-3">
           <button
             type="button"
@@ -103,7 +112,8 @@ export default function App() {
               setTonightClosed(false)
               setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
               setLogEntries(createDefaultLogEntries())
-              setActiveView('home')
+              setView('home')
+              setGuestBookPage(0)
               setDebugHotspots(false)
             }}
           >
@@ -116,7 +126,27 @@ export default function App() {
         scene={demoScene}
         debugHotspots={debugHotspots}
         onToggleDebugHotspots={() => setDebugHotspots((current) => !current)}
-        onOpenHotspot={(target) => setActiveView(target)}
+        onOpenHotspot={(target) => {
+          if (target === 'guestBook') {
+            setGuestBookPage(0)
+            setView('guestBookConfirm')
+            return
+          }
+
+          if (target === 'recipeBook') {
+            setView('recipeBookOpen')
+            return
+          }
+
+          if (target === 'radio') {
+            setView('radioChat')
+            return
+          }
+
+          if (target === 'spiritHut') {
+            setView('spiritHut')
+          }
+        }}
         onSceneChange={(scene) => {
           setDemoScene(scene)
           if (scene !== 'lightsOff') {
@@ -125,17 +155,31 @@ export default function App() {
         }}
       />
 
-      {activeView === 'recipeBook' ? <RecipeBookOverlay onClose={() => setActiveView('home')} /> : null}
-      {activeView === 'guestBook' ? <GuestBookOverlay onClose={() => setActiveView('home')} /> : null}
-      {activeView === 'radio' ? (
-        <RadioChatOverlay spiritName={onboardingProfile.spiritName} onClose={() => setActiveView('home')} />
+      {view === 'recipeBookOpen' ? <RecipeBookOverlay onClose={() => setView('home')} /> : null}
+      {view === 'guestBookConfirm' ? (
+        <GuestBookConfirmView
+          onConfirm={() => setView('guestBookOpen')}
+          onCancel={() => setView('home')}
+        />
       ) : null}
-      {activeView === 'spiritHut' ? (
+      {view === 'guestBookOpen' ? (
+        <GuestBookOpenView
+          page={guestBookPage}
+          onBackToHome={() => setView('home')}
+          onBackToConfirm={() => setView('guestBookConfirm')}
+          onPrev={() => setGuestBookPage((current) => Math.max(0, current - 1))}
+          onNext={() => setGuestBookPage((current) => Math.min(guests.length - 1, current + 1))}
+        />
+      ) : null}
+      {view === 'radioChat' ? (
+        <RadioChatOverlay spiritName={onboardingProfile.spiritName} onClose={() => setView('home')} />
+      ) : null}
+      {view === 'spiritHut' ? (
         <SpiritHutOverlay
           spiritName={onboardingProfile.spiritName}
           currentForm={spiritForm}
           onSelectForm={setSpiritForm}
-          onClose={() => setActiveView('home')}
+          onClose={() => setView('home')}
         />
       ) : null}
     </AppShell>

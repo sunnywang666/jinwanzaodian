@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.2
+
+Guest book interaction flow rebuild.
+
+Included in this version:
+- Added a dedicated guest book confirm scene before opening the guest archive.
+- Rebuilt the guest book open view around the provided inner-page template and single-guest paging flow.
+- Switched app-level navigation to explicit guest book states instead of opening the archive directly from the home scene.
+- Added guest book scene-entry and page-open animations with dimmed shop-scene backgrounds.
+
 ## v3.1
 
 Spirit base art replacement.
