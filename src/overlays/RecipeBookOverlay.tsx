@@ -9,6 +9,13 @@ interface RecipeBookOverlayProps {
   onClose: () => void
 }
 
+const lineClampStyle = (lines: number): React.CSSProperties => ({
+  display: '-webkit-box',
+  WebkitLineClamp: lines,
+  WebkitBoxOrient: 'vertical' as const,
+  overflow: 'hidden',
+})
+
 function RecipePage({
   dish,
   side,
@@ -37,7 +44,7 @@ function RecipePage({
         />
       </div>
 
-      {/* Food image (positioned independently) */}
+      {/* Food image */}
       <div
         className="absolute z-20 flex items-center justify-center overflow-hidden"
         style={{
@@ -72,17 +79,18 @@ function RecipePage({
 
       {/* Description */}
       <div
-        className="absolute leading-[1.45] text-ink/68"
+        className="absolute text-ink/68"
         style={{
           left: `${colLeftNum + 3}%`,
           top: '54.5%',
           width: '35.5%',
           fontSize: '10px',
+          lineHeight: '1.45',
         }}
       >
-        <p className="line-clamp-1">{dish.description}</p>
-        <p className="mt-[2px] line-clamp-1">客人：{dish.lovedBy}</p>
-        <p className="mt-[2px] line-clamp-1">来源：{dish.origin}</p>
+        <p style={lineClampStyle(1)}>{dish.description}</p>
+        <p style={{ marginTop: '2px', ...lineClampStyle(1) }}>客人：{dish.lovedBy}</p>
+        <p style={{ marginTop: '2px', ...lineClampStyle(1) }}>来源：{dish.origin}</p>
       </div>
 
       {/* Page number */}

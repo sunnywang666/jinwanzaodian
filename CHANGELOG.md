@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.7
+
+Hotfix: recipe text visibility and scene item sizing.
+
+Included in this version:
+- Fixed recipe book description text not showing: replaced Tailwind `line-clamp-1` classes with inline `-webkit-line-clamp` styles (project lacks the line-clamp plugin).
+- Reverted SceneItemButton to width-only sizing (removed explicit height percentage) — height auto-derives from image aspect ratio, fixing distortion caused by different viewport ratios between the tuning tool (9:16) and actual devices (9:19.5 on iPhone etc).
+- Removed `height` from SceneItem type definition.
+- Fine-tuned scene item widths: radio 14%, logbook 17%, messageBoard 30%, spiritHut 28% for better proportions.
+
 ## v4.6
 
 Story-driven onboarding, hotspot tuning, guest book fix, recipe layout, Claude API spirit chat.

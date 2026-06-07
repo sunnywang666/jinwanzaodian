@@ -17,7 +17,6 @@ export type SceneItem = {
   x: number
   y: number
   width: number
-  height?: number
   zIndex: number
   target: SceneItemTarget
   variant?: 'item' | 'character'
@@ -32,7 +31,6 @@ export const sceneItems: SceneItem[] = [
     x: 40,
     y: 30,
     width: 18,
-    height: 18,
     zIndex: 6,
     target: 'recipeBook',
     variant: 'item',
@@ -45,7 +43,6 @@ export const sceneItems: SceneItem[] = [
     x: 54,
     y: 33,
     width: 18,
-    height: 12,
     zIndex: 7,
     target: 'guestBook',
     variant: 'item',
@@ -57,8 +54,7 @@ export const sceneItems: SceneItem[] = [
     fallbackSrc: toolAssets.radio.fallbackSrc,
     x: 49,
     y: 21,
-    width: 17,
-    height: 7,
+    width: 14,
     zIndex: 5,
     target: 'radio',
     variant: 'item',
@@ -71,7 +67,6 @@ export const sceneItems: SceneItem[] = [
     x: 9,
     y: 26,
     width: 16,
-    height: 16,
     zIndex: 8,
     target: 'spiritChat',
     variant: 'character',
@@ -82,8 +77,7 @@ export const sceneItems: SceneItem[] = [
     src: toolAssets.logbook.src,
     x: 36,
     y: 15,
-    width: 21,
-    height: 17,
+    width: 17,
     zIndex: 6,
     target: 'logbook',
     variant: 'item',
@@ -94,8 +88,7 @@ export const sceneItems: SceneItem[] = [
     src: toolAssets.messageBoard.src,
     x: 66,
     y: 9,
-    width: 46,
-    height: 27,
+    width: 30,
     zIndex: 4,
     target: 'messageBoard',
     variant: 'item',
@@ -106,8 +99,7 @@ export const sceneItems: SceneItem[] = [
     src: toolAssets.spiritHut.src,
     x: 67,
     y: 48,
-    width: 38,
-    height: 22,
+    width: 28,
     zIndex: 7,
     target: 'spiritHut',
     variant: 'item',
