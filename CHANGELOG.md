@@ -15,6 +15,8 @@ Included in this version:
 - Updated sceneItems.ts with user-calibrated hotspot positions and added optional `height` property to SceneItem type.
 - Updated SceneItemButton.tsx to support explicit height percentage on hotspots.
 
+- Tuned GuestBookOpenView layout with user-calibrated values: charImg 17%/18.5%/30%×32%, name 15%/45% at 12.5px, desc 18%/52.5% at 12.5px 2-line, right-page fields at 55.5% left, story at 58%/10px 4-line, left page number at 30%/70%, right page number at 69%/70.5%.
+
 ## v4.5
 
 Bug fixes: spirit chat avatar, radio separation, hotspot positions, recipe layout.

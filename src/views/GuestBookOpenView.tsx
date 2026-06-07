@@ -47,6 +47,9 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
     return () => { active = false }
   }, [page])
 
+  const leftPageNum = displayPage * 2 + 1
+  const rightPageNum = displayPage * 2 + 2
+
   return (
     <section className="absolute inset-0 z-30 h-full overflow-hidden">
       <div className="absolute inset-0 bg-[#d7d3cf]">
@@ -87,7 +90,7 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
           {/* Left page: character image */}
           <div
             className="absolute flex items-center justify-center overflow-hidden"
-            style={{ left: '10%', top: '20%', width: '30%', height: '32%' }}
+            style={{ left: '17%', top: '18.5%', width: '30%', height: '32%' }}
           >
             <AssetImage
               src={guest.image.src}
@@ -101,25 +104,20 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
 
           {/* Left page: name */}
           <div
-            className="font-tianrandai absolute text-center leading-tight text-ink"
-            style={{
-              left: '9%',
-              top: '55%',
-              width: '32%',
-              fontSize: 'clamp(13px, 2.4vw, 18px)',
-            }}
+            className="font-tianrandai absolute text-center font-semibold leading-tight text-ink"
+            style={{ left: '15%', top: '45%', width: '32.5%', fontSize: '12.5px' }}
           >
             {guest.name}
           </div>
 
-          {/* Left page: description (one short line) */}
+          {/* Left page: description */}
           <p
-            className="font-tianrandai absolute leading-[1.4] text-ink/75"
+            className="font-tianrandai absolute leading-[1.45] text-ink/72"
             style={{
-              left: '9%',
-              top: '63%',
-              width: '32%',
-              fontSize: 'clamp(9px, 1.5vw, 11px)',
+              left: '18%',
+              top: '52.5%',
+              width: '26.5%',
+              fontSize: '12.5px',
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
@@ -129,52 +127,78 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
             {guest.description}
           </p>
 
-          {/* Right page: details */}
-          <div
-            className="font-tianrandai absolute space-y-[3px] text-ink/84"
-            style={{
-              left: '52%',
-              top: '22%',
-              width: '36%',
-              fontSize: 'clamp(10px, 1.7vw, 12px)',
-              lineHeight: '1.5',
-            }}
+          {/* Right page: 喜欢 */}
+          <p
+            className="font-tianrandai absolute leading-[1.5] text-ink/84"
+            style={{ left: '55.5%', top: '31.5%', width: '36%', fontSize: '10px' }}
           >
-            <p>喜欢：{guest.favoriteFood}</p>
-            <p>来访：{guest.visitCount} 次</p>
-            <p>熟络：<span style={{
+            喜欢：{guest.favoriteFood}
+          </p>
+
+          {/* Right page: 来访 */}
+          <p
+            className="font-tianrandai absolute leading-[1.5] text-ink/84"
+            style={{ left: '55.5%', top: '38.5%', width: '36%', fontSize: '10px' }}
+          >
+            来访：{guest.visitCount} 次
+          </p>
+
+          {/* Right page: 熟络 */}
+          <p
+            className="font-tianrandai absolute leading-[1.5] text-ink/84"
+            style={{
+              left: '55.5%',
+              top: '45.5%',
+              width: '36%',
+              fontSize: '10px',
               display: '-webkit-box',
               WebkitLineClamp: 1,
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
-            }}>{guest.familiarity}</span></p>
-          </div>
-
-          {/* Right page: story */}
-          <div
-            className="font-tianrandai absolute text-ink/80"
-            style={{
-              left: '52%',
-              top: '50%',
-              width: '36%',
-              fontSize: 'clamp(9px, 1.6vw, 12px)',
-              lineHeight: '1.55',
             }}
           >
-            <p className="mb-[3px] font-semibold text-ink/60" style={{ fontSize: 'clamp(9px, 1.5vw, 11px)' }}>小故事</p>
-            <p style={{
+            熟络：{guest.familiarity}
+          </p>
+
+          {/* Right page: story label */}
+          <p
+            className="font-tianrandai absolute font-semibold text-ink/60"
+            style={{ left: '55.5%', top: '50.5%', width: '30%', fontSize: '13px' }}
+          >
+            小故事
+          </p>
+
+          {/* Right page: story text */}
+          <p
+            className="font-tianrandai absolute leading-[1.55] text-ink/80"
+            style={{
+              left: '55.5%',
+              top: '58%',
+              width: '29.5%',
+              fontSize: '10px',
               display: '-webkit-box',
               WebkitLineClamp: 4,
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
-            }}>{guest.story}</p>
-          </div>
-
-          {/* Page number */}
-          <p className="font-tianrandai absolute left-1/2 -translate-x-1/2 text-brown/70"
-            style={{ top: '86%', fontSize: 'clamp(11px, 1.8vw, 14px)' }}
+            }}
           >
-            {displayPage + 1} / {guests.length}
+            {guest.story}
+          </p>
+
+          {/* Page number left */}
+          <p
+            className="font-tianrandai absolute text-brown/70"
+            style={{ left: '30%', top: '70%', fontSize: '10px' }}
+          >
+            {leftPageNum}
+          </p>
+
+          {/* Page number right */}
+          <p
+            className="font-tianrandai absolute text-brown/70"
+            style={{ left: '69%', top: '70.5%', fontSize: '10px' }}
+          >
+            {rightPageNum}
           </p>
         </div>
       </div>
