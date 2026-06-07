@@ -1,6 +1,13 @@
 import { bookAssets, spiritAssets, toolAssets } from './assets'
 
-export type SceneItemTarget = 'recipeBook' | 'guestBook' | 'radio' | 'spiritChat' | 'spiritHut'
+export type SceneItemTarget =
+  | 'recipeBook'
+  | 'guestBook'
+  | 'radio'
+  | 'spiritChat'
+  | 'spiritHut'
+  | 'logbook'
+  | 'messageBoard'
 
 export type SceneItem = {
   id: string
@@ -63,5 +70,38 @@ export const sceneItems: SceneItem[] = [
     zIndex: 8,
     target: 'spiritChat',
     variant: 'character',
+  },
+  {
+    id: 'logbook',
+    label: '营业日志',
+    src: toolAssets.logbook.src,
+    x: 3,
+    y: 60,
+    width: 17,
+    zIndex: 6,
+    target: 'logbook',
+    variant: 'item',
+  },
+  {
+    id: 'messageBoard',
+    label: '留言板',
+    src: toolAssets.messageBoard.src,
+    x: 68,
+    y: 2,
+    width: 26,
+    zIndex: 4,
+    target: 'messageBoard',
+    variant: 'item',
+  },
+  {
+    id: 'spiritHut',
+    label: '精灵小屋',
+    src: toolAssets.spiritHut.src,
+    x: 74,
+    y: 38,
+    width: 22,
+    zIndex: 5,
+    target: 'spiritHut',
+    variant: 'item',
   },
 ]

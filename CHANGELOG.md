@@ -1,5 +1,33 @@
 # Changelog
 
+## v4.2
+
+New scene items: logbook, message board, spirit hut.
+
+Included in this version:
+- Added three new hand-drawn assets to the shop scene: 营业日志 (logbook), 留言板 (message board), 精灵小屋 (spirit hut).
+- Added asset references to assets.ts under toolAssets (spiritHut, logbook, messageBoard).
+- Added three new scene item hot-spots to sceneItems.ts with positioned click areas; logbook placed left of the recipe book on the carpet, message board on the upper-right wall, spirit hut in the right corner.
+- Expanded SceneItemTarget type to include logbook, messageBoard, and spiritHut (now an independent entry separate from spiritChat).
+- Wired LogbookOverlay and MessageBoardOverlay into App.tsx view system — both are now reachable by tapping their scene objects.
+- Spirit hut is now separately tappable in the scene (independent from the spirit itself, which still opens chat).
+
+## v4.1
+
+Onboarding carousel redesign and quiz expansion.
+
+Included in this version:
+- Expanded persona quiz from 3 to 5 questions; added "夜里你最常在做什么" and "你跟早晨的关系是" dimensions for more accurate night-type profiling.
+- Merged the old "result display" and "spirit appears" into a single step — spirit now floats in alongside the result text.
+- Rebuilt spirit skin selection as a 3D perspective carousel with touch-swipe support, replacing the old 2×2 card grid.
+- Carousel features: foreground selected skin at full size/opacity, side skins as smaller transparent ghosts, dot indicators, circular looping, CSS perspective depth effect.
+- Added `SpiritBody` type (base/xiaolongbao/bagel/croissant) to storage.ts for the 4 main onboarding body forms, separate from the full `SpiritForm` type.
+- Expanded `spiritAppearance` in OnboardingProfile and OnboardingDraft from `'base' | 'xiaolongbao'` to `SpiritBody`, allowing all 4 skins to be selected during onboarding.
+- Added `onboardingSkins` array in demoData.ts with the 4 carousel options (白面团, 小笼包, 贝果, 可颂).
+- Renamed spirit naming step input from card-style to underline-style centered input.
+- Reduced total onboarding steps from 7 to 6 by merging result + spirit reveal.
+- Updated quiz progress indicator from text label to segmented progress bar with animated fill.
+
 ## v4.0
 
 Card frame removal and spirit chat entry restructure.

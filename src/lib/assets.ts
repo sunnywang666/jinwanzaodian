@@ -40,6 +40,9 @@ export const bookAssets = {
 
 export const toolAssets = {
   radio: trimmedAsset('asset-radio.png'),
+  spiritHut: asset('asset-spirit-hut.png'),
+  logbook: asset('asset-logbook.png'),
+  messageBoard: asset('asset-message-board.png'),
 } as const
 
 export const foodAssets = {

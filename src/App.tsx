@@ -26,6 +26,8 @@ import {
 import { RecipeBookOverlay } from './overlays/RecipeBookOverlay'
 import { SpiritHutOverlay } from './overlays/SpiritHutOverlay'
 import { SpiritChatOverlay } from './overlays/SpiritChatOverlay'
+import { LogbookOverlay } from './overlays/LogbookOverlay'
+import { MessageBoardOverlay } from './overlays/MessageBoardOverlay'
 import { GuestBookConfirmView } from './views/GuestBookConfirmView'
 import { GuestBookOpenView } from './views/GuestBookOpenView'
 
@@ -37,6 +39,8 @@ type AppView =
   | 'recipeBookOpen'
   | 'spiritChat'
   | 'spiritHut'
+  | 'logbook'
+  | 'messageBoard'
 
 export default function App() {
   const [onboardingProfile, setOnboardingProfile] = useState<OnboardingProfile | null>(() => loadOnboardingProfile())
@@ -132,24 +136,28 @@ export default function App() {
             setView('guestBookConfirm')
             return
           }
-
           if (target === 'recipeBook') {
             setView('recipeBookOpen')
             return
           }
-
           if (target === 'radio') {
             setView('spiritChat')
             return
           }
-
           if (target === 'spiritChat') {
             setView('spiritChat')
             return
           }
-
           if (target === 'spiritHut') {
             setView('spiritHut')
+            return
+          }
+          if (target === 'logbook') {
+            setView('logbook')
+            return
+          }
+          if (target === 'messageBoard') {
+            setView('messageBoard')
           }
         }}
         onSceneChange={(scene) => {
@@ -189,6 +197,12 @@ export default function App() {
           onSelectForm={setSpiritForm}
           onClose={() => setView('home')}
         />
+      ) : null}
+      {view === 'logbook' ? (
+        <LogbookOverlay entries={logEntries} onClose={() => setView('home')} />
+      ) : null}
+      {view === 'messageBoard' ? (
+        <MessageBoardOverlay onClose={() => setView('home')} />
       ) : null}
     </AppShell>
   )
