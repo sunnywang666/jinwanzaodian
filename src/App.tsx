@@ -4,21 +4,27 @@ import { Home } from './pages/Home'
 import { Onboarding } from './pages/Onboarding'
 import { EveningPrepare } from './pages/EveningPrepare'
 import { NightClosing } from './pages/NightClosing'
-import { createDefaultLogEntries, guests } from './lib/demoData'
+import { MorningOpening, MiddayTransition } from './pages/MorningOpening'
+import { createDefaultLogEntries, getGuestCountByMood, guests } from './lib/demoData'
 import {
   clearDemoStorage,
   loadDemoScene,
   loadEveningPrepare,
+  loadLastOpenDate,
   loadLogbook,
+  loadMiddayDone,
   loadOnboardingProfile,
   loadSpiritForm,
-  loadOnboardingDraft,
+  loadTodayMood,
   loadTonightClosed,
   saveDemoScene,
   saveEveningPrepare,
+  saveLastOpenDate,
   saveLogbook,
+  saveMiddayDone,
   saveOnboardingProfile,
   saveSpiritForm,
+  saveTodayMood,
   saveTonightClosed,
   type EveningPrepareState,
   type LogEntry,
@@ -48,6 +54,13 @@ type AppView =
   | 'messageBoard'
   | 'eveningPrepare'
   | 'nightClosing'
+  | 'morningOpening'
+  | 'middayTransition'
+
+function getTodayString() {
+  const now = new Date()
+  return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
+}
 
 export default function App() {
   const [onboardingProfile, setOnboardingProfile] = useState<OnboardingProfile | null>(() => loadOnboardingProfile())
@@ -58,9 +71,19 @@ export default function App() {
   const [eveningPrepare, setEveningPrepare] = useState<EveningPrepareState>(() =>
     loadEveningPrepare(loadOnboardingProfile()?.defaultLightsOffTime ?? '23:00'),
   )
-  const [view, setView] = useState<AppView>('home')
+  const [todayMood, setTodayMood] = useState<'busy' | 'normal' | 'quiet'>(() => loadTodayMood())
+  const [middayDone, setMiddayDone] = useState(() => loadMiddayDone())
   const [guestBookPage, setGuestBookPage] = useState(0)
   const [debugHotspots, setDebugHotspots] = useState(false)
+
+  const lastOpenDate = loadLastOpenDate()
+  const todayStr = getTodayString()
+  const needsMorningOpening = onboardingProfile !== null && lastOpenDate !== todayStr
+
+  const [view, setView] = useState<AppView>(() => {
+    if (needsMorningOpening) return 'morningOpening'
+    return 'home'
+  })
 
   useEffect(() => {
     if (onboardingProfile) saveOnboardingProfile(onboardingProfile)
@@ -71,6 +94,8 @@ export default function App() {
   useEffect(() => { saveTonightClosed(tonightClosed) }, [tonightClosed])
   useEffect(() => { saveEveningPrepare(eveningPrepare) }, [eveningPrepare])
   useEffect(() => { saveLogbook(logEntries) }, [logEntries])
+  useEffect(() => { saveTodayMood(todayMood) }, [todayMood])
+  useEffect(() => { saveMiddayDone(middayDone) }, [middayDone])
 
   if (!onboardingProfile) {
     return (
@@ -83,6 +108,25 @@ export default function App() {
             worry: '',
             savedAt: null,
           })
+          saveLastOpenDate(getTodayString())
+        }}
+      />
+    )
+  }
+
+  if (view === 'morningOpening') {
+    return (
+      <MorningOpening
+        spiritName={onboardingProfile.spiritName}
+        lastNightClosed={tonightClosed}
+        lastCloseTime={logEntries[0]?.closeTime ?? null}
+        onComplete={(mood) => {
+          saveLastOpenDate(todayStr)
+          setTodayMood(mood)
+          setTonightClosed(false)
+          setMiddayDone(false)
+          setDemoScene(mood === 'busy' ? 'busy' : mood === 'quiet' ? 'quiet' : 'normal')
+          setView('home')
         }}
       />
     )
@@ -102,6 +146,8 @@ export default function App() {
               setSpiritForm('base')
               setDemoScene('cover')
               setTonightClosed(false)
+              setTodayMood('normal')
+              setMiddayDone(false)
               setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
               setLogEntries(createDefaultLogEntries())
               setView('home')
@@ -132,6 +178,7 @@ export default function App() {
           if (scene !== 'lightsOff') setTonightClosed(false)
           if (scene === 'evening') setView('eveningPrepare')
           if (scene === 'night') setView('nightClosing')
+          if (scene === 'daytime' && !middayDone) setView('middayTransition')
         }}
       />
 
@@ -188,6 +235,18 @@ export default function App() {
             setView('home')
           }}
           onClose={() => setView('home')}
+        />
+      ) : null}
+      {view === 'middayTransition' ? (
+        <MiddayTransition
+          spiritName={onboardingProfile.spiritName}
+          guestCount={getGuestCountByMood(todayMood)}
+          shopMood={todayMood}
+          onContinue={() => {
+            setMiddayDone(true)
+            setDemoScene('daytime')
+            setView('home')
+          }}
         />
       ) : null}
     </AppShell>

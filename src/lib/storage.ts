@@ -79,6 +79,9 @@ const STORAGE_KEYS = {
   eveningPrepare: 'jinwanzaodian:evening-prepare',
   tonightClosed: 'jinwanzaodian:tonight-closed',
   logbook: 'jinwanzaodian:logbook',
+  lastOpenDate: 'jinwanzaodian:last-open-date',
+  todayMood: 'jinwanzaodian:today-mood',
+  middayDone: 'jinwanzaodian:midday-done',
 } as const
 
 export const defaultOnboardingDraft: OnboardingDraft = {
@@ -184,6 +187,30 @@ export function loadLogbook(defaultValue: LogEntry[]) {
 
 export function saveLogbook(value: LogEntry[]) {
   writeValue(STORAGE_KEYS.logbook, value)
+}
+
+export function loadLastOpenDate() {
+  return readValue<string | null>(STORAGE_KEYS.lastOpenDate, null)
+}
+
+export function saveLastOpenDate(value: string) {
+  writeValue(STORAGE_KEYS.lastOpenDate, value)
+}
+
+export function loadTodayMood() {
+  return readValue<'busy' | 'normal' | 'quiet'>(STORAGE_KEYS.todayMood, 'normal')
+}
+
+export function saveTodayMood(value: 'busy' | 'normal' | 'quiet') {
+  writeValue(STORAGE_KEYS.todayMood, value)
+}
+
+export function loadMiddayDone() {
+  return readValue<boolean>(STORAGE_KEYS.middayDone, false)
+}
+
+export function saveMiddayDone(value: boolean) {
+  writeValue(STORAGE_KEYS.middayDone, value)
 }
 
 export function clearDemoStorage() {
