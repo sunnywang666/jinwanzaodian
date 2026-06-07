@@ -25,7 +25,7 @@ export function Home({ scene, debugHotspots, onToggleDebugHotspots, onOpenHotspo
 
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#f5ead8]/92 via-[#f5ead8]/36 to-transparent" />
 
-      <div className="absolute left-3 top-3 z-20 flex max-w-[72%] flex-col gap-2">
+      <div className="absolute left-3 top-3 z-20 flex max-w-[60%] flex-col gap-2">
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-ink/15 px-3 py-1.5 text-xs text-paper backdrop-blur-sm">
             今晚早点
@@ -39,7 +39,7 @@ export function Home({ scene, debugHotspots, onToggleDebugHotspots, onOpenHotspo
         </p>
       </div>
 
-      <div className="absolute right-3 top-3 z-20 flex flex-col items-end gap-2">
+      <div className="absolute right-3 top-14 z-20 flex flex-col items-end gap-2">
         <button
           type="button"
           className={`rounded-full px-3 py-1.5 text-xs backdrop-blur-sm transition ${

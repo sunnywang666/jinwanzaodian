@@ -52,9 +52,9 @@ function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
   const items = onboardingSkins
   const count = items.length
   const selectedIndex = items.findIndex((item) => item.form === selected)
-  const [dragging, setDragging] = useState(false)
-  const touchStartX = useRef(0)
-  const touchDeltaX = useRef(0)
+  const dragStartX = useRef(0)
+  const dragDeltaX = useRef(0)
+  const isDragging = useRef(false)
 
   const goTo = useCallback(
     (direction: 1 | -1) => {
@@ -64,21 +64,46 @@ function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
     [selectedIndex, count, items, onSelect],
   )
 
+  /* Touch events */
   const handleTouchStart = (event: React.TouchEvent) => {
-    touchStartX.current = event.touches[0].clientX
-    touchDeltaX.current = 0
-    setDragging(true)
+    dragStartX.current = event.touches[0].clientX
+    dragDeltaX.current = 0
+    isDragging.current = true
   }
 
   const handleTouchMove = (event: React.TouchEvent) => {
-    touchDeltaX.current = event.touches[0].clientX - touchStartX.current
+    dragDeltaX.current = event.touches[0].clientX - dragStartX.current
   }
 
   const handleTouchEnd = () => {
-    setDragging(false)
-    if (Math.abs(touchDeltaX.current) > 40) {
-      goTo(touchDeltaX.current < 0 ? 1 : -1)
+    isDragging.current = false
+    if (Math.abs(dragDeltaX.current) > 40) {
+      goTo(dragDeltaX.current < 0 ? 1 : -1)
     }
+  }
+
+  /* Mouse events (desktop) */
+  const handleMouseDown = (event: React.MouseEvent) => {
+    event.preventDefault()
+    dragStartX.current = event.clientX
+    dragDeltaX.current = 0
+    isDragging.current = true
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      dragDeltaX.current = moveEvent.clientX - dragStartX.current
+    }
+
+    const handleMouseUp = () => {
+      isDragging.current = false
+      if (Math.abs(dragDeltaX.current) > 40) {
+        goTo(dragDeltaX.current < 0 ? 1 : -1)
+      }
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
   }
 
   /* Position each item on a virtual ring */
@@ -88,8 +113,6 @@ function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
     if (offset < -count / 2) offset += count
 
     const angle = (offset / count) * 360
-
-    /* Map offset to visual properties */
     const absOffset = Math.abs(offset)
     const translateX = Math.sin((angle * Math.PI) / 180) * 130
     const translateZ = -absOffset * 80
@@ -104,7 +127,7 @@ function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
       transform: `translate(-50%, -50%) translateX(${translateX}px) translateZ(${translateZ}px) scale(${scale})`,
       opacity,
       zIndex,
-      transition: dragging ? 'none' : 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+      transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
       cursor: absOffset === 0 ? 'default' : 'pointer',
       filter: absOffset === 0 ? 'none' : 'grayscale(0.3)',
     }
@@ -113,22 +136,20 @@ function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
   return (
     <div className="flex flex-col items-center">
       <div
-        className="relative mx-auto h-[260px] w-full max-w-[380px]"
+        className="relative mx-auto h-[260px] w-full max-w-[380px] select-none"
         style={{ perspective: '800px' }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
       >
         <div
           className="relative h-full w-full"
           style={{ transformStyle: 'preserve-3d', transform: 'rotateX(8deg)' }}
         >
           {items.map((item, index) => {
-            const offset = Math.abs(
-              ((index - selectedIndex + count) % count > count / 2)
-                ? (index - selectedIndex + count) % count - count
-                : (index - selectedIndex + count) % count
-            )
+            const rawOffset = (index - selectedIndex + count) % count
+            const offset = Math.abs(rawOffset > count / 2 ? rawOffset - count : rawOffset)
 
             return (
               <div
@@ -308,7 +329,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       <OnboardingFrame onReset={reset}>
         <section className="flex min-h-0 flex-1 flex-col justify-center px-5 py-5">
           <h1 className="text-center text-2xl font-semibold text-ink">选一个点心形态</h1>
-          <p className="mt-2 text-center text-sm text-ink/50">左右滑动挑选，以后还能解锁更多</p>
+          <p className="mt-2 text-center text-sm text-ink/50">左右滑动或点击两侧挑选，以后还能解锁更多</p>
 
           <div className="mt-6">
             <SpiritCarousel

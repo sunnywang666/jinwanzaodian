@@ -56,7 +56,7 @@ export const spiritAssets = {
   xiaolongbao: trimmedAsset('dough-spirit-xiaolongbao.png'),
   normal: trimmedAsset('dough-spirit-normal.png'),
   confusedAwake: trimmedAsset('dough-spirit-confused-awake.png'),
-  bagel: trimmedAsset('dough-spirit-bagel.png'),
+  bagel: trimmedAsset('dough-spirit-confused-bagel.png'),
   confusedBagel: trimmedAsset('dough-spirit-confused-bagel.png'),
   sleep: trimmedAsset('dough-spirit-confused-awake.png'),
   croissant: trimmedAsset('dough-spirit-bagel.png'),
