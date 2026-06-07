@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { AppShell } from './components/AppShell'
 import { Home } from './pages/Home'
 import { Onboarding } from './pages/Onboarding'
+import { EveningPrepare } from './pages/EveningPrepare'
+import { NightClosing } from './pages/NightClosing'
 import { createDefaultLogEntries, guests } from './lib/demoData'
 import {
   clearDemoStorage,
@@ -44,6 +46,8 @@ type AppView =
   | 'radio'
   | 'logbook'
   | 'messageBoard'
+  | 'eveningPrepare'
+  | 'nightClosing'
 
 export default function App() {
   const [onboardingProfile, setOnboardingProfile] = useState<OnboardingProfile | null>(() => loadOnboardingProfile())
@@ -126,6 +130,8 @@ export default function App() {
         onSceneChange={(scene) => {
           setDemoScene(scene)
           if (scene !== 'lightsOff') setTonightClosed(false)
+          if (scene === 'evening') setView('eveningPrepare')
+          if (scene === 'night') setView('nightClosing')
         }}
       />
 
@@ -163,6 +169,27 @@ export default function App() {
       {view === 'radio' ? <RadioOverlay onClose={() => setView('home')} /> : null}
       {view === 'logbook' ? <LogbookOverlay entries={logEntries} onClose={() => setView('home')} /> : null}
       {view === 'messageBoard' ? <MessageBoardOverlay onClose={() => setView('home')} /> : null}
+      {view === 'eveningPrepare' ? (
+        <EveningPrepare
+          initialValue={eveningPrepare}
+          spiritName={onboardingProfile.spiritName}
+          onSave={(value) => setEveningPrepare(value)}
+          onClose={() => setView('home')}
+        />
+      ) : null}
+      {view === 'nightClosing' ? (
+        <NightClosing
+          spiritName={onboardingProfile.spiritName}
+          tonightClosed={tonightClosed}
+          latestLog={logEntries[0]}
+          onComplete={() => {
+            setTonightClosed(true)
+            setDemoScene('lightsOff')
+            setView('home')
+          }}
+          onClose={() => setView('home')}
+        />
+      ) : null}
     </AppShell>
   )
 }

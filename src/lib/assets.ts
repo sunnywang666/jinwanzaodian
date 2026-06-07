@@ -29,7 +29,7 @@ export const sceneAssets = {
   afternoonNap: asset('shop-afternoon-nap.png'),
   eveningPrepare: asset('shop-evening-prepare.png'),
   nightClose: asset('shop-night-close.png'),
-  lightsOff: asset('shop-lights-off.png'),
+  lightsOff: asset('shop-night-close.png'),
 } as const
 
 export const bookAssets = {

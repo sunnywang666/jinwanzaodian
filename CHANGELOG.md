@@ -1,5 +1,20 @@
 # Changelog
 
+## v4.8
+
+Evening prepare and night closing flow integration.
+
+Included in this version:
+- Added two new hand-drawn scene backgrounds: `shop-evening-prepare.png` and `shop-night-close.png`.
+- Wired `EveningPrepare` into `App.tsx` so switching the demo scene to `evening` opens the evening prepare overlay.
+- Wired `NightClosing` into `App.tsx` so switching the demo scene to `night` opens the night closing overlay.
+- Rebuilt `EveningPrepare` as a `GameOverlay` with immersive styling, pill time buttons, borderless worry input, and inline spirit response text.
+- Rebuilt `NightClosing` as a dark warm `GameOverlay` with a four-step tap-through closing ceremony and final completion state.
+- Completing the closing ceremony now sets `tonightClosed` to `true` and switches the scene to `lightsOff`.
+- Updated `assets.ts` so the `lightsOff` scene maps to `shop-night-close.png`.
+- Added `eveningPrepare` and `nightClosing` to the `AppView` flow in `App.tsx`.
+- Both overlays include `onClose` support for returning to the shop.
+
 ## v4.7
 
 Hotfix: recipe text visibility and scene item sizing.
