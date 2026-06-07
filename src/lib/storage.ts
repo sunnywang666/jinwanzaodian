@@ -33,12 +33,15 @@ export type SpiritForm =
   | 'croissant'
   | 'donut'
   | 'sleep'
+
+export type SpiritBody = 'base' | 'xiaolongbao' | 'bagel' | 'croissant'
+
 export type ShopMood = '热闹' | '平常' | '安静'
 
 export interface OnboardingProfile {
   nightType: NightType
   personaAnswers: string[]
-  spiritAppearance: 'base' | 'xiaolongbao'
+  spiritAppearance: SpiritBody
   spiritName: string
   defaultLightsOffTime: string
 }
@@ -48,7 +51,7 @@ export interface OnboardingDraft {
   questionIndex: number
   personaAnswers: string[]
   nightType: NightType | null
-  spiritAppearance: 'base' | 'xiaolongbao'
+  spiritAppearance: SpiritBody
   spiritName: string
   defaultLightsOffTime: string
 }

@@ -1,6 +1,6 @@
 import { animalAssets, foodAssets, spiritAssets } from './assets'
 import type { AssetSource } from './assets'
-import type { DemoScene, LogEntry, NightType, ShopMood, SpiritForm } from './storage'
+import type { DemoScene, LogEntry, NightType, ShopMood, SpiritBody, SpiritForm } from './storage'
 
 export interface PersonaOption {
   key: string
@@ -44,6 +44,12 @@ export interface SpiritOption {
   unlocked: boolean
 }
 
+export interface OnboardingSkinOption {
+  form: SpiritBody
+  name: string
+  image: AssetSource
+}
+
 export interface ChatMessage {
   id: string
   speaker: 'spirit' | 'user'
@@ -81,6 +87,24 @@ export const personaQuestions: PersonaQuestion[] = [
     ],
   },
   {
+    question: '夜里你最常在做什么？',
+    options: [
+      { key: 'revenge', label: '刷手机、看剧、打游戏', result: revengeType },
+      { key: 'habit', label: '也没干什么，就是没放下手机', result: habitType },
+      { key: 'anxiety', label: '翻来覆去想事情', result: anxietyType },
+      { key: 'work', label: '加班或者赶东西', result: workType },
+    ],
+  },
+  {
+    question: '你跟早晨的关系是？',
+    options: [
+      { key: 'revenge', label: '闹钟的仇人，能赖就赖', result: revengeType },
+      { key: 'habit', label: '起来了就还好，就是起不来', result: habitType },
+      { key: 'anxiety', label: '醒得很早，但感觉没休息够', result: anxietyType },
+      { key: 'work', label: '有事才起得来，没事就废了', result: workType },
+    ],
+  },
+  {
     question: '你最希望被怎样陪伴？',
     options: [
       { key: 'revenge', label: '先让我开心一下', result: revengeType },
@@ -99,6 +123,13 @@ export const personaCopy = {
   [owlType]: '你的节奏天生更晚一点，铺子会更柔和地陪你调整。',
   [undefinedType]: '今晚先不用急着定义自己，铺子会慢慢陪你看清节奏。',
 } as Record<NightType, string>
+
+export const onboardingSkins: OnboardingSkinOption[] = [
+  { form: 'base', name: '白面团', image: spiritAssets.base },
+  { form: 'xiaolongbao', name: '小笼包', image: spiritAssets.xiaolongbao },
+  { form: 'bagel', name: '贝果', image: spiritAssets.bagel },
+  { form: 'croissant', name: '可颂', image: spiritAssets.croissant },
+]
 
 export const demoSceneOptions: Array<{ key: DemoScene; label: string }> = [
   { key: 'busy', label: '热闹' },
@@ -266,11 +297,11 @@ export const spiritOptions: SpiritOption[] = [
   },
   {
     form: 'croissant',
-    name: '白面团版',
-    note: '更朴素的一团白面。',
-    image: spiritAssets.whiteDough,
-    src: spiritAssets.whiteDough.src,
-    fallbackSrc: spiritAssets.whiteDough.fallbackSrc,
+    name: '可颂',
+    note: '酥酥的弯月形。',
+    image: spiritAssets.croissant,
+    src: spiritAssets.croissant.src,
+    fallbackSrc: spiritAssets.croissant.fallbackSrc,
     unlocked: false,
   },
   {

@@ -1,6 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { getSceneAsset, getSpiritAsset } from '../lib/assets'
-import { personaCopy, personaQuestions, resolvePersona, spiritOptions } from '../lib/demoData'
+import { onboardingSkins, personaCopy, personaQuestions, resolvePersona } from '../lib/demoData'
 import {
   clearOnboardingDraft,
   defaultOnboardingDraft,
@@ -9,6 +9,7 @@ import {
   type NightType,
   type OnboardingDraft,
   type OnboardingProfile,
+  type SpiritBody,
 } from '../lib/storage'
 import { AssetImage } from '../components/AssetImage'
 import { SoftButton } from '../components/SoftButton'
@@ -18,6 +19,8 @@ interface OnboardingProps {
 }
 
 const timeOptions = ['22:30', '23:00', '23:30', '00:00']
+
+/* ── Shared frame ── */
 
 function OnboardingFrame({ children, onReset }: { children: ReactNode; onReset: () => void }) {
   return (
@@ -38,9 +41,145 @@ function OnboardingFrame({ children, onReset }: { children: ReactNode; onReset: 
   )
 }
 
+/* ── Carousel component ── */
+
+interface SpiritCarouselProps {
+  selected: SpiritBody
+  onSelect: (form: SpiritBody) => void
+}
+
+function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
+  const items = onboardingSkins
+  const count = items.length
+  const selectedIndex = items.findIndex((item) => item.form === selected)
+  const [dragging, setDragging] = useState(false)
+  const touchStartX = useRef(0)
+  const touchDeltaX = useRef(0)
+
+  const goTo = useCallback(
+    (direction: 1 | -1) => {
+      const nextIndex = (selectedIndex + direction + count) % count
+      onSelect(items[nextIndex].form)
+    },
+    [selectedIndex, count, items, onSelect],
+  )
+
+  const handleTouchStart = (event: React.TouchEvent) => {
+    touchStartX.current = event.touches[0].clientX
+    touchDeltaX.current = 0
+    setDragging(true)
+  }
+
+  const handleTouchMove = (event: React.TouchEvent) => {
+    touchDeltaX.current = event.touches[0].clientX - touchStartX.current
+  }
+
+  const handleTouchEnd = () => {
+    setDragging(false)
+    if (Math.abs(touchDeltaX.current) > 40) {
+      goTo(touchDeltaX.current < 0 ? 1 : -1)
+    }
+  }
+
+  /* Position each item on a virtual ring */
+  function getItemStyle(index: number): React.CSSProperties {
+    let offset = index - selectedIndex
+    if (offset > count / 2) offset -= count
+    if (offset < -count / 2) offset += count
+
+    const angle = (offset / count) * 360
+
+    /* Map offset to visual properties */
+    const absOffset = Math.abs(offset)
+    const translateX = Math.sin((angle * Math.PI) / 180) * 130
+    const translateZ = -absOffset * 80
+    const scale = absOffset === 0 ? 1 : absOffset === 1 ? 0.6 : 0.4
+    const opacity = absOffset === 0 ? 1 : absOffset === 1 ? 0.35 : 0.15
+    const zIndex = absOffset === 0 ? 10 : absOffset === 1 ? 5 : 1
+
+    return {
+      position: 'absolute',
+      left: '50%',
+      top: '50%',
+      transform: `translate(-50%, -50%) translateX(${translateX}px) translateZ(${translateZ}px) scale(${scale})`,
+      opacity,
+      zIndex,
+      transition: dragging ? 'none' : 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+      cursor: absOffset === 0 ? 'default' : 'pointer',
+      filter: absOffset === 0 ? 'none' : 'grayscale(0.3)',
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center">
+      <div
+        className="relative mx-auto h-[260px] w-full max-w-[380px]"
+        style={{ perspective: '800px' }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div
+          className="relative h-full w-full"
+          style={{ transformStyle: 'preserve-3d', transform: 'rotateX(8deg)' }}
+        >
+          {items.map((item, index) => {
+            const offset = Math.abs(
+              ((index - selectedIndex + count) % count > count / 2)
+                ? (index - selectedIndex + count) % count - count
+                : (index - selectedIndex + count) % count
+            )
+
+            return (
+              <div
+                key={item.form}
+                style={getItemStyle(index)}
+                onClick={() => {
+                  if (offset !== 0) onSelect(item.form)
+                }}
+              >
+                <AssetImage
+                  src={item.image.src}
+                  fallbackSrc={item.image.fallbackSrc}
+                  alt={item.name}
+                  variant="character"
+                  className="h-44 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]"
+                />
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Name label */}
+      <p className="mt-2 text-center text-lg font-semibold text-ink">
+        {items[selectedIndex].name}
+      </p>
+
+      {/* Dot indicators */}
+      <div className="mt-3 flex gap-2">
+        {items.map((item, index) => (
+          <button
+            key={item.form}
+            type="button"
+            className={`h-2 rounded-full transition-all ${
+              index === selectedIndex ? 'w-5 bg-brown' : 'w-2 bg-ink/20'
+            }`}
+            onClick={() => onSelect(item.form)}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ── Helpers ── */
+
 function updateDraft(next: Partial<OnboardingDraft>, current: OnboardingDraft): OnboardingDraft {
   return { ...current, ...next }
 }
+
+/* ── Main component ── */
 
 export function Onboarding({ onComplete }: OnboardingProps) {
   const [draft, setDraft] = useState<OnboardingDraft>(() => loadOnboardingDraft())
@@ -57,6 +196,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const setStep = (step: number) => setDraft((current) => updateDraft({ step }, current))
   const result: NightType = draft.nightType ?? resolvePersona(draft.personaAnswers)
 
+  /* ── Step 0: Welcome ── */
   if (draft.step === 0) {
     return (
       <OnboardingFrame onReset={reset}>
@@ -78,6 +218,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     )
   }
 
+  /* ── Step 1: Quiz (5 questions) ── */
   if (draft.step === 1) {
     const question = personaQuestions[draft.questionIndex]
 
@@ -88,19 +229,22 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {personaQuestions.map((_, index) => (
               <div
                 key={index}
-                className={`h-1.5 flex-1 rounded-full transition-colors ${
+                className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
                   index <= draft.questionIndex ? 'bg-butter' : 'bg-ink/10'
                 }`}
               />
             ))}
           </div>
-          <h1 className="mt-8 text-2xl font-semibold leading-tight text-ink">{question.question}</h1>
+          <p className="mt-4 text-xs text-ink/40">
+            {draft.questionIndex + 1} / {personaQuestions.length}
+          </p>
+          <h1 className="mt-4 text-2xl font-semibold leading-tight text-ink">{question.question}</h1>
           <div className="mt-8 grid gap-3">
             {question.options.map((option) => (
               <button
                 key={option.key}
                 type="button"
-                className="rounded-[26px] bg-white/50 px-4 py-4 text-left text-base leading-6 text-ink transition hover:bg-white/70"
+                className="rounded-[26px] bg-white/50 px-4 py-4 text-left text-base leading-6 text-ink transition hover:bg-white/70 active:scale-[0.98]"
                 onClick={() => {
                   const answers = [...draft.personaAnswers, option.key]
                   const finished = draft.questionIndex === personaQuestions.length - 1
@@ -126,116 +270,96 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     )
   }
 
+  /* ── Step 2: Result + Spirit appears (merged) ── */
   if (draft.step === 2) {
-    return (
-      <OnboardingFrame onReset={reset}>
-        <section className="flex flex-1 flex-col justify-center px-5 py-5 text-center">
-          <p className="text-sm text-ink/50">测试结果</p>
-          <h1 className="mt-6 text-2xl font-semibold text-ink">今晚最像你的夜晚是……</h1>
-          <div className="mx-auto mt-8 w-full px-2 py-6">
-            <p className="text-4xl font-semibold text-brown">{result}</p>
-            <p className="mt-5 text-base leading-7 text-ink/65">{personaCopy[result]}</p>
-          </div>
-          <SoftButton className="mt-7" type="button" variant="primary" block onClick={() => setStep(3)}>
-            看看谁最懂这种夜晚
-          </SoftButton>
-        </section>
-      </OnboardingFrame>
-    )
-  }
-
-  if (draft.step === 3) {
     const spirit = getSpiritAsset('base')
 
     return (
       <OnboardingFrame onReset={reset}>
         <section className="flex flex-1 flex-col justify-center px-5 py-5 text-center">
-          <div className="relative mx-auto flex h-56 w-56 items-center justify-center">
+          <div className="relative mx-auto flex h-48 w-48 items-center justify-center">
             <AssetImage
               src={spirit.src}
               fallbackSrc={spirit.fallbackSrc}
               alt="面点精灵"
               variant="character"
-              className="h-40 drop-shadow-[0_8px_24px_rgba(138,97,74,0.2)]"
+              className="h-36 drop-shadow-[0_8px_24px_rgba(138,97,74,0.2)]"
             />
           </div>
-          <h1 className="mt-7 text-2xl font-semibold text-ink">面点精灵出现了</h1>
-          <p className="mt-3 text-base leading-7 text-ink/65">
-            一只面点精灵从柜台后探出来。它最懂这种夜晚。
+
+          <p className="mt-4 text-sm text-ink/45">它最懂这种夜晚——</p>
+          <h1 className="mt-2 text-3xl font-semibold text-brown">{result}</h1>
+          <p className="mt-4 text-base leading-7 text-ink/65">{personaCopy[result]}</p>
+          <p className="mt-3 text-sm leading-6 text-ink/50">
+            一只面点精灵从柜台后探出来，它将一直陪着你。
           </p>
-          <SoftButton className="mt-7" type="button" variant="primary" block onClick={() => setStep(4)}>
-            领它回小屋
+
+          <SoftButton className="mt-8" type="button" variant="primary" block onClick={() => setStep(3)}>
+            给它挑一个外表
           </SoftButton>
         </section>
       </OnboardingFrame>
     )
   }
 
-  if (draft.step === 4) {
+  /* ── Step 3: Carousel skin selection ── */
+  if (draft.step === 3) {
     return (
       <OnboardingFrame onReset={reset}>
-        <section className="flex min-h-0 flex-1 flex-col px-5 py-5">
-          <p className="text-sm text-ink/50">精灵外表</p>
-          <h1 className="mt-4 text-2xl font-semibold text-ink">给它挑一个点心形态</h1>
-          <div className="mt-5 grid min-h-0 flex-1 grid-cols-2 gap-3 overflow-y-auto pb-2">
-            {spiritOptions.map((option) => (
-              <button
-                key={option.form}
-                type="button"
-                className={`rounded-[28px] px-3 py-4 text-center transition ${
-                  draft.spiritAppearance === option.form
-                    ? 'bg-butter/40 drop-shadow-[0_0_12px_rgba(240,221,179,0.6)]'
-                    : 'bg-white/40 opacity-65 hover:opacity-85'
-                }`}
-                onClick={() => {
-                  if (option.form === 'base' || option.form === 'xiaolongbao') {
-                    const spiritAppearance = option.form
-                    setDraft((current) => updateDraft({ spiritAppearance }, current))
-                  }
-                }}
-              >
-                <AssetImage
-                  src={option.src}
-                  fallbackSrc={option.fallbackSrc}
-                  alt={option.name}
-                  variant="character"
-                  className="h-28"
-                />
-                <p className="mt-3 text-sm font-semibold text-ink">{option.name}</p>
-                <p className="mt-1 text-xs text-ink/45">{option.unlocked ? '已解锁' : '素材预留'}</p>
-              </button>
-            ))}
+        <section className="flex min-h-0 flex-1 flex-col justify-center px-5 py-5">
+          <h1 className="text-center text-2xl font-semibold text-ink">选一个点心形态</h1>
+          <p className="mt-2 text-center text-sm text-ink/50">左右滑动挑选，以后还能解锁更多</p>
+
+          <div className="mt-6">
+            <SpiritCarousel
+              selected={draft.spiritAppearance}
+              onSelect={(form) => setDraft((current) => updateDraft({ spiritAppearance: form }, current))}
+            />
           </div>
-          <SoftButton type="button" variant="primary" block onClick={() => setStep(5)}>
-            下一步
+
+          <SoftButton className="mt-8" type="button" variant="primary" block onClick={() => setStep(4)}>
+            就决定是你了
           </SoftButton>
         </section>
       </OnboardingFrame>
     )
   }
 
-  if (draft.step === 5) {
+  /* ── Step 4: Name spirit ── */
+  if (draft.step === 4) {
+    const currentSkin = onboardingSkins.find((s) => s.form === draft.spiritAppearance) ?? onboardingSkins[0]
+
     return (
       <OnboardingFrame onReset={reset}>
-        <section className="flex flex-1 flex-col justify-center px-5 py-5">
-          <p className="text-sm text-ink/50">起名</p>
-          <h1 className="mt-5 text-2xl font-semibold text-ink">给精灵起个名字</h1>
-          <label className="mt-7 rounded-[28px] bg-white/40 px-5 py-4">
-            <span className="text-sm text-ink/50">精灵名字</span>
+        <section className="flex flex-1 flex-col justify-center px-5 py-5 text-center">
+          <div className="mx-auto flex h-36 w-36 items-center justify-center">
+            <AssetImage
+              src={currentSkin.image.src}
+              fallbackSrc={currentSkin.image.fallbackSrc}
+              alt={currentSkin.name}
+              variant="character"
+              className="h-28 drop-shadow-[0_6px_18px_rgba(138,97,74,0.18)]"
+            />
+          </div>
+
+          <h1 className="mt-5 text-2xl font-semibold text-ink">给它起个名字</h1>
+
+          <div className="mx-auto mt-6 w-full max-w-[280px]">
             <input
               value={draft.spiritName}
               onChange={(event) => setDraft((current) => updateDraft({ spiritName: event.target.value }, current))}
-              className="mt-3 w-full border-0 bg-transparent p-0 text-2xl text-ink outline-none"
+              className="w-full border-0 border-b-2 border-line/40 bg-transparent pb-2 text-center text-2xl text-ink outline-none transition focus:border-brown/50"
               placeholder="阿团"
             />
-          </label>
+          </div>
+
           <SoftButton
-            className="mt-7"
+            className="mt-8"
             type="button"
             variant="primary"
             block
             disabled={!draft.spiritName.trim()}
-            onClick={() => setStep(6)}
+            onClick={() => setStep(5)}
           >
             下一步
           </SoftButton>
@@ -244,11 +368,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     )
   }
 
+  /* ── Step 5: Set lights-off time ── */
   return (
     <OnboardingFrame onReset={reset}>
       <section className="flex flex-1 flex-col justify-center px-5 py-5">
-        <p className="text-sm text-ink/50">关灯时间</p>
-        <h1 className="mt-5 text-2xl font-semibold text-ink">平时希望几点关灯？</h1>
+        <h1 className="text-2xl font-semibold text-ink">平时希望几点关灯？</h1>
         <p className="mt-3 text-sm leading-6 text-ink/55">这只是参考，铺子不会催你。</p>
         <div className="mt-7 grid grid-cols-2 gap-3">
           {timeOptions.map((option) => (
@@ -267,7 +391,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           ))}
         </div>
         <SoftButton
-          className="mt-7"
+          className="mt-8"
           type="button"
           variant="primary"
           block
