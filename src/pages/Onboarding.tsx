@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { getSceneAsset, getSpiritAsset } from '../lib/assets'
+import { getCoverTransparent, getSpiritAsset } from '../lib/assets'
 import { onboardingSkins, personaCopy, personaQuestions, resolvePersona } from '../lib/demoData'
 import {
   clearOnboardingDraft,
@@ -243,20 +243,12 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     return (
       <OnboardingFrame onReset={reset}>
         <section className="flex flex-1 flex-col">
-          {/* Hero illustration — full width, gradient fade at bottom removes color line */}
-          <div className="relative w-full flex-shrink-0 pt-8">
+          {/* Hero illustration — transparent PNG, no container, directly on background */}
+          <div className="flex w-full flex-shrink-0 items-center justify-center px-6 pt-10">
             <img
-              src={getSceneAsset('cover')}
+              src={getCoverTransparent()}
               alt="今晚早点铺子"
-              className="h-auto w-full object-contain"
-              style={{ mixBlendMode: 'multiply' }}
-            />
-            {/* Gradient overlay to seamlessly fade illustration into background */}
-            <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-28"
-              style={{
-                background: 'linear-gradient(to bottom, transparent, #f5ead8)',
-              }}
+              className="h-auto w-[92%] max-w-[360px] object-contain drop-shadow-[0_12px_32px_rgba(138,97,74,0.12)]"
             />
           </div>
 

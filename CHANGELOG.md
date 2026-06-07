@@ -2,14 +2,18 @@
 
 ## v4.6
 
-Story-driven onboarding, guest book layout fix, Claude API spirit chat.
+Story-driven onboarding, hotspot tuning, guest book fix, recipe layout, Claude API spirit chat.
 
 Included in this version:
-- Rebuilt onboarding Step 0 as a 4-beat tap-through story: setting → characters (阿橘/小团/精灵) → plot hook (shop needs a new owner) → invitation with CTA. Each beat advances on tap with a dot progress indicator.
-- Fixed color line between illustration and text on welcome screen: added a gradient div at the bottom of the image area that fades from transparent to #f5ead8, eliminating the hard edge.
-- Fixed GuestBookOpenView text overflow: reduced left-page character image area (width:30%), reduced name font size (clamp 13-18px), moved description up to top:63% with 2-line clamp. Right page: compressed field labels, story text with 4-line clamp. All content now fits within book page boundaries.
-- Added Claude API integration to SpiritChatOverlay: uses claude-3-haiku-20240307 with six personality-specific system prompts (one per NightType). API key stored in localStorage via a collapsible "接入 AI" button. Gracefully falls back to mock responses when no key is set. Shows animated typing indicator while waiting.
-- Updated App.tsx to pass nightType prop to SpiritChatOverlay.
+- Rebuilt onboarding Step 0 as a 4-beat tap-through story: setting → characters → plot hook → invitation. Each beat advances on tap with dot progress indicator.
+- Replaced cover illustration with transparent-background PNG (cover-shop-transparent.png); displayed larger (92% width) directly on background with no container or color line.
+- Added getCoverTransparent() helper in assets.ts for the new transparent cover image.
+- Fixed GuestBookOpenView text overflow: reduced layout sizes, added line-clamp to descriptions.
+- Added Claude API integration to SpiritChatOverlay: claude-3-haiku with six NightType-specific system prompts. API key stored in localStorage. Falls back to mock responses without key. Typing indicator animation.
+- Updated App.tsx to pass nightType to SpiritChatOverlay and wire radio/logbook/messageBoard views.
+- Tuned RecipeBookOverlay layout with user-calibrated values (frame 3.5%/49.5%, food +12%, name 46.5%, desc +3% at 54.5%).
+- Updated sceneItems.ts with user-calibrated hotspot positions and added optional `height` property to SceneItem type.
+- Updated SceneItemButton.tsx to support explicit height percentage on hotspots.
 
 ## v4.5
 

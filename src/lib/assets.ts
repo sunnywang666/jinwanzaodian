@@ -21,6 +21,7 @@ function trimmedAsset(filename: string): AssetSource {
 export const sceneAssets = {
   mainBackground: asset('shop-main-background.png'),
   coverShop: asset('cover-shop.png'),
+  coverShopTransparent: asset('cover-shop-transparent.png'),
   busyMorning: asset('shop-busy-morning.png'),
   normalMorning: asset('shop-normal-morning.png'),
   quietMorning: asset('shop-quiet-morning.png'),
@@ -97,4 +98,8 @@ export function getSpiritAsset(form: SpiritForm) {
 
 export function getSceneAsset(scene: DemoScene) {
   return sceneByDemo[scene].src
+}
+
+export function getCoverTransparent() {
+  return sceneAssets.coverShopTransparent.src
 }

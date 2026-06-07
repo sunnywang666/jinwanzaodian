@@ -20,29 +20,40 @@ function RecipePage({
 }) {
   if (!dish) return null
 
-  const colLeft = side === 'left' ? '7%' : '53%'
-  const colWidth = '34%'
-  const pageNumLeft = side === 'left' ? '22%' : '68%'
+  const colLeft = side === 'left' ? '3.5%' : '49.5%'
+  const colLeftNum = side === 'left' ? 3.5 : 49.5
+  const colWidth = '46.5%'
+  const pageNumLeft = side === 'left' ? '26%' : '72%'
 
   return (
     <>
-      {/* Dish frame + food image */}
-      <div className="absolute" style={{ left: colLeft, top: '8%', width: colWidth }}>
+      {/* Dish frame */}
+      <div className="absolute" style={{ left: colLeft, top: '13.5%', width: colWidth }}>
         <img
           src={bookAssets.dishFrame.src}
           alt=""
           aria-hidden
           className="relative z-10 h-auto w-full"
         />
-        <div className="absolute inset-[12%] flex items-center justify-center overflow-hidden">
-          <AssetImage
-            src={dish.image.src}
-            fallbackSrc={dish.image.fallbackSrc}
-            alt={dish.name}
-            variant="item"
-            className="h-full w-full object-contain"
-          />
-        </div>
+      </div>
+
+      {/* Food image (positioned independently) */}
+      <div
+        className="absolute z-20 flex items-center justify-center overflow-hidden"
+        style={{
+          left: `${colLeftNum + 12}%`,
+          top: '30.5%',
+          width: '22%',
+          height: '12%',
+        }}
+      >
+        <AssetImage
+          src={dish.image.src}
+          fallbackSrc={dish.image.fallbackSrc}
+          alt={dish.name}
+          variant="item"
+          className="h-full w-full object-contain"
+        />
       </div>
 
       {/* Dish name */}
@@ -50,10 +61,10 @@ function RecipePage({
         className="absolute font-semibold text-ink"
         style={{
           left: colLeft,
-          top: '47%',
+          top: '46.5%',
           width: colWidth,
           textAlign: 'center',
-          fontSize: 'clamp(11px, 2vw, 15px)',
+          fontSize: '17.5px',
         }}
       >
         {dish.name}
@@ -63,10 +74,10 @@ function RecipePage({
       <div
         className="absolute leading-[1.45] text-ink/68"
         style={{
-          left: colLeft,
-          top: '53%',
-          width: colWidth,
-          fontSize: 'clamp(8px, 1.3vw, 10px)',
+          left: `${colLeftNum + 3}%`,
+          top: '54.5%',
+          width: '35.5%',
+          fontSize: '10px',
         }}
       >
         <p className="line-clamp-1">{dish.description}</p>
@@ -77,7 +88,7 @@ function RecipePage({
       {/* Page number */}
       <p
         className="absolute text-brown/65"
-        style={{ left: pageNumLeft, top: '83%', fontSize: '10px' }}
+        style={{ left: pageNumLeft, top: '73.5%', fontSize: '10px' }}
       >
         {pageNumber}
       </p>

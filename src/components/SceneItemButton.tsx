@@ -21,6 +21,7 @@ export function SceneItemButton({ item, debug = false, onOpen }: SceneItemButton
         left: `${item.x}%`,
         top: `${item.y}%`,
         width: `${item.width}%`,
+        height: item.height ? `${item.height}%` : 'auto',
         zIndex: item.zIndex,
       }}
       onMouseEnter={() => setHovered(true)}
@@ -34,7 +35,7 @@ export function SceneItemButton({ item, debug = false, onOpen }: SceneItemButton
       }}
     >
       <div
-        className="relative transition duration-200"
+        className="relative h-full transition duration-200"
         style={{
           transform: active
             ? 'scale(1.08)'
@@ -57,7 +58,7 @@ export function SceneItemButton({ item, debug = false, onOpen }: SceneItemButton
           alt={item.label}
           variant={item.variant ?? 'item'}
           renderFallbackCard={false}
-          className="h-auto w-full"
+          className="h-full w-full object-contain"
         />
         {debug ? (
           <span className="absolute -top-5 left-0 rounded-full border border-line bg-paper/90 px-2 py-1 text-[10px] text-brown shadow-sm">
