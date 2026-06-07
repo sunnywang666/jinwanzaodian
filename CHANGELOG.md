@@ -1,5 +1,17 @@
 # Changelog
 
+## v5.0
+
+Radio / white noise feature, upgraded from placeholder to a working ambient audio tool.
+
+Included in this version:
+- Rebuilt `RadioOverlay` into a functional white-noise player using the Web Audio API, without relying on external audio files.
+- Added four ambient channels: `雨声`, `微风`, `咖啡馆`, and `壁炉`, each with distinct noise generation and filter settings.
+- Added play/pause controls, channel switching, volume control, and a sleep timer with preset durations.
+- Added a breathing guide with a `4s inhale / 4s hold / 6s exhale` loop and animated visual cue.
+- Added cleanup for the audio engine on overlay close and unmount.
+- Kept the overlay in the de-carded immersive style introduced in earlier versions.
+
 ## v4.9
 
 Fixed scene container ratio, hotspot calibration, and spirit image mapping.
