@@ -166,9 +166,8 @@ export default function App() {
         <GuestBookOpenView
           page={guestBookPage}
           onBackToHome={() => setView('home')}
-          onBackToConfirm={() => setView('guestBookConfirm')}
-          onPrev={() => setGuestBookPage((current) => Math.max(0, current - 1))}
-          onNext={() => setGuestBookPage((current) => Math.min(guests.length - 1, current + 1))}
+          onPrev={() => setGuestBookPage((current) => (current - 1 + guests.length) % guests.length)}
+          onNext={() => setGuestBookPage((current) => (current + 1) % guests.length)}
         />
       ) : null}
       {view === 'radioChat' ? (

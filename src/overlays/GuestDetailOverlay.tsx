@@ -23,11 +23,11 @@ export function GuestDetailOverlay({ guest, onClose }: GuestDetailOverlayProps) 
 
         <article className="mt-4 min-h-0 flex-1 overflow-y-auto rounded-[30px] border border-line bg-paper px-5 py-5">
           <h1 className="text-3xl font-semibold text-ink">{guest.name}</h1>
-          <p className="mt-2 text-base leading-6 text-ink/75">{guest.line}</p>
+          <p className="mt-2 text-base leading-6 text-ink/75">{guest.description}</p>
           <div className="mt-5 grid gap-3 text-sm leading-6 text-ink/78">
-            <p className="rounded-[22px] bg-white/75 px-4 py-3">喜欢的早点：{guest.favorite}</p>
-            <p className="rounded-[22px] bg-white/75 px-4 py-3">来访次数：{guest.visits}</p>
-            <p className="rounded-[22px] bg-white/75 px-4 py-3">熟络程度：{guest.closeness}</p>
+            <p className="rounded-[22px] bg-white/75 px-4 py-3">喜欢的早点：{guest.favoriteFood}</p>
+            <p className="rounded-[22px] bg-white/75 px-4 py-3">来访次数：{guest.visitCount}</p>
+            <p className="rounded-[22px] bg-white/75 px-4 py-3">熟络程度：{guest.familiarity}</p>
             <p className="rounded-[22px] bg-cream px-4 py-4">小故事：{guest.story}</p>
           </div>
         </article>

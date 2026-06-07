@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.3
+
+Guest book presentation polish.
+
+Included in this version:
+- Rebuilt the guest-book confirm view into a full-screen dimmed scene with a floating cover and text-only yes/no choices.
+- Rebuilt the open guest-book view into a single animated book presentation with synchronized page, avatar, name, and text reveal.
+- Added the TianRanDai font for the guest-book confirm and open flows.
+- Unified the guest mapping data and aligned the orange cat asset with its displayed guest profile.
+- Removed the extra center button from the open view and switched prev/next paging to wrap cyclically.
+
 ## v3.2
 
 Guest book interaction flow rebuild.

@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { bookAssets } from '../lib/assets'
-import { guests } from '../lib/demoData'
 import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
 import { PageTurnButton } from '../components/PageTurnButton'
+import { bookAssets } from '../lib/assets'
+import { guests } from '../lib/demoData'
 
 interface GuestBookOverlayProps {
   onClose: () => void
@@ -69,14 +69,20 @@ export function GuestBookOverlay({ onClose }: GuestBookOverlayProps) {
               {guest.name}
             </div>
 
-            <div className="absolute text-[clamp(10px,1.7vw,13px)] leading-[1.7] text-ink/78" style={{ left: '53%', top: '22%', width: '34%' }}>
-              <p>{guest.line}</p>
-              <p className="mt-3">喜欢的早点：{guest.favorite}</p>
-              <p className="mt-2">来访次数：{guest.visits}</p>
-              <p className="mt-2">熟络程度：{guest.closeness}</p>
+            <div
+              className="absolute text-[clamp(10px,1.7vw,13px)] leading-[1.7] text-ink/78"
+              style={{ left: '53%', top: '22%', width: '34%' }}
+            >
+              <p>{guest.description}</p>
+              <p className="mt-3">喜欢的早点：{guest.favoriteFood}</p>
+              <p className="mt-2">来访次数：{guest.visitCount}</p>
+              <p className="mt-2">熟络程度：{guest.familiarity}</p>
             </div>
 
-            <div className="absolute text-[clamp(10px,1.7vw,13px)] leading-[1.75] text-ink/76" style={{ left: '53%', top: '58%', width: '34%' }}>
+            <div
+              className="absolute text-[clamp(10px,1.7vw,13px)] leading-[1.75] text-ink/76"
+              style={{ left: '53%', top: '58%', width: '34%' }}
+            >
               <p>小故事</p>
               <p className="mt-2">{guest.story}</p>
             </div>
