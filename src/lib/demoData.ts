@@ -379,42 +379,42 @@ export function createDefaultLogEntries(): LogEntry[] {
   })
 }
 
+export interface MiddayTransitionCopyEntry {
+  title: string
+  body: (spiritName: string) => string
+}
+
 export const morningGreetings = {
   closed: {
-    title: '鏃╁畨锛屽簵闀�',
-    body: (spiritName: string) => `${spiritName} 宸茬粡鍦ㄦ煖鍙板悗闈㈢瓑浣犱簡銆傛槰鏅氫紤鎭緱涓嶉敊锛屼粖澶╀粠瀹逛竴鐐广€�`,
+    title: '\u65E9\u5B89\uFF0C\u5E97\u957F',
+    body: (spiritName: string) => spiritName + ' \u5DF2\u7ECF\u5728\u67DC\u53F0\u540E\u9762\u7B49\u4F60\u4E86\u3002\u6628\u665A\u4F11\u606F\u5F97\u4E0D\u9519\uFF0C\u4ECA\u5929\u4ECE\u5BB9\u4E00\u70B9\u3002',
   },
   notClosed: {
-    title: '鏃╁畨锛屽簵闀�',
-    body: (spiritName: string) => `${spiritName} 鎻変簡鎻夌溂鐫涳紝鎵撲簡涓搱娆犮€傛槰鏅氶摵瀛愭病鏉ュ緱鍙婃墦鐑婏紝涓嶈繃娌″叧绯伙紝浠婂ぉ涔熺収甯稿紑闂ㄣ€�`,
+    title: '\u65E9\u5B89\uFF0C\u5E97\u957F',
+    body: (spiritName: string) => spiritName + ' \u63C9\u4E86\u63C9\u773C\u775B\uFF0C\u6253\u4E86\u4E2A\u54C8\u6B20\u3002\u6628\u665A\u94FA\u5B50\u6CA1\u6765\u5F97\u53CA\u6253\u70CA\uFF0C\u4E0D\u8FC7\u6CA1\u5173\u7CFB\uFF0C\u4ECA\u5929\u4E5F\u7167\u5E38\u5F00\u95E8\u3002',
   },
 }
 
-export const middayTransitionCopy: Record<'busy' | 'normal' | 'quiet', {
-  title: string
-  body: (spiritName: string) => string
-}> = {
+export const middayTransitionCopy: Record<'busy' | 'normal' | 'quiet', MiddayTransitionCopyEntry> = {
   busy: {
-    title: '鏃╃偣蹇崠瀹屽暒',
-    body: (spiritName: string) => `${spiritName}锛氫粖澶╃湡鐑椆锛佷笅鍗堝挶浠竴璧峰鑿滐紝璇曡瘯鏂伴厤鏂广€�`,
+    title: '\u65E9\u70B9\u5FEB\u5356\u5B8C\u5566',
+    body: (spiritName: string) => spiritName + '\uFF1A\u4ECA\u5929\u771F\u70ED\u95F9\uFF01\u4E0B\u5348\u54B1\u4EEC\u4E00\u8D77\u5907\u83DC\uFF0C\u8BD5\u8BD5\u65B0\u914D\u65B9\u3002',
   },
   normal: {
-    title: '涓婂崍鏀舵憡浜�',
-    body: (spiritName: string) => `${spiritName}锛氬钩甯哥殑涓€澶╀篃鎸哄ソ鐨勩€備笅鍗堜竴璧锋摝鎿︽煖鍙板惂銆€�`,
+    title: '\u4E0A\u5348\u6536\u644A\u4E86',
+    body: (spiritName: string) => spiritName + '\uFF1A\u5E73\u5E38\u7684\u4E00\u5929\u4E5F\u631A\u597D\u7684\u3002\u4E0B\u5348\u4E00\u8D77\u64E6\u64E6\u67DC\u53F0\u5427\u3002',
   },
   quiet: {
-    title: '涓婂崍缁撴潫浜�',
-    body: (spiritName: string) => `${spiritName}锛氫粖澶╁畨闈欎竴鐐癸紝涓嶈繃闂ㄧ収甯稿紑鐫€銆備笅鍗堟參鎱㈡潵銆€�`,
+    title: '\u4E0A\u5348\u7ED3\u675F\u4E86',
+    body: (spiritName: string) => spiritName + '\uFF1A\u4ECA\u5929\u5B89\u9759\u4E00\u70B9\uFF0C\u4E0D\u8FC7\u95E8\u7167\u5E38\u5F00\u7740\u3002\u4E0B\u5348\u6162\u6162\u6765\u3002',
   },
 }
 
 export function getGuestCountByMood(mood: 'busy' | 'normal' | 'quiet'): number {
   switch (mood) {
-    case 'busy':
-      return 7 + Math.floor(Math.random() * 3)
-    case 'normal':
-      return 4 + Math.floor(Math.random() * 3)
-    case 'quiet':
-      return 2 + Math.floor(Math.random() * 2)
+    case 'busy': return 7 + Math.floor(Math.random() * 3)
+    case 'normal': return 4 + Math.floor(Math.random() * 3)
+    case 'quiet': return 2 + Math.floor(Math.random() * 2)
   }
 }
+

@@ -5,9 +5,10 @@
 Morning opening flow and midday transition.
 
 Included in this version:
-- Added `MorningOpening` with a 3-beat opening flow that adapts to whether the shop was properly closed the previous night.
+- Added `MorningOpening` page with a 3-beat opening flow: spirit greeting, light recap of last night, and shop opening transition.
 - Added `MiddayTransition`, triggered once per day when switching into the daytime prep scene.
-- Added `morningGreetings`, `middayTransitionCopy`, and `getGuestCountByMood()` to `demoData.ts`.
+- Added `morningGreetings`, `middayTransitionCopy`, `MiddayTransitionCopyEntry`, and `getGuestCountByMood()` to `demoData.ts`.
+- Switched the new morning and midday copy to Unicode-escaped strings to avoid encoding corruption.
 - Added `lastOpenDate`, `todayMood`, and `middayDone` persistence to `storage.ts` for daily flow tracking.
 - Updated `App.tsx` to trigger morning opening on the first launch of a new day and to gate the midday transition so it only appears once per day.
 

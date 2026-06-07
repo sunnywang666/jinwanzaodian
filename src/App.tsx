@@ -76,6 +76,7 @@ export default function App() {
   const [guestBookPage, setGuestBookPage] = useState(0)
   const [debugHotspots, setDebugHotspots] = useState(false)
 
+  // Determine if morning opening should show
   const lastOpenDate = loadLastOpenDate()
   const todayStr = getTodayString()
   const needsMorningOpening = onboardingProfile !== null && lastOpenDate !== todayStr
@@ -108,12 +109,14 @@ export default function App() {
             worry: '',
             savedAt: null,
           })
+          // First time: skip morning opening, go straight to shop
           saveLastOpenDate(getTodayString())
         }}
       />
     )
   }
 
+  // Morning opening flow
   if (view === 'morningOpening') {
     return (
       <MorningOpening
@@ -121,10 +124,14 @@ export default function App() {
         lastNightClosed={tonightClosed}
         lastCloseTime={logEntries[0]?.closeTime ?? null}
         onComplete={(mood) => {
+          // Save today's open date so we don't show again today
           saveLastOpenDate(todayStr)
+          // Set today's mood based on last night
           setTodayMood(mood)
+          // Reset tonight's state for the new day
           setTonightClosed(false)
           setMiddayDone(false)
+          // Set scene to match mood
           setDemoScene(mood === 'busy' ? 'busy' : mood === 'quiet' ? 'quiet' : 'normal')
           setView('home')
         }}
@@ -178,6 +185,7 @@ export default function App() {
           if (scene !== 'lightsOff') setTonightClosed(false)
           if (scene === 'evening') setView('eveningPrepare')
           if (scene === 'night') setView('nightClosing')
+          // Trigger midday transition when switching to daytime (if not done today)
           if (scene === 'daytime' && !middayDone) setView('middayTransition')
         }}
       />
