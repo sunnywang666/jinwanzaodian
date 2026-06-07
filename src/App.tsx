@@ -26,6 +26,7 @@ import {
 import { RecipeBookOverlay } from './overlays/RecipeBookOverlay'
 import { SpiritHutOverlay } from './overlays/SpiritHutOverlay'
 import { SpiritChatOverlay } from './overlays/SpiritChatOverlay'
+import { RadioOverlay } from './overlays/RadioOverlay'
 import { LogbookOverlay } from './overlays/LogbookOverlay'
 import { MessageBoardOverlay } from './overlays/MessageBoardOverlay'
 import { RecipeBookConfirmView } from './views/RecipeBookConfirmView'
@@ -40,6 +41,7 @@ type AppView =
   | 'recipeBookOpen'
   | 'spiritChat'
   | 'spiritHut'
+  | 'radio'
   | 'logbook'
   | 'messageBoard'
 
@@ -109,7 +111,6 @@ export default function App() {
               if (!window.confirm('要清空开店流程和本地演示记录吗？')) {
                 return
               }
-
               clearDemoStorage()
               setOnboardingProfile(null)
               setSpiritForm('base')
@@ -132,55 +133,26 @@ export default function App() {
         debugHotspots={debugHotspots}
         onToggleDebugHotspots={() => setDebugHotspots((current) => !current)}
         onOpenHotspot={(target) => {
-          if (target === 'guestBook') {
-            setGuestBookPage(0)
-            setView('guestBookConfirm')
-            return
-          }
-          if (target === 'recipeBook') {
-            setView('recipeBookConfirm')
-            return
-          }
-          if (target === 'radio') {
-            setView('spiritChat')
-            return
-          }
-          if (target === 'spiritChat') {
-            setView('spiritChat')
-            return
-          }
-          if (target === 'spiritHut') {
-            setView('spiritHut')
-            return
-          }
-          if (target === 'logbook') {
-            setView('logbook')
-            return
-          }
-          if (target === 'messageBoard') {
-            setView('messageBoard')
-          }
+          if (target === 'guestBook') { setGuestBookPage(0); setView('guestBookConfirm'); return }
+          if (target === 'recipeBook') { setView('recipeBookConfirm'); return }
+          if (target === 'radio') { setView('radio'); return }
+          if (target === 'spiritChat') { setView('spiritChat'); return }
+          if (target === 'spiritHut') { setView('spiritHut'); return }
+          if (target === 'logbook') { setView('logbook'); return }
+          if (target === 'messageBoard') { setView('messageBoard') }
         }}
         onSceneChange={(scene) => {
           setDemoScene(scene)
-          if (scene !== 'lightsOff') {
-            setTonightClosed(false)
-          }
+          if (scene !== 'lightsOff') setTonightClosed(false)
         }}
       />
 
       {view === 'recipeBookConfirm' ? (
-        <RecipeBookConfirmView
-          onConfirm={() => setView('recipeBookOpen')}
-          onCancel={() => setView('home')}
-        />
+        <RecipeBookConfirmView onConfirm={() => setView('recipeBookOpen')} onCancel={() => setView('home')} />
       ) : null}
       {view === 'recipeBookOpen' ? <RecipeBookOverlay onClose={() => setView('home')} /> : null}
       {view === 'guestBookConfirm' ? (
-        <GuestBookConfirmView
-          onConfirm={() => setView('guestBookOpen')}
-          onCancel={() => setView('home')}
-        />
+        <GuestBookConfirmView onConfirm={() => setView('guestBookOpen')} onCancel={() => setView('home')} />
       ) : null}
       {view === 'guestBookOpen' ? (
         <GuestBookOpenView
@@ -191,26 +163,14 @@ export default function App() {
         />
       ) : null}
       {view === 'spiritChat' ? (
-        <SpiritChatOverlay
-          spiritName={onboardingProfile.spiritName}
-          onGoToHut={() => setView('spiritHut')}
-          onClose={() => setView('home')}
-        />
+        <SpiritChatOverlay spiritName={onboardingProfile.spiritName} onGoToHut={() => setView('spiritHut')} onClose={() => setView('home')} />
       ) : null}
       {view === 'spiritHut' ? (
-        <SpiritHutOverlay
-          spiritName={onboardingProfile.spiritName}
-          currentForm={spiritForm}
-          onSelectForm={setSpiritForm}
-          onClose={() => setView('home')}
-        />
+        <SpiritHutOverlay spiritName={onboardingProfile.spiritName} currentForm={spiritForm} onSelectForm={setSpiritForm} onClose={() => setView('home')} />
       ) : null}
-      {view === 'logbook' ? (
-        <LogbookOverlay entries={logEntries} onClose={() => setView('home')} />
-      ) : null}
-      {view === 'messageBoard' ? (
-        <MessageBoardOverlay onClose={() => setView('home')} />
-      ) : null}
+      {view === 'radio' ? <RadioOverlay onClose={() => setView('home')} /> : null}
+      {view === 'logbook' ? <LogbookOverlay entries={logEntries} onClose={() => setView('home')} /> : null}
+      {view === 'messageBoard' ? <MessageBoardOverlay onClose={() => setView('home')} /> : null}
     </AppShell>
   )
 }

@@ -25,8 +25,8 @@ export function SpiritChatOverlay({ spiritName, onGoToHut, onClose }: SpiritChat
       <section className="flex h-full flex-col bg-[#f5ead8]">
         <div className="flex items-center justify-center gap-3 pb-2 pt-[9dvh]">
           <AssetImage
-            src={spiritAssets.normal.src}
-            fallbackSrc={spiritAssets.normal.fallbackSrc}
+            src={spiritAssets.base.src}
+            fallbackSrc={spiritAssets.base.fallbackSrc}
             alt={spiritName}
             variant="character"
             className="h-12 drop-shadow-[0_4px_12px_rgba(138,97,74,0.15)]"
@@ -51,8 +51,8 @@ export function SpiritChatOverlay({ spiritName, onGoToHut, onClose }: SpiritChat
               <div key={message.id} className={`flex items-end gap-2 ${fromSpirit ? 'justify-start' : 'justify-end'}`}>
                 {fromSpirit ? (
                   <AssetImage
-                    src={spiritAssets.normal.src}
-                    fallbackSrc={spiritAssets.normal.fallbackSrc}
+                    src={spiritAssets.base.src}
+                    fallbackSrc={spiritAssets.base.fallbackSrc}
                     alt={spiritName}
                     variant="character"
                     className="h-9 shrink-0"

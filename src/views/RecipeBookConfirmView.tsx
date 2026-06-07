@@ -10,11 +10,8 @@ interface RecipeBookConfirmViewProps {
 export function RecipeBookConfirmView({ onConfirm, onCancel }: RecipeBookConfirmViewProps) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onCancel()
-      }
+      if (event.key === 'Escape') onCancel()
     }
-
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [onCancel])
@@ -33,7 +30,10 @@ export function RecipeBookConfirmView({ onConfirm, onCancel }: RecipeBookConfirm
       </div>
       <div className="absolute inset-0 bg-[rgba(72,68,67,0.42)]" />
 
-      <p className="font-tianrandai absolute inset-x-0 top-[12%] z-10 px-6 text-center text-[clamp(34px,8vw,58px)] tracking-[0.08em] text-[#fffaf1] drop-shadow-[0_5px_10px_rgba(0,0,0,0.25)]">
+      {/* Title — single line, smaller font */}
+      <p className="font-tianrandai absolute inset-x-0 top-[12%] z-10 px-6 text-center tracking-[0.06em] text-[#fffaf1] drop-shadow-[0_4px_8px_rgba(0,0,0,0.25)]"
+        style={{ fontSize: 'clamp(22px, 5vw, 34px)' }}
+      >
         要打开菜品图鉴吗？
       </p>
 

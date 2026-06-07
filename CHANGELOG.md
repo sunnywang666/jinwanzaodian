@@ -1,5 +1,17 @@
 # Changelog
 
+## v4.5
+
+Bug fixes: spirit chat avatar, radio separation, hotspot positions, recipe layout.
+
+Included in this version:
+- Fixed SpiritChatOverlay using spiritAssets.normal (expression-only image) — replaced with spiritAssets.base (full body) in both the header avatar and chat bubble avatar.
+- Created RadioOverlay as a dedicated placeholder for the radio/white noise feature, separating it from spirit chat.
+- Updated App.tsx routing: radio target now opens RadioOverlay instead of SpiritChatOverlay.
+- Adjusted scene item positions: logbook moved from y:60 to y:72 (lower on carpet where the book actually appears); spirit hut adjusted from y:38 to y:50 (mid-level); message board adjusted to x:62 for better wall alignment.
+- Fixed RecipeBookOverlay text overflow: reduced column width (34%), compressed font sizes, added line-clamp-1 on description lines, moved page numbers inside book boundary (top:83%).
+- Fixed RecipeBookConfirmView title overflowing to multiple lines — reduced font to clamp(22px,5vw,34px) to fit on one line.
+
 ## v4.4
 
 Onboarding welcome screen redesign.

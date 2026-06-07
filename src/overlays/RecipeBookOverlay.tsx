@@ -18,59 +18,66 @@ function RecipePage({
   side: 'left' | 'right'
   pageNumber: number
 }) {
-  if (!dish) {
-    return null
-  }
+  if (!dish) return null
 
   const colLeft = side === 'left' ? '7%' : '53%'
-  const colWidth = '38%'
-  const pageNumLeft = side === 'left' ? '24%' : '70%'
+  const colWidth = '34%'
+  const pageNumLeft = side === 'left' ? '22%' : '68%'
 
   return (
     <>
-      {/* Dish frame + food image stacked */}
-      <div className="absolute" style={{ left: colLeft, top: '12%', width: colWidth }}>
-        {/* Frame image */}
+      {/* Dish frame + food image */}
+      <div className="absolute" style={{ left: colLeft, top: '8%', width: colWidth }}>
         <img
           src={bookAssets.dishFrame.src}
           alt=""
           aria-hidden
           className="relative z-10 h-auto w-full"
         />
-        {/* Food image centered inside frame */}
-        <div className="absolute inset-[14%] flex items-center justify-center">
+        <div className="absolute inset-[12%] flex items-center justify-center overflow-hidden">
           <AssetImage
             src={dish.image.src}
             fallbackSrc={dish.image.fallbackSrc}
             alt={dish.name}
             variant="item"
-            className="max-h-full max-w-full object-contain"
+            className="h-full w-full object-contain"
           />
         </div>
       </div>
 
       {/* Dish name */}
       <h2
-        className="absolute text-[clamp(13px,2.2vw,18px)] font-semibold text-ink"
-        style={{ left: colLeft, top: '56%', width: colWidth, textAlign: 'center' }}
+        className="absolute font-semibold text-ink"
+        style={{
+          left: colLeft,
+          top: '47%',
+          width: colWidth,
+          textAlign: 'center',
+          fontSize: 'clamp(11px, 2vw, 15px)',
+        }}
       >
         {dish.name}
       </h2>
 
-      {/* Description lines */}
+      {/* Description */}
       <div
-        className="absolute space-y-[2px] text-[clamp(9px,1.5vw,11px)] leading-[1.55] text-ink/70"
-        style={{ left: colLeft, top: '63%', width: colWidth }}
+        className="absolute leading-[1.45] text-ink/68"
+        style={{
+          left: colLeft,
+          top: '53%',
+          width: colWidth,
+          fontSize: 'clamp(8px, 1.3vw, 10px)',
+        }}
       >
-        <p>{dish.description}</p>
-        <p>喜欢它的客人：{dish.lovedBy}</p>
-        <p>解锁来源：{dish.origin}</p>
+        <p className="line-clamp-1">{dish.description}</p>
+        <p className="mt-[2px] line-clamp-1">客人：{dish.lovedBy}</p>
+        <p className="mt-[2px] line-clamp-1">来源：{dish.origin}</p>
       </div>
 
       {/* Page number */}
       <p
-        className="absolute text-[10px] text-brown/70"
-        style={{ left: pageNumLeft, top: '88%' }}
+        className="absolute text-brown/65"
+        style={{ left: pageNumLeft, top: '83%', fontSize: '10px' }}
       >
         {pageNumber}
       </p>
@@ -105,14 +112,8 @@ export function RecipeBookOverlay({ onClose }: RecipeBookOverlayProps) {
 
         <div className="mt-auto flex items-center justify-between px-5 pb-5 pt-3">
           <PageTurnButton direction="prev" disabled={page === 0} onClick={() => setPage((current) => current - 1)} />
-          <span className="text-xs text-ink/50">
-            {page + 1} / {spreadCount}
-          </span>
-          <PageTurnButton
-            direction="next"
-            disabled={page >= spreadCount - 1}
-            onClick={() => setPage((current) => current + 1)}
-          />
+          <span className="text-xs text-ink/50">{page + 1} / {spreadCount}</span>
+          <PageTurnButton direction="next" disabled={page >= spreadCount - 1} onClick={() => setPage((current) => current + 1)} />
         </div>
       </section>
     </GameOverlay>
