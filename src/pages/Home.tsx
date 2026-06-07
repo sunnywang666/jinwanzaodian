@@ -27,14 +27,14 @@ export function Home({ scene, debugHotspots, onToggleDebugHotspots, onOpenHotspo
 
       <div className="absolute left-3 top-3 z-20 flex max-w-[72%] flex-col gap-2">
         <div className="flex items-center gap-2">
-          <span className="rounded-full border border-line bg-paper/85 px-3 py-1.5 text-xs text-brown shadow-sm backdrop-blur">
+          <span className="rounded-full bg-ink/15 px-3 py-1.5 text-xs text-paper backdrop-blur-sm">
             今晚早点
           </span>
-          <span className="rounded-full border border-line bg-paper/85 px-3 py-1.5 text-xs text-brown shadow-sm backdrop-blur">
+          <span className="rounded-full bg-ink/15 px-3 py-1.5 text-xs text-paper backdrop-blur-sm">
             {nowLabel}
           </span>
         </div>
-        <p className="rounded-[20px] border border-line bg-paper/82 px-3 py-2 text-xs leading-5 text-ink/78 shadow-sm backdrop-blur">
+        <p className="rounded-[20px] bg-paper/60 px-3 py-2 text-xs leading-5 text-ink/78 backdrop-blur-sm">
           {copy.body}
         </p>
       </div>
@@ -42,8 +42,8 @@ export function Home({ scene, debugHotspots, onToggleDebugHotspots, onOpenHotspo
       <div className="absolute right-3 top-3 z-20 flex flex-col items-end gap-2">
         <button
           type="button"
-          className={`rounded-full border px-3 py-1.5 text-xs shadow-sm backdrop-blur ${
-            debugHotspots ? 'border-brown bg-butter/90 text-ink' : 'border-line bg-paper/85 text-ink/75'
+          className={`rounded-full px-3 py-1.5 text-xs backdrop-blur-sm transition ${
+            debugHotspots ? 'bg-butter/70 text-ink' : 'bg-ink/15 text-paper'
           }`}
           onClick={onToggleDebugHotspots}
         >
@@ -52,8 +52,8 @@ export function Home({ scene, debugHotspots, onToggleDebugHotspots, onOpenHotspo
       </div>
 
       {debugHotspots ? (
-        <div className="absolute inset-x-3 bottom-3 z-20 rounded-[24px] border border-line bg-paper/90 px-3 py-3 shadow-sm backdrop-blur">
-          <p className="mb-2 text-xs tracking-[0.08em] text-brown">场景调试</p>
+        <div className="absolute inset-x-3 bottom-3 z-20 rounded-[24px] bg-paper/75 px-3 py-3 backdrop-blur-sm">
+          <p className="mb-2 text-xs tracking-[0.08em] text-ink/60">场景调试</p>
           <DemoControls currentScene={scene} onChange={onSceneChange} />
         </div>
       ) : null}

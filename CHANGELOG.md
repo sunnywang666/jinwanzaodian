@@ -1,5 +1,25 @@
 # Changelog
 
+## v4.0
+
+Card frame removal and spirit chat entry restructure.
+
+Included in this version:
+- Removed all card frame structures (border, shadow, paper-panel) across the entire app to achieve a unified immersive game-style UI.
+- Replaced bordered HUD badges on the home screen with translucent borderless overlays using backdrop-blur.
+- Stripped card wrappers from GameOverlay back-button and title label; now translucent HUD-style floaters.
+- Rebuilt SpiritHutOverlay without card panels; spirit displays directly on scene background with horizontal scrolling skin shelf using opacity/glow for selection state.
+- Created SpiritChatOverlay as a dedicated spirit dialogue interface, replacing the old RadioChatOverlay; chat bubbles float directly on warm background without container card.
+- Changed spirit scene item target from spiritHut to spiritChat — tapping the spirit in the shop now opens dialogue directly.
+- Added "go to hut" secondary navigation inside SpiritChatOverlay for accessing the spirit hut from within chat.
+- Rebuilt LogbookOverlay without card panels; journal entries use ruled-line background styling instead of bordered cards.
+- Rebuilt MessageBoardOverlay with a dark blackboard background; sticky notes use colored fills and rotation with drop shadows instead of bordered cards.
+- Removed card borders from GuestBookOpenView navigation buttons; now translucent HUD-style.
+- Removed card border from RecipeBookOverlay page indicator.
+- Updated PageTurnButton, SoftButton, and DemoControls to remove border and shadow styling.
+- Updated CSS utility classes (paper-panel, paper-dashed, paper-label) to remove borders and shadows.
+- Updated App.tsx view system to wire spiritChat view and remove radioChat references.
+
 ## v3.3
 
 Guest book presentation polish.

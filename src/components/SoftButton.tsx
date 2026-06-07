@@ -9,9 +9,9 @@ interface SoftButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClassName: Record<Variant, string> = {
-  primary: 'border-brown bg-butter text-ink hover:bg-[#ecd59f]',
-  secondary: 'border-line bg-white/80 text-ink hover:bg-white',
-  ghost: 'border-line/70 bg-transparent text-ink hover:bg-white/60',
+  primary: 'bg-butter text-ink hover:bg-[#ecd59f]',
+  secondary: 'bg-white/60 text-ink hover:bg-white/80',
+  ghost: 'bg-transparent text-ink hover:bg-white/40',
 }
 
 export function SoftButton({
@@ -27,7 +27,7 @@ export function SoftButton({
 
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm transition ${variantClassName[variant]} ${activeClassName} ${widthClassName} ${className}`}
+      className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm transition ${variantClassName[variant]} ${activeClassName} ${widthClassName} ${className}`}
       {...props}
     >
       {children}

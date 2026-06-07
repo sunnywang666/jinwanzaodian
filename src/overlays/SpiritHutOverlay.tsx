@@ -17,27 +17,29 @@ export function SpiritHutOverlay({ spiritName, currentForm, onSelectForm, onClos
   return (
     <GameOverlay title="精灵小屋" onClose={onClose}>
       <section className="flex h-full flex-col bg-[#f5ead8] px-4 pb-5 pt-[11dvh]">
-        <div className="rounded-[28px] border border-line bg-paper/84 px-4 py-5 text-center shadow-sm">
-          <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-butter/35">
+        <div className="flex flex-col items-center px-4 py-5 text-center">
+          <div className="mx-auto flex h-44 w-44 items-center justify-center">
             <AssetImage
               src={currentAsset.src}
               fallbackSrc={currentAsset.fallbackSrc}
               alt={spiritName}
               variant="character"
-              className="h-32"
+              className="h-36 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]"
             />
           </div>
           <h1 className="mt-4 text-2xl font-semibold text-ink">{spiritName}</h1>
-          <p className="mt-2 text-sm leading-6 text-ink/72">它只是一个漂浮的小圆面团，可以隔空揉面，没有手脚。</p>
+          <p className="mt-2 text-sm leading-6 text-ink/60">它只是一个漂浮的小圆面团，可以隔空揉面，没有手脚。</p>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3 overflow-y-auto">
+        <div className="mt-2 flex gap-3 overflow-x-auto px-1 pb-3">
           {spiritOptions.map((option) => (
             <button
               key={option.form}
               type="button"
-              className={`rounded-[24px] border px-3 py-4 text-center shadow-sm ${
-                currentForm === option.form ? 'border-brown bg-butter/35' : 'border-line bg-paper/84'
+              className={`flex shrink-0 flex-col items-center px-4 py-3 transition-all duration-200 ${
+                currentForm === option.form
+                  ? 'scale-105 opacity-100 drop-shadow-[0_0_16px_rgba(240,221,179,0.8)]'
+                  : 'opacity-55 hover:opacity-75'
               }`}
               onClick={() => onSelectForm(option.form)}
             >
@@ -48,7 +50,9 @@ export function SpiritHutOverlay({ spiritName, currentForm, onSelectForm, onClos
                 variant="character"
                 className="h-20"
               />
-              <p className="mt-2 text-sm font-semibold text-ink">{option.name}</p>
+              <p className={`mt-2 text-sm font-semibold ${currentForm === option.form ? 'text-ink' : 'text-ink/60'}`}>
+                {option.name}
+              </p>
             </button>
           ))}
         </div>

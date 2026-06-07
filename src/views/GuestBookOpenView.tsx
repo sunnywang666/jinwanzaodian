@@ -76,7 +76,7 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
 
       <button
         type="button"
-        className="font-tianrandai absolute left-4 top-4 z-20 rounded-full border border-line bg-paper/90 px-4 py-2 text-base text-ink shadow-[0_10px_18px_rgba(71,52,37,0.12)] backdrop-blur"
+        className="font-tianrandai absolute left-4 top-4 z-20 rounded-full bg-ink/20 px-4 py-2 text-base text-paper backdrop-blur-sm transition hover:bg-ink/30"
         onClick={onBackToHome}
       >
         返回铺子
@@ -147,14 +147,14 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
       <div className="absolute inset-x-0 bottom-5 z-20 flex items-end justify-between px-5">
         <button
           type="button"
-          className="font-tianrandai min-w-[104px] rounded-full border border-line bg-paper/92 px-5 py-2.5 text-lg text-ink shadow-[0_10px_18px_rgba(71,52,37,0.12)] backdrop-blur transition duration-150 ease-out hover:-translate-y-0.5"
+          className="font-tianrandai min-w-[104px] rounded-full bg-ink/20 px-5 py-2.5 text-lg text-paper backdrop-blur-sm transition duration-150 ease-out hover:bg-ink/30"
           onClick={onPrev}
         >
           上一位
         </button>
         <button
           type="button"
-          className="font-tianrandai min-w-[104px] rounded-full border border-line bg-paper/92 px-5 py-2.5 text-lg text-ink shadow-[0_10px_18px_rgba(71,52,37,0.12)] backdrop-blur transition duration-150 ease-out hover:-translate-y-0.5"
+          className="font-tianrandai min-w-[104px] rounded-full bg-ink/20 px-5 py-2.5 text-lg text-paper backdrop-blur-sm transition duration-150 ease-out hover:bg-ink/30"
           onClick={onNext}
         >
           下一位

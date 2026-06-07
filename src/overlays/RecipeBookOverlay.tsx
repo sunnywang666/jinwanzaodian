@@ -82,7 +82,7 @@ export function RecipeBookOverlay({ onClose }: RecipeBookOverlayProps) {
 
         <div className="mt-auto flex items-center justify-between px-5 pb-5 pt-3">
           <PageTurnButton direction="prev" disabled={page === 0} onClick={() => setPage((current) => current - 1)} />
-          <span className="rounded-full border border-line bg-paper/90 px-3 py-1 text-xs text-brown shadow-sm">
+          <span className="text-xs text-ink/50">
             {page + 1} / {spreadCount}
           </span>
           <PageTurnButton

@@ -13,10 +13,10 @@ export function DemoControls({ currentScene, onChange }: DemoControlsProps) {
         <button
           key={option.key}
           type="button"
-          className={`rounded-3xl border px-4 py-3 text-sm transition ${
+          className={`rounded-3xl px-4 py-3 text-sm transition ${
             currentScene === option.key
-              ? 'border-brown bg-butter text-ink'
-              : 'border-line bg-white/75 text-ink/75'
+              ? 'bg-butter/70 text-ink'
+              : 'bg-white/40 text-ink/65'
           }`}
           onClick={() => onChange(option.key)}
         >

@@ -112,15 +112,15 @@ textarea {
   }
 
   .paper-panel {
-    @apply rounded-paper border border-line bg-paper shadow-paper;
+    @apply rounded-paper bg-paper;
   }
 
   .paper-dashed {
-    @apply rounded-paper border-2 border-dashed border-line bg-cream;
+    @apply rounded-paper border-2 border-dashed border-line/40 bg-cream;
   }
 
   .paper-label {
-    @apply inline-flex items-center rounded-full border border-line bg-white/70 px-3 py-1 text-xs tracking-[0.08em] text-brown;
+    @apply inline-flex items-center rounded-full bg-ink/10 px-3 py-1 text-xs tracking-[0.08em] text-ink/60;
   }
 
   .ink-title {

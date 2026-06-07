@@ -21,13 +21,13 @@ export function GameOverlay({ title, onClose, children }: GameOverlayProps) {
       <div className="absolute inset-x-0 top-0 z-10 flex items-start justify-between px-3 pt-3">
         <button
           type="button"
-          className="pointer-events-auto rounded-full border border-line bg-paper/88 px-4 py-2 text-sm text-ink shadow-sm backdrop-blur"
+          className="pointer-events-auto rounded-full bg-ink/20 px-4 py-2 text-sm text-paper backdrop-blur-sm transition hover:bg-ink/30"
           onClick={onClose}
         >
           返回铺子
         </button>
         {title ? (
-          <span className="rounded-full border border-line bg-paper/80 px-3 py-2 text-xs tracking-[0.08em] text-brown shadow-sm backdrop-blur">
+          <span className="rounded-full bg-ink/15 px-3 py-2 text-xs tracking-[0.08em] text-paper backdrop-blur-sm">
             {title}
           </span>
         ) : null}

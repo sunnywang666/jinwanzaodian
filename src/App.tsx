@@ -25,7 +25,7 @@ import {
 } from './lib/storage'
 import { RecipeBookOverlay } from './overlays/RecipeBookOverlay'
 import { SpiritHutOverlay } from './overlays/SpiritHutOverlay'
-import { RadioChatOverlay } from './overlays/RadioChatOverlay'
+import { SpiritChatOverlay } from './overlays/SpiritChatOverlay'
 import { GuestBookConfirmView } from './views/GuestBookConfirmView'
 import { GuestBookOpenView } from './views/GuestBookOpenView'
 
@@ -35,7 +35,7 @@ type AppView =
   | 'guestBookOpen'
   | 'recipeBookConfirm'
   | 'recipeBookOpen'
-  | 'radioChat'
+  | 'spiritChat'
   | 'spiritHut'
 
 export default function App() {
@@ -99,7 +99,7 @@ export default function App() {
         <div className="flex justify-end px-3 pt-3">
           <button
             type="button"
-            className="pointer-events-auto rounded-full border border-line bg-paper/85 px-3 py-1.5 text-xs text-brown shadow-sm backdrop-blur"
+            className="pointer-events-auto rounded-full bg-ink/20 px-3 py-1.5 text-xs text-paper backdrop-blur-sm transition hover:bg-ink/30"
             onClick={() => {
               if (!window.confirm('要清空开店流程和本地演示记录吗？')) {
                 return
@@ -139,7 +139,12 @@ export default function App() {
           }
 
           if (target === 'radio') {
-            setView('radioChat')
+            setView('spiritChat')
+            return
+          }
+
+          if (target === 'spiritChat') {
+            setView('spiritChat')
             return
           }
 
@@ -170,8 +175,12 @@ export default function App() {
           onNext={() => setGuestBookPage((current) => (current + 1) % guests.length)}
         />
       ) : null}
-      {view === 'radioChat' ? (
-        <RadioChatOverlay spiritName={onboardingProfile.spiritName} onClose={() => setView('home')} />
+      {view === 'spiritChat' ? (
+        <SpiritChatOverlay
+          spiritName={onboardingProfile.spiritName}
+          onGoToHut={() => setView('spiritHut')}
+          onClose={() => setView('home')}
+        />
       ) : null}
       {view === 'spiritHut' ? (
         <SpiritHutOverlay

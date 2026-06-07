@@ -1,6 +1,6 @@
 import { bookAssets, spiritAssets, toolAssets } from './assets'
 
-export type SceneItemTarget = 'recipeBook' | 'guestBook' | 'radio' | 'spiritHut'
+export type SceneItemTarget = 'recipeBook' | 'guestBook' | 'radio' | 'spiritChat' | 'spiritHut'
 
 export type SceneItem = {
   id: string
@@ -61,7 +61,7 @@ export const sceneItems: SceneItem[] = [
     y: 48,
     width: 16,
     zIndex: 8,
-    target: 'spiritHut',
+    target: 'spiritChat',
     variant: 'character',
   },
 ]
