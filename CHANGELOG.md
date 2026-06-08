@@ -1,5 +1,19 @@
 # Changelog
 
+## v6.2
+
+Lightweight i18n architecture, onboarding narrative redesign, and language switching.
+
+Included in this version:
+- Added `i18n.tsx` as a lightweight React context plus `useT()` hook with browser-language detection and localStorage persistence.
+- Added `zh.ts` and `en.ts` translation dictionaries, predefining keys across the wider app so other screens can migrate gradually.
+- Rebuilt `Onboarding.tsx` with a more narrative story arc that explains why the shop needs someone who can sleep well and transitions naturally into a spirit-led dialogue quiz.
+- Reframed the onboarding quiz as chat-style spirit conversation instead of a cold multi-step questionnaire.
+- Added a top-right language switcher to onboarding for fast `中文 / English` toggling.
+- Updated `Settings.tsx` with a language section at the top and migrated the settings copy to use `t()` translation lookups.
+- Updated the settings version display to `v6.2`.
+- Wrapped the app with `I18nProvider` in `main.tsx` so translated onboarding and settings screens share the same language state.
+
 ## v6.1
 
 Persistent ambient audio, dynamic message board content, recipe-book backdrop polish, and safe dead-code cleanup.
