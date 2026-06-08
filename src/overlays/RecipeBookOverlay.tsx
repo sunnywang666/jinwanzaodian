@@ -1,11 +1,20 @@
+/**
+ * RecipeBookOverlay.tsx — v5.4
+ *
+ * Now receives dishProgress to show locked/unlocked state.
+ * Locked dishes show a silhouette + unlock hint.
+ */
+
 import { useState } from 'react'
 import { bookAssets } from '../lib/assets'
 import { dishes } from '../lib/demoData'
 import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
 import { PageTurnButton } from '../components/PageTurnButton'
+import { getDishUnlockHint, type DishProgressMap } from '../lib/dishProgression'
 
 interface RecipeBookOverlayProps {
+  dishProgress: DishProgressMap
   onClose: () => void
 }
 
@@ -20,10 +29,12 @@ function RecipePage({
   dish,
   side,
   pageNumber,
+  isUnlocked,
 }: {
   dish: (typeof dishes)[number] | undefined
   side: 'left' | 'right'
   pageNumber: number
+  isUnlocked: boolean
 }) {
   if (!dish) return null
 
@@ -54,13 +65,19 @@ function RecipePage({
           height: '12%',
         }}
       >
-        <AssetImage
-          src={dish.image.src}
-          fallbackSrc={dish.image.fallbackSrc}
-          alt={dish.name}
-          variant="item"
-          className="h-full w-full object-contain"
-        />
+        {isUnlocked ? (
+          <AssetImage
+            src={dish.image.src}
+            fallbackSrc={dish.image.fallbackSrc}
+            alt={dish.name}
+            variant="item"
+            className="h-full w-full object-contain"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="text-3xl opacity-30">?</span>
+          </div>
+        )}
       </div>
 
       {/* Dish name */}
@@ -74,7 +91,7 @@ function RecipePage({
           fontSize: '17.5px',
         }}
       >
-        {dish.name}
+        {isUnlocked ? dish.name : '???'}
       </h2>
 
       {/* Description */}
@@ -88,9 +105,17 @@ function RecipePage({
           lineHeight: '1.45',
         }}
       >
-        <p style={lineClampStyle(1)}>{dish.description}</p>
-        <p style={{ marginTop: '2px', ...lineClampStyle(1) }}>客人：{dish.lovedBy}</p>
-        <p style={{ marginTop: '2px', ...lineClampStyle(1) }}>来源：{dish.origin}</p>
+        {isUnlocked ? (
+          <>
+            <p style={lineClampStyle(1)}>{dish.description}</p>
+            <p style={{ marginTop: '2px', ...lineClampStyle(1) }}>客人：{dish.lovedBy}</p>
+            <p style={{ marginTop: '2px', ...lineClampStyle(1) }}>来源：{dish.origin}</p>
+          </>
+        ) : (
+          <p className="italic text-ink/40" style={lineClampStyle(2)}>
+            {getDishUnlockHint(dish.key)}
+          </p>
+        )}
       </div>
 
       {/* Page number */}
@@ -104,13 +129,16 @@ function RecipePage({
   )
 }
 
-export function RecipeBookOverlay({ onClose }: RecipeBookOverlayProps) {
+export function RecipeBookOverlay({ dishProgress, onClose }: RecipeBookOverlayProps) {
   const [page, setPage] = useState(0)
   const spreadCount = Math.ceil(dishes.length / 2)
   const leftDish = dishes[page * 2]
   const rightDish = dishes[page * 2 + 1]
   const leftPageNumber = page * 2 + 1
   const rightPageNumber = page * 2 + 2
+
+  const isLeftUnlocked = leftDish ? (dishProgress[leftDish.key]?.unlocked ?? false) : false
+  const isRightUnlocked = rightDish ? (dishProgress[rightDish.key]?.unlocked ?? false) : false
 
   return (
     <GameOverlay title="菜谱本" onClose={onClose}>
@@ -124,8 +152,8 @@ export function RecipeBookOverlay({ onClose }: RecipeBookOverlayProps) {
               variant="book"
               className="h-full w-full object-contain"
             />
-            <RecipePage dish={leftDish} side="left" pageNumber={leftPageNumber} />
-            <RecipePage dish={rightDish} side="right" pageNumber={rightPageNumber} />
+            <RecipePage dish={leftDish} side="left" pageNumber={leftPageNumber} isUnlocked={isLeftUnlocked} />
+            <RecipePage dish={rightDish} side="right" pageNumber={rightPageNumber} isUnlocked={isRightUnlocked} />
           </div>
         </div>
 

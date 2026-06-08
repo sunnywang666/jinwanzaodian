@@ -1,10 +1,23 @@
+/**
+ * GuestBookOpenView.tsx — v5.4
+ *
+ * Now receives guestProgress to show real visit counts,
+ * familiarity levels, and dynamic descriptions.
+ */
+
 import { useEffect, useState } from 'react'
 import { AssetImage } from '../components/AssetImage'
 import { bookAssets, sceneAssets } from '../lib/assets'
 import { guests } from '../lib/demoData'
+import {
+  getFamiliarityLabel,
+  getFamiliarityDescription,
+  type GuestProgressMap,
+} from '../lib/guestProgression'
 
 interface GuestBookOpenViewProps {
   page: number
+  guestProgress: GuestProgressMap
   onBackToHome: () => void
   onPrev: () => void
   onNext: () => void
@@ -20,10 +33,25 @@ function preloadImage(src?: string) {
   })
 }
 
-export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestBookOpenViewProps) {
+export function GuestBookOpenView({
+  page,
+  guestProgress,
+  onBackToHome,
+  onPrev,
+  onNext,
+}: GuestBookOpenViewProps) {
   const [displayPage, setDisplayPage] = useState(page)
   const [isVisible, setIsVisible] = useState(false)
   const guest = guests[displayPage]
+
+  // Get real progression data, falling back to static data
+  const progress = guestProgress[guest.key]
+  const realVisitCount = progress?.totalVisits ?? guest.visitCount
+  const familiarityLevel = progress?.familiarityLevel ?? 0
+  const familiarityLabel = progress ? getFamiliarityLabel(familiarityLevel) : guest.status
+  const familiarityDesc = progress
+    ? getFamiliarityDescription(guest.key, familiarityLevel)
+    : guest.familiarity
 
   useEffect(() => {
     let active = true
@@ -135,15 +163,15 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
             喜欢：{guest.favoriteFood}
           </p>
 
-          {/* Right page: 来访 */}
+          {/* Right page: 来访 — uses real data */}
           <p
             className="font-tianrandai absolute leading-[1.5] text-ink/84"
             style={{ left: '55.5%', top: '38.5%', width: '36%', fontSize: '10px' }}
           >
-            来访：{guest.visitCount} 次
+            来访：{realVisitCount} 次
           </p>
 
-          {/* Right page: 熟络 */}
+          {/* Right page: 熟络 — uses real progression */}
           <p
             className="font-tianrandai absolute leading-[1.5] text-ink/84"
             style={{
@@ -157,7 +185,7 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
               overflow: 'hidden',
             }}
           >
-            熟络：{guest.familiarity}
+            {familiarityLabel}：{familiarityDesc}
           </p>
 
           {/* Right page: story label */}
@@ -185,15 +213,13 @@ export function GuestBookOpenView({ page, onBackToHome, onPrev, onNext }: GuestB
             {guest.story}
           </p>
 
-          {/* Page number left */}
+          {/* Page numbers */}
           <p
             className="font-tianrandai absolute text-brown/70"
             style={{ left: '30%', top: '70%', fontSize: '10px' }}
           >
             {leftPageNum}
           </p>
-
-          {/* Page number right */}
           <p
             className="font-tianrandai absolute text-brown/70"
             style={{ left: '69%', top: '70.5%', fontSize: '10px' }}

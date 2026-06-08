@@ -1,18 +1,35 @@
 # Changelog
 
-## v5.3
+## v5.4
 
-Time-driven core logic, real-time clock, visibilitychange tracking, and trend calculation.
+Guest progression, dish and spirit unlocks, settings page, and visibility-session recovery.
 
 Included in this version:
-- Added `ClockOverlay`, syncing the painted wall clock to the user's real system time with live hour, minute, and second hands.
-- Added `timeScene.ts` to switch the shop scene automatically by real-world time, using the planned lights-off time and current daily mood.
-- Added `visibility.ts` to track `visibilitychange`, detect when the user leaves and returns, and record screen-off timestamps after nightly closing.
-- Added `trendCalculation.ts` to replace the old binary mood decision with a weighted recent-days trend model based on the last 5-7 log entries.
+- Added `guestProgression.ts` to track guest visits and familiarity tiers from stranger to regular, with daily guest rolls weighted toward higher-familiarity visitors.
+- Added `dishProgression.ts` for dish unlock progression: buns and soy milk are available by default, while later dishes unlock through good-night milestones or specific guest relationships.
+- Added `spiritProgression.ts` for spirit skin milestones, unlocking additional forms after 5, 10, and 15 cumulative good nights recorded from screen-off events after closing.
+- Added `Settings.tsx`, including default lights-off time controls, an about section, a data/privacy note, and a full reset action.
+- Fixed `visibility.ts` so reopening the app after closing the tab can still trigger the return greeting by restoring the previous session's `endedAt` timestamp from localStorage.
+- Updated `storage.ts` so `clearDemoStorage()` also clears the three progression-system keys.
+- Updated `Home.tsx` to add a settings gear entry in the top-right corner.
+- Updated `SpiritHutOverlay.tsx` so locked skins show grayscale styling, a lock marker, an unlock hint, and cumulative good-night progress.
+- Updated `RecipeBookOverlay.tsx` so locked dishes show a hidden silhouette and unlock-condition copy instead of appearing fully available.
+- Updated `GuestBookOpenView.tsx` to display real visit counts and familiarity text from progression data, while still falling back to static demo data when needed.
+- Updated `App.tsx` to wire guest rolling, dish unlock checks, spirit unlock checks, the settings route, onboarding defaults, and full reset handling across the new progression systems.
+
+## v5.3
+
+Time-driven scene logic, real-time clock, visibility tracking, and trend-based mood calculation.
+
+Included in this version:
+- Added `ClockOverlay`, syncing the painted wall clock to the user's system time with live hour, minute, and second hands.
+- Added `timeScene.ts` to switch the shop scene automatically by real-world time, using the planned lights-off time and the current daily mood.
+- Added `visibility.ts` to track `visibilitychange`, detect away/return events, and record screen-off timestamps after nightly closing.
+- Added `trendCalculation.ts` to replace the old binary mood decision with a weighted recent-days trend model based on the latest 5-7 log entries.
 - Expanded `LogEntry` in `storage.ts` with `realCloseTimestamp`, `realOpenTimestamp`, and `screenOffTimestamp`, and added helpers such as `createCloseLogEntry()` and `stampOpenTime()`.
-- Updated `ShopSceneInteractive.tsx` to embed the real-time `ClockOverlay` directly in the main scene.
-- Updated `App.tsx` to wire automatic scene polling, visibility tracking, real close/open logging, weighted trend calculation, and an `自动 / 手动` scene toggle on the home HUD.
-- Added a spirit return greeting when the user comes back after being away for a while, while preserving the current mainline onboarding and overlay flow.
+- Updated `ShopSceneInteractive.tsx` to embed the live `ClockOverlay` directly in the main scene.
+- Updated `App.tsx` to wire automatic scene polling, visibility tracking, real open/close logging, weighted trend calculation, and an automatic/manual scene toggle on the home HUD.
+- Kept the current onboarding and overlay flow intact while adding the new time-based systems.
 
 ## v5.1
 
@@ -282,6 +299,8 @@ Included in this version:
 
 - Small change: `v1.1`, `v1.2`, `v1.3`...
 - Large change: `v2.0`, `v3.0`...
+- Mainline commit subjects should follow `vX.Y: short english summary`, using concise lowercase English phrases.
+- Changelog entries should use an English summary sentence followed by `Included in this version:` and verb-led bullets such as `Added`, `Updated`, `Fixed`, `Expanded`, or `Kept`.
 - Package version uses semver format alongside the display version:
   - `v1.0` => `1.0.0`
   - `v1.1` => `1.1.0`

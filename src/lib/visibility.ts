@@ -1,3 +1,10 @@
+/**
+ * visibility.ts — v5.4
+ *
+ * Fix: on page load, read last session's endedAt to detect
+ * tab close + reopen scenario and trigger onReturn.
+ */
+
 export interface VisibilityEvent {
   timestamp: string
   state: 'visible' | 'hidden'
@@ -53,6 +60,21 @@ export function startVisibilityTracking(
 ) {
   let lastHiddenAt: number | null = null
 
+  // ── v5.4 fix: check for previous session on page load ──
+  // If the last session has an endedAt (tab was closed), calculate
+  // how long ago that was and trigger onReturn if > threshold.
+  const previousSession = loadCurrentSession()
+  if (previousSession?.endedAt) {
+    const awayMs = Date.now() - new Date(previousSession.endedAt).getTime()
+    if (awayMs > 0 && awayMs < 86_400_000) {
+      // Only trigger for gaps under 24h (beyond that, morning opening handles it)
+      callbacks.onReturn?.(awayMs)
+    }
+  }
+
+  // Start a fresh session
+  saveCurrentSession({ startedAt: new Date().toISOString(), endedAt: null })
+
   function handleVisibilityChange() {
     const now = new Date()
     const isoNow = now.toISOString()
@@ -91,11 +113,6 @@ export function startVisibilityTracking(
 
     saveCurrentSession({ startedAt: isoNow, endedAt: null })
     callbacks.onReturn?.(awayDuration)
-  }
-
-  const session = loadCurrentSession()
-  if (!session || session.endedAt) {
-    saveCurrentSession({ startedAt: new Date().toISOString(), endedAt: null })
   }
 
   document.addEventListener('visibilitychange', handleVisibilityChange)

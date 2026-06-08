@@ -1,17 +1,32 @@
+/**
+ * SpiritHutOverlay.tsx — v5.4
+ *
+ * Now receives spiritProgress to enforce unlock checks.
+ * Locked skins show a lock icon + milestone hint.
+ */
+
 import type { SpiritForm } from '../lib/storage'
 import { spiritAssets } from '../lib/assets'
 import { spiritOptions } from '../lib/demoData'
 import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
+import { isFormUnlocked, getFormMilestoneHint, type SpiritProgressState } from '../lib/spiritProgression'
 
 interface SpiritHutOverlayProps {
   spiritName: string
   currentForm: SpiritForm
+  spiritProgress: SpiritProgressState
   onSelectForm: (form: SpiritForm) => void
   onClose: () => void
 }
 
-export function SpiritHutOverlay({ spiritName, currentForm, onSelectForm, onClose }: SpiritHutOverlayProps) {
+export function SpiritHutOverlay({
+  spiritName,
+  currentForm,
+  spiritProgress,
+  onSelectForm,
+  onClose,
+}: SpiritHutOverlayProps) {
   const currentAsset = spiritAssets[currentForm]
 
   return (
@@ -28,33 +43,60 @@ export function SpiritHutOverlay({ spiritName, currentForm, onSelectForm, onClos
             />
           </div>
           <h1 className="mt-4 text-2xl font-semibold text-ink">{spiritName}</h1>
-          <p className="mt-2 text-sm leading-6 text-ink/60">它只是一个漂浮的小圆面团，可以隔空揉面，没有手脚。</p>
+          <p className="mt-2 text-sm leading-6 text-ink/60">
+            它只是一个漂浮的小圆面团，可以隔空揉面，没有手脚。
+          </p>
+          <p className="mt-1 text-xs text-ink/35">
+            累计早睡 {spiritProgress.totalGoodNights} 晚
+          </p>
         </div>
 
         <div className="mt-2 flex gap-3 overflow-x-auto px-1 pb-3">
-          {spiritOptions.map((option) => (
-            <button
-              key={option.form}
-              type="button"
-              className={`flex shrink-0 flex-col items-center px-4 py-3 transition-all duration-200 ${
-                currentForm === option.form
-                  ? 'scale-105 opacity-100 drop-shadow-[0_0_16px_rgba(240,221,179,0.8)]'
-                  : 'opacity-55 hover:opacity-75'
-              }`}
-              onClick={() => onSelectForm(option.form)}
-            >
-              <AssetImage
-                src={option.image.src}
-                fallbackSrc={option.image.fallbackSrc}
-                alt={option.name}
-                variant="character"
-                className="h-20"
-              />
-              <p className={`mt-2 text-sm font-semibold ${currentForm === option.form ? 'text-ink' : 'text-ink/60'}`}>
-                {option.name}
-              </p>
-            </button>
-          ))}
+          {spiritOptions.map((option) => {
+            const unlocked = isFormUnlocked(spiritProgress, option.form)
+            const isActive = currentForm === option.form
+
+            return (
+              <button
+                key={option.form}
+                type="button"
+                disabled={!unlocked}
+                className={`relative flex shrink-0 flex-col items-center px-4 py-3 transition-all duration-200 ${
+                  isActive
+                    ? 'scale-105 opacity-100 drop-shadow-[0_0_16px_rgba(240,221,179,0.8)]'
+                    : unlocked
+                      ? 'opacity-55 hover:opacity-75'
+                      : 'opacity-30'
+                }`}
+                onClick={() => {
+                  if (unlocked) onSelectForm(option.form)
+                }}
+              >
+                <div className="relative">
+                  <AssetImage
+                    src={option.image.src}
+                    fallbackSrc={option.image.fallbackSrc}
+                    alt={option.name}
+                    variant="character"
+                    className={`h-20 ${!unlocked ? 'grayscale' : ''}`}
+                  />
+                  {!unlocked ? (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl">🔒</span>
+                    </div>
+                  ) : null}
+                </div>
+                <p className={`mt-2 text-sm font-semibold ${isActive ? 'text-ink' : 'text-ink/60'}`}>
+                  {option.name}
+                </p>
+                {!unlocked ? (
+                  <p className="mt-0.5 text-[10px] leading-tight text-ink/35">
+                    {getFormMilestoneHint(option.form, spiritProgress.totalGoodNights)}
+                  </p>
+                ) : null}
+              </button>
+            )
+          })}
         </div>
       </section>
     </GameOverlay>

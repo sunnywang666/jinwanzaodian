@@ -1,3 +1,14 @@
+/**
+ * App.tsx — v5.4
+ *
+ * New in this version:
+ * - Guest progression: daily guest rolling + visit tracking + familiarity levels
+ * - Dish unlock: milestone (good nights) + guest relationship paths
+ * - Spirit skin unlock: cumulative good nights milestones
+ * - Settings page: modify lights-off time, about, reset
+ * - Visibility fix: detects tab close + reopen
+ */
+
 import { useEffect, useRef, useState } from 'react'
 import { AppShell } from './components/AppShell'
 import { Home } from './pages/Home'
@@ -5,6 +16,7 @@ import { Onboarding } from './pages/Onboarding'
 import { EveningPrepare } from './pages/EveningPrepare'
 import { NightClosing } from './pages/NightClosing'
 import { MorningOpening, MiddayTransition } from './pages/MorningOpening'
+import { Settings } from './pages/Settings'
 import { createDefaultLogEntries, getGuestCountByMood, guests } from './lib/demoData'
 import {
   clearDemoStorage,
@@ -40,6 +52,18 @@ import {
 import { getSceneForCurrentTime } from './lib/timeScene'
 import { clearLastScreenOffTime, clearVisibilityData, getLastScreenOffTime, startVisibilityTracking } from './lib/visibility'
 import { calculateTrend } from './lib/trendCalculation'
+import {
+  loadGuestProgress, saveGuestProgress, clearGuestProgress,
+  rollTodayGuests, recordDailyVisits, type GuestProgressMap,
+} from './lib/guestProgression'
+import {
+  loadDishProgress, saveDishProgress, clearDishProgress,
+  evaluateDishUnlocks, type DishProgressMap,
+} from './lib/dishProgression'
+import {
+  loadSpiritProgress, saveSpiritProgress, clearSpiritProgress,
+  evaluateSpiritUnlocks, type SpiritProgressState,
+} from './lib/spiritProgression'
 import { RecipeBookOverlay } from './overlays/RecipeBookOverlay'
 import { SpiritHutOverlay } from './overlays/SpiritHutOverlay'
 import { SpiritChatOverlay } from './overlays/SpiritChatOverlay'
@@ -65,6 +89,7 @@ type AppView =
   | 'nightClosing'
   | 'morningOpening'
   | 'middayTransition'
+  | 'settings'
 
 function getTodayString() {
   const now = new Date()
@@ -72,6 +97,7 @@ function getTodayString() {
 }
 
 export default function App() {
+  // ── Persisted state ──
   const [onboardingProfile, setOnboardingProfile] = useState<OnboardingProfile | null>(() => loadOnboardingProfile())
   const [spiritForm, setSpiritForm] = useState<SpiritForm>(() => loadSpiritForm())
   const [demoScene, setDemoScene] = useState(() => loadDemoScene())
@@ -83,10 +109,18 @@ export default function App() {
   const [todayMood, setTodayMood] = useState<'busy' | 'normal' | 'quiet'>(() => loadTodayMood())
   const [middayDone, setMiddayDone] = useState(() => loadMiddayDone())
   const [autoSceneEnabled, setAutoSceneEnabled] = useState(() => loadAutoSceneEnabled())
+
+  // v5.4: Progression state
+  const [guestProgress, setGuestProgress] = useState<GuestProgressMap>(() => loadGuestProgress())
+  const [dishProgress, setDishProgress] = useState<DishProgressMap>(() => loadDishProgress())
+  const [spiritProgress, setSpiritProgress] = useState<SpiritProgressState>(() => loadSpiritProgress())
+
+  // ── Ephemeral state ──
   const [guestBookPage, setGuestBookPage] = useState(0)
   const [debugHotspots, setDebugHotspots] = useState(false)
   const [returnMessage, setReturnMessage] = useState<string | null>(() => loadReturnMessage())
 
+  // ── View routing ──
   const lastOpenDate = loadLastOpenDate()
   const todayStr = getTodayString()
   const needsMorningOpening = onboardingProfile !== null && lastOpenDate !== todayStr
@@ -97,10 +131,8 @@ export default function App() {
     return 'home'
   })
 
-  useEffect(() => {
-    if (onboardingProfile) saveOnboardingProfile(onboardingProfile)
-  }, [onboardingProfile])
-
+  // ── Persist on change ──
+  useEffect(() => { if (onboardingProfile) saveOnboardingProfile(onboardingProfile) }, [onboardingProfile])
   useEffect(() => { saveSpiritForm(spiritForm) }, [spiritForm])
   useEffect(() => { saveDemoScene(demoScene) }, [demoScene])
   useEffect(() => { saveTonightClosed(tonightClosed) }, [tonightClosed])
@@ -109,27 +141,32 @@ export default function App() {
   useEffect(() => { saveTodayMood(todayMood) }, [todayMood])
   useEffect(() => { saveMiddayDone(middayDone) }, [middayDone])
   useEffect(() => { saveAutoSceneEnabled(autoSceneEnabled) }, [autoSceneEnabled])
+  useEffect(() => { saveGuestProgress(guestProgress) }, [guestProgress])
+  useEffect(() => { saveDishProgress(dishProgress) }, [dishProgress])
+  useEffect(() => { saveSpiritProgress(spiritProgress) }, [spiritProgress])
 
   useEffect(() => {
-    if (!autoSceneEnabled || !onboardingProfile) {
+    if (Object.keys(dishProgress).length > 0) {
       return
     }
 
-    function tick() {
-      if (view !== 'home') {
-        return
-      }
+    const initialDish = evaluateDishUnlocks({}, logEntries, guestProgress)
+    setDishProgress(initialDish.updated)
+  }, [dishProgress, guestProgress, logEntries])
 
-      if (Date.now() < autoSceneSuppressedUntil.current) {
-        return
-      }
+  // ── Auto scene switching ──
+  useEffect(() => {
+    if (!autoSceneEnabled || !onboardingProfile) return
+
+    function tick() {
+      if (view !== 'home') return
+      if (Date.now() < autoSceneSuppressedUntil.current) return
 
       const suggested = getSceneForCurrentTime({
         lightsOffTime: eveningPrepare.plannedLightsOffTime,
         tonightClosed,
         todayMood,
       })
-
       setDemoScene((current) => (current === suggested ? current : suggested))
     }
 
@@ -138,32 +175,28 @@ export default function App() {
     return () => window.clearInterval(id)
   }, [autoSceneEnabled, onboardingProfile, eveningPrepare.plannedLightsOffTime, tonightClosed, todayMood, view])
 
+  // ── Visibility tracking ──
   useEffect(() => {
-    if (!onboardingProfile) {
-      return
-    }
+    if (!onboardingProfile) return
 
     const cleanup = startVisibilityTracking(
       {
         onReturn: (awayMs) => {
-          if (awayMs <= 30_000) {
-            return
-          }
+          if (awayMs <= 30_000) return
 
           const msg = awayMs > 600_000
-            ? '\u54CE\uff0c\u4f60\u56de\u6765\u5566\u3002\u94fa\u5b50\u4e00\u76f4\u5f00\u7740\u5462\u3002'
-            : '\u6b22\u8fce\u56de\u6765\uff0c\u94fa\u5b50\u8fd8\u5728\u3002'
+            ? '哎，你回来啦。铺子一直开着呢。'
+            : '欢迎回来，铺子还在。'
 
           setReturnMessage(msg)
           saveReturnMessage(msg)
-
           window.setTimeout(() => {
             setReturnMessage(null)
             saveReturnMessage(null)
           }, 8000)
         },
         onScreenOffAfterClosing: () => {
-          // best sleep signal, timestamp is stored by visibility.ts
+          // best sleep signal — timestamp stored by visibility.ts
         },
       },
       () => tonightClosed,
@@ -177,6 +210,51 @@ export default function App() {
     saveReturnMessage(null)
   }
 
+  // ── Helper: run all progression evaluations ──
+  function runProgressionChecks(entries: LogEntry[], guests: GuestProgressMap) {
+    // Dish unlocks
+    const dishResult = evaluateDishUnlocks(dishProgress, entries, guests)
+    if (dishResult.newUnlocks.length > 0) {
+      setDishProgress(dishResult.updated)
+    } else {
+      setDishProgress(dishResult.updated)
+    }
+
+    // Spirit skin unlocks
+    const spiritResult = evaluateSpiritUnlocks(spiritProgress, entries)
+    if (spiritResult.newUnlocks.length > 0) {
+      setSpiritProgress(spiritResult.updated)
+    } else {
+      setSpiritProgress(spiritResult.updated)
+    }
+  }
+
+  // ── Full reset ──
+  function resetAll() {
+    clearDemoStorage()
+    clearVisibilityData()
+    clearGuestProgress()
+    clearDishProgress()
+    clearSpiritProgress()
+    setOnboardingProfile(null)
+    setSpiritForm('base')
+    setDemoScene('cover')
+    setTonightClosed(false)
+    setTodayMood('normal')
+    setMiddayDone(false)
+    setAutoSceneEnabled(true)
+    setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
+    setLogEntries(createDefaultLogEntries())
+    setGuestProgress({})
+    setDishProgress({})
+    setSpiritProgress({ totalGoodNights: 0, unlockedForms: ['base', 'xiaolongbao'] })
+    setView('home')
+    setGuestBookPage(0)
+    setDebugHotspots(false)
+    setReturnMessage(null)
+  }
+
+  // ── Onboarding ──
   if (!onboardingProfile) {
     return (
       <Onboarding
@@ -189,11 +267,16 @@ export default function App() {
             savedAt: null,
           })
           saveLastOpenDate(getTodayString())
+
+          // Initialize dish progress with defaults unlocked
+          const initialDish = evaluateDishUnlocks({}, [], {})
+          setDishProgress(initialDish.updated)
         }}
       />
     )
   }
 
+  // ── Morning opening ──
   if (view === 'morningOpening') {
     const trend = calculateTrend({
       recentEntries: logEntries.slice(0, 7),
@@ -208,6 +291,7 @@ export default function App() {
         onComplete={() => {
           saveLastOpenDate(todayStr)
 
+          // Stamp open time
           let stampedEntries = stampOpenTime(logEntries)
           const screenOffTimestamp = getLastScreenOffTime()
           if (screenOffTimestamp && stampedEntries[0]) {
@@ -217,9 +301,20 @@ export default function App() {
             ]
             clearLastScreenOffTime()
           }
-
           setLogEntries(stampedEntries)
+
+          // Set mood from trend
           setTodayMood(trend.sceneMood)
+
+          // v5.4: Roll today's guests and record visits
+          const todayGuestKeys = rollTodayGuests(trend.sceneMood, guestProgress)
+          const updatedGuestProgress = recordDailyVisits(todayGuestKeys, guestProgress)
+          setGuestProgress(updatedGuestProgress)
+
+          // v5.4: Run progression checks
+          runProgressionChecks(stampedEntries, updatedGuestProgress)
+
+          // Reset tonight state
           setTonightClosed(false)
           setMiddayDone(false)
           setDemoScene(trend.sceneMood === 'busy' ? 'busy' : trend.sceneMood === 'quiet' ? 'quiet' : 'normal')
@@ -229,6 +324,7 @@ export default function App() {
     )
   }
 
+  // ── Main app ──
   return (
     <AppShell
       topChrome={view === 'home' ? (
@@ -251,29 +347,15 @@ export default function App() {
               }`}
               onClick={() => setAutoSceneEnabled((current) => !current)}
             >
-              {autoSceneEnabled ? '\u81ea\u52a8' : '\u624b\u52a8'}
+              {autoSceneEnabled ? '自动' : '手动'}
             </button>
 
             <button
               type="button"
               className="pointer-events-auto rounded-full bg-ink/20 px-3 py-1.5 text-xs text-paper backdrop-blur-sm transition hover:bg-ink/30"
               onClick={() => {
-                if (!window.confirm('\u8981\u6e05\u7a7a\u5f00\u5e97\u6d41\u7a0b\u548c\u672c\u5730\u6f14\u793a\u8bb0\u5f55\u5417\uff1f')) return
-                clearDemoStorage()
-                clearVisibilityData()
-                setOnboardingProfile(null)
-                setSpiritForm('base')
-                setDemoScene('cover')
-                setTonightClosed(false)
-                setTodayMood('normal')
-                setMiddayDone(false)
-                setAutoSceneEnabled(true)
-                setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
-                setLogEntries(createDefaultLogEntries())
-                setView('home')
-                setGuestBookPage(0)
-                setDebugHotspots(false)
-                setReturnMessage(null)
+                if (!window.confirm('要清空开店流程和本地演示记录吗？')) return
+                resetAll()
               }}
             >
               重置
@@ -303,18 +385,24 @@ export default function App() {
           if (scene === 'night') setView('nightClosing')
           if (scene === 'daytime' && !middayDone) setView('middayTransition')
         }}
+        onOpenSettings={() => setView('settings')}
       />
+
+      {/* ── Overlays ── */}
 
       {view === 'recipeBookConfirm' ? (
         <RecipeBookConfirmView onConfirm={() => setView('recipeBookOpen')} onCancel={() => setView('home')} />
       ) : null}
-      {view === 'recipeBookOpen' ? <RecipeBookOverlay onClose={() => setView('home')} /> : null}
+      {view === 'recipeBookOpen' ? (
+        <RecipeBookOverlay dishProgress={dishProgress} onClose={() => setView('home')} />
+      ) : null}
       {view === 'guestBookConfirm' ? (
         <GuestBookConfirmView onConfirm={() => setView('guestBookOpen')} onCancel={() => setView('home')} />
       ) : null}
       {view === 'guestBookOpen' ? (
         <GuestBookOpenView
           page={guestBookPage}
+          guestProgress={guestProgress}
           onBackToHome={() => setView('home')}
           onPrev={() => setGuestBookPage((current) => (current - 1 + guests.length) % guests.length)}
           onNext={() => setGuestBookPage((current) => (current + 1) % guests.length)}
@@ -332,6 +420,7 @@ export default function App() {
         <SpiritHutOverlay
           spiritName={onboardingProfile.spiritName}
           currentForm={spiritForm}
+          spiritProgress={spiritProgress}
           onSelectForm={setSpiritForm}
           onClose={() => setView('home')}
         />
@@ -358,9 +447,15 @@ export default function App() {
               targetLightsOffTime: onboardingProfile.defaultLightsOffTime,
             })
             const newEntry = createCloseLogEntry(trend.mood, getGuestCountByMood(todayMood))
-            setLogEntries((current) => [newEntry, ...current])
+            const updatedEntries = [newEntry, ...logEntries]
+            setLogEntries(updatedEntries)
             setTonightClosed(true)
             setDemoScene('lightsOff')
+
+            // v5.4: Re-evaluate spirit unlocks after closing
+            const spiritResult = evaluateSpiritUnlocks(spiritProgress, updatedEntries)
+            setSpiritProgress(spiritResult.updated)
+
             setView('home')
           }}
           onClose={() => setView('home')}
@@ -376,6 +471,22 @@ export default function App() {
             setDemoScene('daytime')
             setView('home')
           }}
+        />
+      ) : null}
+      {view === 'settings' ? (
+        <Settings
+          spiritName={onboardingProfile.spiritName}
+          defaultLightsOffTime={onboardingProfile.defaultLightsOffTime}
+          onUpdateLightsOffTime={(time) => {
+            const updated = { ...onboardingProfile, defaultLightsOffTime: time }
+            setOnboardingProfile(updated)
+            setEveningPrepare((current) => ({
+              ...current,
+              plannedLightsOffTime: time,
+            }))
+          }}
+          onResetAll={resetAll}
+          onClose={() => setView('home')}
         />
       ) : null}
     </AppShell>
