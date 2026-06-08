@@ -1,14 +1,8 @@
 /**
- * storage.ts — v5.5
+ * storage.ts — v5.7
  *
- * Now a types + utilities file. All persistent state lives in the unified
- * store (dataStore.ts). Individual load/save functions are removed.
- *
- * What remains:
- * - All type exports (used everywhere)
- * - defaultOnboardingDraft (used by Onboarding.tsx)
- * - Onboarding draft functions (temp data, outside the store)
- * - createCloseLogEntry / stampOpenTime (pure helpers)
+ * Changes from v5.5:
+ * - Added worry/worryStatus to LogEntry for worry loop closure
  */
 
 // ── Types ──
@@ -53,6 +47,8 @@ export type SpiritBody = 'base' | 'xiaolongbao' | 'bagel' | 'croissant'
 
 export type ShopMood = '热闹' | '平常' | '安静'
 
+export type WorryStatus = 'pending' | 'released' | 'carrying'
+
 export interface OnboardingProfile {
   nightType: NightType
   personaAnswers: string[]
@@ -88,6 +84,10 @@ export interface LogEntry {
   realOpenTimestamp?: string
   screenOffTimestamp?: string
   isRealData?: boolean
+  /** 傍晚写下的心事（打烊时从 eveningPrepare.worry 复制过来） */
+  worry?: string
+  /** 心事状态：pending=未回看, released=已放下, carrying=还在 */
+  worryStatus?: WorryStatus
 }
 
 // ── Onboarding draft (temporary, lives outside the store) ──
@@ -131,9 +131,17 @@ function formatDate(date: Date) {
   return `${date.getMonth() + 1}月${date.getDate()}日`
 }
 
-export function createCloseLogEntry(shopMood: ShopMood, guestCount: number): LogEntry {
+/**
+ * 创建打烊日志条目
+ * @param worry 傍晚写下的心事（可选，从 eveningPrepare.worry 传入）
+ */
+export function createCloseLogEntry(
+  shopMood: ShopMood,
+  guestCount: number,
+  worry?: string,
+): LogEntry {
   const now = new Date()
-  return {
+  const entry: LogEntry = {
     date: formatDate(now),
     openTime: '',
     closeTime: formatTime(now),
@@ -143,6 +151,14 @@ export function createCloseLogEntry(shopMood: ShopMood, guestCount: number): Log
     realCloseTimestamp: now.toISOString(),
     isRealData: true,
   }
+
+  // 如果有心事，写入日志
+  if (worry && worry.trim()) {
+    entry.worry = worry.trim()
+    entry.worryStatus = 'pending'
+  }
+
+  return entry
 }
 
 export function stampOpenTime(entries: LogEntry[]): LogEntry[] {

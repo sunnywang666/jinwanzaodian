@@ -1,6 +1,16 @@
+/**
+ * SpiritChatOverlay.tsx — v5.8
+ *
+ * 精灵对话完整重建：
+ * - 自由文本输入（用户可以打字）
+ * - 快捷回复可触发导航（写心事→傍晚准备，打烊→打烊流程）
+ * - 温暖背景（渐变色调，非纯白）
+ * - 保留 AIPing API 调用（已在 v5.7 接入）
+ */
+
 import { useState, useRef, useEffect } from 'react'
 import { spiritAssets } from '../lib/assets'
-import { initialChatMessages, quickReplies, type ChatMessage } from '../lib/demoData'
+import { initialChatMessages, type ChatMessage } from '../lib/demoData'
 import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
 import type { NightType } from '../lib/storage'
@@ -9,6 +19,8 @@ interface SpiritChatOverlayProps {
   spiritName: string
   nightType: NightType
   onGoToHut: () => void
+  onGoToEveningPrepare: () => void
+  onGoToNightClosing: () => void
   onClose: () => void
 }
 
@@ -23,25 +35,13 @@ const systemPrompts: Record<NightType, string> = {
   '说不清': '你是「今晚早点」的面点精灵，名字由店长起。你陪着一个今晚说不清是什么感觉的店长。你只是在，不追问，不定义，铺子的灯还亮着，你还在。说话极简，2句以内，说中文。',
 }
 
-/* ── API 配置 ── */
+/* ── API ── */
 
-/** Current deployed Vercel proxy endpoint for GitHub Pages frontend */
 const DEFAULT_CHAT_API = 'https://jinwanzaodian-mk8xhm66e-sunny-happy-projects.vercel.app/api/chat'
 
-function getChatApiUrl(): string {
-  return DEFAULT_CHAT_API
-}
-
-/** 用户自带的 AIPing key（可选，不填则用服务端内置 key） */
 function getUserApiKey(): string | null {
-  try {
-    return localStorage.getItem('jinwanzaodian:aiping_key') ?? null
-  } catch {
-    return null
-  }
+  try { return localStorage.getItem('jinwanzaodian:aiping_key') ?? null } catch { return null }
 }
-
-/* ── Chat API 调用 ── */
 
 async function callChat(
   messages: ChatMessage[],
@@ -49,8 +49,6 @@ async function callChat(
   spiritName: string,
 ): Promise<string> {
   const systemPrompt = `${systemPrompts[nightType]}\n\n你的名字是${spiritName}。`
-
-  // OpenAI-compatible 格式：system prompt 放 messages[0]
   const apiMessages = [
     { role: 'system' as const, content: systemPrompt },
     ...messages
@@ -64,34 +62,52 @@ async function callChat(
 
   const userKey = getUserApiKey()
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (userKey) {
-    headers['Authorization'] = `Bearer ${userKey}`
-  }
+  if (userKey) headers['Authorization'] = `Bearer ${userKey}`
 
-  const response = await fetch(getChatApiUrl(), {
+  const response = await fetch(DEFAULT_CHAT_API, {
     method: 'POST',
     headers,
     body: JSON.stringify({ messages: apiMessages, max_tokens: 150 }),
   })
 
-  if (!response.ok) {
-    const err = await response.text().catch(() => '')
-    throw new Error(`api_error_${response.status}: ${err.slice(0, 200)}`)
-  }
-
+  if (!response.ok) throw new Error(`api_error_${response.status}`)
   const data = await response.json() as { reply?: string }
   return data.reply ?? '……'
 }
 
+/* ── Quick replies with actions ── */
+
+interface QuickReply {
+  label: string
+  /** 'chat' = 正常对话, 'navigate' = 跳转到其他页面 */
+  action: 'chat' | 'navigate'
+  /** action='navigate' 时的目标 */
+  target?: 'eveningPrepare' | 'nightClosing' | 'spiritHut'
+  /** action='chat' 时 API 失败的 fallback 回复 */
+  fallback?: string
+}
+
+const quickReplies: QuickReply[] = [
+  { label: '今天有点累', action: 'chat', fallback: '那今天就少做一点，铺子也可以慢慢来。' },
+  { label: '写下今晚的心事', action: 'navigate', target: 'eveningPrepare' },
+  { label: '该打烊了', action: 'navigate', target: 'nightClosing' },
+]
+
 /* ── Main component ── */
 
-export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }: SpiritChatOverlayProps) {
+export function SpiritChatOverlay({
+  spiritName,
+  nightType,
+  onGoToHut,
+  onGoToEveningPrepare,
+  onGoToNightClosing,
+  onClose,
+}: SpiritChatOverlayProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialChatMessages)
   const [isThinking, setIsThinking] = useState(false)
-  const [showKeyInput, setShowKeyInput] = useState(false)
-  const [keyDraft, setKeyDraft] = useState('')
-  const [hasKey, setHasKey] = useState(() => Boolean(getUserApiKey()))
+  const [inputText, setInputText] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -100,10 +116,13 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
   }, [messages, isThinking])
 
   const sendMessage = async (userText: string) => {
+    if (!userText.trim()) return
+
     const stamp = Date.now()
-    const userMsg: ChatMessage = { id: `user-${stamp}`, speaker: 'user', text: userText }
+    const userMsg: ChatMessage = { id: `user-${stamp}`, speaker: 'user', text: userText.trim() }
     const nextMessages = [...messages, userMsg]
     setMessages(nextMessages)
+    setInputText('')
     setIsThinking(true)
 
     try {
@@ -112,9 +131,10 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
         ...current,
         { id: `spirit-${stamp}`, speaker: 'spirit', text: reply },
       ])
-    } catch (error) {
-      const fallback = quickReplies.find((r) => r.label === userText)?.response
-        ?? '……铺子里暖着，先不用说话也没关系。'
+    } catch {
+      // API 失败时用 fallback
+      const qr = quickReplies.find((r) => r.label === userText)
+      const fallback = qr?.fallback ?? '……铺子里暖着，先不用说话也没关系。'
       setMessages((current) => [
         ...current,
         { id: `spirit-${stamp}`, speaker: 'spirit', text: fallback },
@@ -124,21 +144,29 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
     }
   }
 
-  const saveKey = () => {
-    if (keyDraft.trim()) {
-      localStorage.setItem('jinwanzaodian:aiping_key', keyDraft.trim())
-      setHasKey(true)
-    } else {
-      localStorage.removeItem('jinwanzaodian:aiping_key')
-      setHasKey(false)
+  const handleQuickReply = (qr: QuickReply) => {
+    if (qr.action === 'navigate') {
+      if (qr.target === 'eveningPrepare') onGoToEveningPrepare()
+      else if (qr.target === 'nightClosing') onGoToNightClosing()
+      else if (qr.target === 'spiritHut') onGoToHut()
+      return
     }
-    setShowKeyInput(false)
-    setKeyDraft('')
+    sendMessage(qr.label)
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    sendMessage(inputText)
   }
 
   return (
     <GameOverlay onClose={onClose}>
-      <section className="flex h-full flex-col bg-[#f5ead8]">
+      <section
+        className="flex h-full flex-col"
+        style={{
+          background: 'linear-gradient(180deg, #f5ead8 0%, #efe1cb 40%, #e8d8c4 100%)',
+        }}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-4 pb-2 pt-[9dvh]">
           <div className="flex items-center gap-3">
@@ -160,43 +188,7 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
               </button>
             </div>
           </div>
-
-          {/* API key toggle — 可选：用户自带 key 或用内置服务 */}
-          <button
-            type="button"
-            className={`rounded-full px-2.5 py-1 text-[10px] transition ${
-              hasKey ? 'bg-sage/40 text-ink/50' : 'bg-butter/60 text-brown'
-            }`}
-            onClick={() => setShowKeyInput((v) => !v)}
-          >
-            {hasKey ? '自定义 AI ✓' : 'AI 已接入'}
-          </button>
         </div>
-
-        {/* API key input (collapsible) — 可选，留空则用内置服务 */}
-        {showKeyInput ? (
-          <div className="mx-4 mb-2 rounded-[18px] bg-white/50 px-3 py-2">
-            <p className="mb-1.5 text-[10px] text-ink/40">
-              留空使用内置 AI · 填入 AIPing Key 使用自己的额度
-            </p>
-            <div className="flex gap-2">
-              <input
-                value={keyDraft}
-                onChange={(e) => setKeyDraft(e.target.value)}
-                placeholder="AIPing API Key（可选）"
-                className="min-w-0 flex-1 bg-transparent text-xs text-ink outline-none"
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={saveKey}
-                className="shrink-0 text-xs text-brown"
-              >
-                保存
-              </button>
-            </div>
-          </div>
-        ) : null}
 
         {/* Chat area */}
         <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-2">
@@ -215,7 +207,9 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
                 ) : null}
                 <p
                   className={`max-w-[78%] rounded-[22px] px-4 py-3 text-sm leading-6 ${
-                    fromSpirit ? 'bg-white/70 text-ink/80' : 'bg-butter/70 text-ink'
+                    fromSpirit
+                      ? 'bg-white/60 text-ink/80 backdrop-blur-sm'
+                      : 'bg-[#d4a574]/40 text-ink'
                   }`}
                 >
                   {message.text}
@@ -234,7 +228,7 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
                 variant="character"
                 className="h-9 shrink-0"
               />
-              <div className="flex items-center gap-1 rounded-[22px] bg-white/70 px-4 py-3">
+              <div className="flex items-center gap-1 rounded-[22px] bg-white/60 px-4 py-3 backdrop-blur-sm">
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink/30" style={{ animationDelay: '0ms' }} />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink/30" style={{ animationDelay: '150ms' }} />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink/30" style={{ animationDelay: '300ms' }} />
@@ -244,19 +238,42 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
         </div>
 
         {/* Quick replies */}
-        <div className="grid gap-2 px-4 pb-5 pt-2">
-          {quickReplies.map((reply) => (
+        <div className="flex gap-2 overflow-x-auto px-4 py-2" style={{ scrollbarWidth: 'none' }}>
+          {quickReplies.map((qr) => (
             <button
-              key={reply.label}
+              key={qr.label}
               type="button"
               disabled={isThinking}
-              className="rounded-full bg-paper/60 px-4 py-3 text-left text-sm text-ink transition hover:bg-paper/80 disabled:opacity-40"
-              onClick={() => sendMessage(reply.label)}
+              className={`shrink-0 rounded-full px-4 py-2 text-xs transition disabled:opacity-40 ${
+                qr.action === 'navigate'
+                  ? 'bg-[#d4a574]/25 text-brown font-medium'
+                  : 'bg-white/40 text-ink/60'
+              }`}
+              onClick={() => handleQuickReply(qr)}
             >
-              {reply.label}
+              {qr.action === 'navigate' ? `→ ${qr.label}` : qr.label}
             </button>
           ))}
         </div>
+
+        {/* Free text input */}
+        <form onSubmit={handleSubmit} className="flex gap-2 px-4 pb-5 pt-1">
+          <input
+            ref={inputRef}
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            disabled={isThinking}
+            placeholder="想说点什么……"
+            className="min-w-0 flex-1 rounded-full bg-white/50 px-4 py-3 text-sm text-ink outline-none transition placeholder:text-ink/25 focus:bg-white/65 disabled:opacity-40"
+          />
+          <button
+            type="submit"
+            disabled={isThinking || !inputText.trim()}
+            className="shrink-0 rounded-full bg-[#d4a574]/40 px-5 py-3 text-sm font-medium text-ink/70 transition hover:bg-[#d4a574]/55 disabled:opacity-30"
+          >
+            发送
+          </button>
+        </form>
       </section>
     </GameOverlay>
   )

@@ -23,6 +23,7 @@ import {
   type EveningPrepareState,
   type LogEntry,
   type SpiritForm,
+  type WorryStatus,
 } from './lib/storage'
 import { loadStore, saveStore, clearStore, createDefaultStore, type AppStore } from './lib/dataStore'
 import { getSceneForCurrentTime } from './lib/timeScene'
@@ -275,6 +276,15 @@ export default function App() {
         spiritName={profile.spiritName}
         lastNightClosed={tonightClosed}
         lastCloseTime={logEntries[0]?.closeTime ?? null}
+        lastNightWorry={logEntries[0]?.worry ?? null}
+        onWorryReviewed={(status: WorryStatus) => {
+          setLogEntries((current) => {
+            if (current.length === 0) return current
+            const updated = [...current]
+            updated[0] = { ...updated[0]!, worryStatus: status }
+            return updated
+          })
+        }}
         onComplete={() => {
           setLastOpenDate(todayStr)
 
@@ -391,6 +401,8 @@ export default function App() {
           spiritName={profile.spiritName}
           nightType={profile.nightType}
           onGoToHut={() => setView('spiritHut')}
+          onGoToEveningPrepare={() => setView('eveningPrepare')}
+          onGoToNightClosing={() => setView('nightClosing')}
           onClose={() => setView('home')}
         />
       ) : null}
@@ -424,7 +436,11 @@ export default function App() {
               recentEntries: logEntries.slice(0, 7),
               targetLightsOffTime: profile.defaultLightsOffTime,
             })
-            const newEntry = createCloseLogEntry(trend.mood, getGuestCountByMood(todayMood))
+            const newEntry = createCloseLogEntry(
+              trend.mood,
+              getGuestCountByMood(todayMood),
+              eveningPrepare.worry,
+            )
             const updatedEntries = [newEntry, ...logEntries]
             setLogEntries(updatedEntries)
             setTonightClosed(true)

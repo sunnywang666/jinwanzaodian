@@ -1,17 +1,39 @@
+/**
+ * MorningOpening.tsx — v5.7
+ *
+ * Changes from v5.5:
+ * - Added worry review beat: if last night had a worry, gently bring it back
+ * - Two choices: "放下了" (released) / "还在" (carrying)
+ * - Can skip entirely (不想看)
+ * - Warm, non-judgmental tone per CBT-I worry externalization
+ */
+
 import { useState } from 'react'
 import { spiritAssets } from '../lib/assets'
 import { morningGreetings, middayTransitionCopy } from '../lib/demoData'
 import { AssetImage } from '../components/AssetImage'
 import { SoftButton } from '../components/SoftButton'
+import type { WorryStatus } from '../lib/storage'
 
 interface MorningOpeningProps {
   spiritName: string
   lastNightClosed: boolean
   lastCloseTime: string | null
+  /** 昨晚写下的心事（如果有） */
+  lastNightWorry: string | null
+  /** 回调：用户选择了心事的处理方式 */
+  onWorryReviewed: (status: WorryStatus) => void
   onComplete: (todayMood: 'busy' | 'normal' | 'quiet') => void
 }
 
-export function MorningOpening({ spiritName, lastNightClosed, lastCloseTime, onComplete }: MorningOpeningProps) {
+export function MorningOpening({
+  spiritName,
+  lastNightClosed,
+  lastCloseTime,
+  lastNightWorry,
+  onWorryReviewed,
+  onComplete,
+}: MorningOpeningProps) {
   const [beat, setBeat] = useState(0)
 
   const greeting = lastNightClosed
@@ -28,6 +50,10 @@ export function MorningOpening({ spiritName, lastNightClosed, lastCloseTime, onC
 
   const todayMood = lastNightClosed ? 'busy' as const : 'quiet' as const
 
+  // 是否有昨晚的心事需要回看
+  const hasWorry = lastNightWorry !== null && lastNightWorry.trim() !== ''
+
+  // Beat 0: 精灵问候
   if (beat === 0) {
     return (
       <div className="mx-auto flex min-h-screen max-w-[430px] flex-col bg-[#f5ead8]">
@@ -60,6 +86,7 @@ export function MorningOpening({ spiritName, lastNightClosed, lastCloseTime, onC
     )
   }
 
+  // Beat 1: 昨晚简要回顾
   if (beat === 1) {
     return (
       <div className="mx-auto flex min-h-screen max-w-[430px] flex-col bg-[#f5ead8]">
@@ -75,8 +102,14 @@ export function MorningOpening({ spiritName, lastNightClosed, lastCloseTime, onC
             <p className="mt-6 text-sm text-ink/45">{'\u6628\u665A'}</p>
             <p className="mt-2 text-lg font-semibold text-ink">{recapLine}</p>
             <p className="mt-4 text-sm leading-6 text-ink/55">{spiritRecapComment}</p>
-            <SoftButton className="mt-10" type="button" variant="primary" block onClick={() => setBeat(2)}>
-              {'\u5F00\u95E8\u8425\u4E1A'}
+            <SoftButton
+              className="mt-10"
+              type="button"
+              variant="primary"
+              block
+              onClick={() => setBeat(hasWorry ? 2 : 3)}
+            >
+              {hasWorry ? '\u7EE7\u7EED' : '\u5F00\u95E8\u8425\u4E1A'}
             </SoftButton>
           </div>
         </section>
@@ -84,6 +117,76 @@ export function MorningOpening({ spiritName, lastNightClosed, lastCloseTime, onC
     )
   }
 
+  // Beat 2: 心事回看（仅当昨晚有写心事时出现）
+  if (beat === 2 && hasWorry) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-[430px] flex-col bg-[#f5ead8]">
+        <section className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+          <div className="relative z-10 flex flex-col items-center">
+            <AssetImage
+              src={spiritAssets.base.src}
+              fallbackSrc={spiritAssets.base.fallbackSrc}
+              alt={spiritName}
+              variant="character"
+              className="h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]"
+            />
+
+            <p className="mt-6 text-sm text-ink/45">
+              {spiritName} 轻轻递来昨晚的小纸条
+            </p>
+
+            {/* 心事内容 */}
+            <div className="mt-4 w-full rounded-[20px] bg-white/40 px-5 py-4">
+              <p className="text-sm leading-7 text-ink/70">
+                {lastNightWorry}
+              </p>
+            </div>
+
+            <p className="mt-4 text-sm leading-6 text-ink/50">
+              过了一夜，这件事还压着你吗？
+            </p>
+
+            {/* 两个选择 */}
+            <div className="mt-6 flex w-full gap-3">
+              <button
+                type="button"
+                className="flex-1 rounded-[18px] bg-white/45 px-4 py-3.5 text-sm font-medium text-ink/70 transition hover:bg-white/60"
+                onClick={() => {
+                  onWorryReviewed('released')
+                  setBeat(3)
+                }}
+              >
+                放下了
+              </button>
+              <button
+                type="button"
+                className="flex-1 rounded-[18px] bg-white/45 px-4 py-3.5 text-sm font-medium text-ink/70 transition hover:bg-white/60"
+                onClick={() => {
+                  onWorryReviewed('carrying')
+                  setBeat(3)
+                }}
+              >
+                还在
+              </button>
+            </div>
+
+            {/* 跳过 */}
+            <button
+              type="button"
+              className="mt-3 text-xs text-ink/30 transition hover:text-ink/45"
+              onClick={() => {
+                setBeat(3)
+              }}
+            >
+              不想看
+            </button>
+          </div>
+        </section>
+      </div>
+    )
+  }
+
+  // Beat 3: 开门
   return (
     <div className="mx-auto flex min-h-screen max-w-[430px] flex-col bg-[#f5ead8]">
       <section className="flex flex-1 flex-col items-center justify-center px-6 text-center">
@@ -100,6 +203,8 @@ export function MorningOpening({ spiritName, lastNightClosed, lastCloseTime, onC
     </div>
   )
 }
+
+/* ── MiddayTransition (unchanged) ── */
 
 interface MiddayTransitionProps {
   spiritName: string

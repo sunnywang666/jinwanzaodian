@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.8
+
+Spirit chat rebuild, free text input, and worry-loop closure across evening and morning flows.
+
+Included in this version:
+- Rebuilt `SpiritChatOverlay` with free text input so the player can type directly instead of relying only on fixed reply chips.
+- Added actionable quick replies in spirit chat, including shortcuts that jump directly to evening preparation and the night-closing flow.
+- Refreshed the spirit chat presentation with a warmer gradient background and softer message-bubble styling.
+- Expanded `LogEntry` with `worry` and `worryStatus` so an evening note can travel into the nightly log and be revisited the next morning.
+- Updated `createCloseLogEntry()` to optionally capture the current evening worry when closing the shop.
+- Added a worry-review beat to `MorningOpening`, letting the player mark last night's note as released, still carrying, or skip it entirely.
+- Updated `App.tsx` to pass the new spirit-chat navigation callbacks, persist worry data into the closing log, and handle the morning worry-review callback.
+- Kept the current Vercel-backed spirit chat API path in place while applying the new `v5.8` chat UI.
+
 ## v5.7
 
 Spirit chat API migration to AIPing, with a server-side proxy and optional user keys.
