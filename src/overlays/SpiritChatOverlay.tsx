@@ -1,10 +1,11 @@
 /**
- * SpiritChatOverlay.tsx — v5.9
+ * SpiritChatOverlay.tsx — v6.0
  *
- * 改进：
- * 1. 系统 prompt 注入当晚心事，让 AI 能接住
- * 2. 快捷回复根据场景变化（白天/傍晚/打烊后）
- * 3. 初始消息根据时间变化
+ * Changes from v5.9:
+ * - Removed "去小屋看看" link from header (unnecessary in chat context)
+ * - Improved fallback: when API fails, show a more varied offline response
+ * - Added error toast when API is unreachable
+ * - Removed onGoToHut prop
  */
 
 import { useState, useRef, useEffect } from 'react'
@@ -17,11 +18,8 @@ import type { DemoScene, NightType } from '../lib/storage'
 interface SpiritChatOverlayProps {
   spiritName: string
   nightType: NightType
-  /** 当前场景（用于快捷回复和初始消息） */
   currentScene: DemoScene
-  /** 今晚写的心事（注入 AI 上下文） */
   tonightWorry: string
-  onGoToHut: () => void
   onGoToEveningPrepare: () => void
   onGoToNightClosing: () => void
   onClose: () => void
@@ -40,7 +38,13 @@ const systemPrompts: Record<NightType, string> = {
 
 /* ── API ── */
 
-const DEFAULT_CHAT_API = 'https://jinwanzaodian-mk8xhm66e-sunny-happy-projects.vercel.app/api/chat'
+function getChatApiUrl(): string {
+  try {
+    const custom = localStorage.getItem('jinwanzaodian:chat_api_url')
+    if (custom && custom.trim()) return custom.trim()
+  } catch { /* ignore */ }
+  return 'https://jinwanzaodian-mk8xhm66e-sunny-happy-projects.vercel.app/api/chat'
+}
 
 function getUserApiKey(): string | null {
   try { return localStorage.getItem('jinwanzaodian:aiping_key') ?? null } catch { return null }
@@ -54,7 +58,6 @@ async function callChat(
 ): Promise<string> {
   let systemPrompt = `${systemPrompts[nightType]}\n\n你的名字是${spiritName}。`
 
-  // 注入心事上下文
   if (worry.trim()) {
     systemPrompt += `\n\n店长今晚写下了一件放不下的事："${worry.trim()}"。如果店长聊到相关话题，你可以温柔地回应，但不要主动提起，等店长自己说。`
   }
@@ -74,7 +77,8 @@ async function callChat(
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
   if (userKey) headers['Authorization'] = `Bearer ${userKey}`
 
-  const response = await fetch(DEFAULT_CHAT_API, {
+  const url = getChatApiUrl()
+  const response = await fetch(url, {
     method: 'POST',
     headers,
     body: JSON.stringify({ messages: apiMessages, max_tokens: 150 }),
@@ -85,17 +89,35 @@ async function callChat(
   return data.reply ?? '……'
 }
 
-/* ── 场景化快捷回复 ── */
+/* ── Offline fallback pool ── */
+
+const offlineFallbacks = [
+  '……铺子里暖着，先不用说话也没关系。',
+  '嗯，我在听。',
+  '铺子的灯还亮着，不急。',
+  '今天不用把所有事都想明白。',
+  '没事的，慢慢来。',
+  '我就在柜台后面，你想说什么都行。',
+]
+
+let fallbackIndex = 0
+
+function getOfflineFallback(): string {
+  const text = offlineFallbacks[fallbackIndex % offlineFallbacks.length]
+  fallbackIndex++
+  return text
+}
+
+/* ── Scene-based quick replies ── */
 
 interface QuickReply {
   label: string
   action: 'chat' | 'navigate'
-  target?: 'eveningPrepare' | 'nightClosing' | 'spiritHut'
+  target?: 'eveningPrepare' | 'nightClosing'
   fallback?: string
 }
 
 function getQuickReplies(scene: DemoScene): QuickReply[] {
-  // 傍晚/夜晚场景
   if (scene === 'evening' || scene === 'night') {
     return [
       { label: '今天有点累', action: 'chat', fallback: '那今天就少做一点，铺子也可以慢慢来。' },
@@ -104,7 +126,6 @@ function getQuickReplies(scene: DemoScene): QuickReply[] {
     ]
   }
 
-  // 熄灯后
   if (scene === 'lightsOff') {
     return [
       { label: '睡不着', action: 'chat', fallback: '没关系，铺子的灯虽然关了，我还在。' },
@@ -112,19 +133,17 @@ function getQuickReplies(scene: DemoScene): QuickReply[] {
     ]
   }
 
-  // 白天场景（busy/normal/quiet/daytime/nap）
   return [
     { label: '今天有点累', action: 'chat', fallback: '那今天就少做一点，铺子也可以慢慢来。' },
-    { label: '去你的小屋看看', action: 'navigate', target: 'spiritHut' },
-    { label: '昨晚又晚了', action: 'chat', fallback: '没关系，铺子今天只是安静一点。我们先把豆浆热一热。' },
+    { label: '聊聊天', action: 'chat', fallback: '好呀，想说什么都行。' },
+    { label: '昨晚又晚了', action: 'chat', fallback: '没关系，铺子今天只是安静一点。' },
   ]
 }
 
-/* ── 时间化初始消息 ── */
+/* ── Time-based initial messages ── */
 
 function getInitialMessages(spiritName: string, scene: DemoScene): ChatMessage[] {
-  const now = new Date()
-  const hour = now.getHours()
+  const hour = new Date().getHours()
 
   if (scene === 'lightsOff') {
     return [
@@ -147,7 +166,6 @@ function getInitialMessages(spiritName: string, scene: DemoScene): ChatMessage[]
     ]
   }
 
-  // 下午
   return [
     { id: 'init-1', speaker: 'spirit', text: '下午了，铺子安静下来了。' },
     { id: 'init-2', speaker: 'spirit', text: '想聊聊天，还是安静待一会儿？' },
@@ -161,7 +179,6 @@ export function SpiritChatOverlay({
   nightType,
   currentScene,
   tonightWorry,
-  onGoToHut,
   onGoToEveningPrepare,
   onGoToNightClosing,
   onClose,
@@ -171,6 +188,7 @@ export function SpiritChatOverlay({
   )
   const [isThinking, setIsThinking] = useState(false)
   const [inputText, setInputText] = useState('')
+  const [apiError, setApiError] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const quickReplies = getQuickReplies(currentScene)
@@ -180,6 +198,13 @@ export function SpiritChatOverlay({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }, [messages, isThinking])
+
+  // 自动清除 API 错误提示
+  useEffect(() => {
+    if (!apiError) return
+    const timer = setTimeout(() => setApiError(false), 5000)
+    return () => clearTimeout(timer)
+  }, [apiError])
 
   const sendMessage = async (userText: string) => {
     if (!userText.trim()) return
@@ -198,8 +223,9 @@ export function SpiritChatOverlay({
         { id: `spirit-${stamp}`, speaker: 'spirit', text: reply },
       ])
     } catch {
+      setApiError(true)
       const qr = quickReplies.find((r) => r.label === userText)
-      const fallback = qr?.fallback ?? '……铺子里暖着，先不用说话也没关系。'
+      const fallback = qr?.fallback ?? getOfflineFallback()
       setMessages((current) => [
         ...current,
         { id: `spirit-${stamp}`, speaker: 'spirit', text: fallback },
@@ -213,7 +239,6 @@ export function SpiritChatOverlay({
     if (qr.action === 'navigate') {
       if (qr.target === 'eveningPrepare') onGoToEveningPrepare()
       else if (qr.target === 'nightClosing') onGoToNightClosing()
-      else if (qr.target === 'spiritHut') onGoToHut()
       return
     }
     sendMessage(qr.label)
@@ -232,28 +257,24 @@ export function SpiritChatOverlay({
           background: 'linear-gradient(180deg, #f5ead8 0%, #efe1cb 40%, #e8d8c4 100%)',
         }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 pb-2 pt-[9dvh]">
-          <div className="flex items-center gap-3">
-            <AssetImage
-              src={spiritAssets.base.src}
-              fallbackSrc={spiritAssets.base.fallbackSrc}
-              alt={spiritName}
-              variant="character"
-              className="h-12 drop-shadow-[0_4px_12px_rgba(138,97,74,0.15)]"
-            />
-            <div>
-              <h1 className="text-base font-semibold text-ink">{spiritName}</h1>
-              <button
-                type="button"
-                className="text-xs text-ink/40 transition hover:text-ink/60"
-                onClick={onGoToHut}
-              >
-                去小屋看看 →
-              </button>
-            </div>
-          </div>
+        {/* Header — clean, no "去小屋" link */}
+        <div className="flex items-center gap-3 px-4 pb-2 pt-[9dvh]">
+          <AssetImage
+            src={spiritAssets.base.src}
+            fallbackSrc={spiritAssets.base.fallbackSrc}
+            alt={spiritName}
+            variant="character"
+            className="h-12 drop-shadow-[0_4px_12px_rgba(138,97,74,0.15)]"
+          />
+          <h1 className="text-base font-semibold text-ink">{spiritName}</h1>
         </div>
+
+        {/* API error toast */}
+        {apiError ? (
+          <div className="mx-4 rounded-[14px] bg-[#d4a574]/15 px-3 py-2 text-center text-xs text-brown/60">
+            精灵暂时连不上，先用离线模式陪你
+          </div>
+        ) : null}
 
         {/* Chat area */}
         <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-2">

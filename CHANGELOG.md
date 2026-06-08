@@ -1,5 +1,19 @@
 # Changelog
 
+## v6.0
+
+Post-closing state protection, spirit chat polish, and upgraded settings for API management.
+
+Included in this version:
+- Fixed post-closing scene behavior so switching away from `lightsOff` no longer silently reopens the shop; reopening after closing now requires explicit confirmation.
+- Updated `SpiritChatOverlay` to remove the redundant "go to hut" path from chat, keeping the spirit hut accessible from the main scene instead.
+- Added a rotating offline fallback pool in spirit chat so API failures no longer repeat the same single line.
+- Added a gentle API error toast in spirit chat to make offline fallback behavior visible to the player.
+- Added configurable API URL support via localStorage, with the current Vercel proxy kept as the default fallback endpoint.
+- Upgraded `Settings.tsx` with API URL and API key management, version `v6.0` labeling, and the current `nightType` shown in the about section.
+- Expanded the settings privacy copy to explain that spirit chat uses the configured API route.
+- Updated `App.tsx` to pass `nightType` into settings, remove the deprecated hut callback from spirit chat, and guard post-closing scene changes with confirmation.
+
 ## v5.9
 
 Flow integration for worries, scene-aware spirit chat context, and richer logbook notes.

@@ -370,7 +370,10 @@ export default function App() {
         onSceneChange={(scene) => {
           autoSceneSuppressedUntil.current = Date.now() + 5 * 60 * 1000
           setDemoScene(scene)
-          if (scene !== 'lightsOff') setTonightClosed(false)
+          if (tonightClosed && scene !== 'lightsOff') {
+            if (!window.confirm('铺子已经打烊了，确定要重新开门吗？')) return
+            setTonightClosed(false)
+          }
           if (scene === 'evening') setView('eveningPrepare')
           if (scene === 'night') setView('nightClosing')
           if (scene === 'daytime' && !middayDone) setView('middayTransition')
@@ -402,7 +405,6 @@ export default function App() {
           nightType={profile.nightType}
           currentScene={demoScene}
           tonightWorry={eveningPrepare.worry}
-          onGoToHut={() => setView('spiritHut')}
           onGoToEveningPrepare={() => setView('eveningPrepare')}
           onGoToNightClosing={() => setView('nightClosing')}
           onClose={() => setView('home')}
@@ -472,6 +474,7 @@ export default function App() {
         <Settings
           spiritName={profile.spiritName}
           defaultLightsOffTime={profile.defaultLightsOffTime}
+          nightType={profile.nightType}
           onUpdateLightsOffTime={(time) => {
             setProfile((prev) => prev ? { ...prev, defaultLightsOffTime: time } : prev)
             setEveningPrepare((prev) => ({ ...prev, plannedLightsOffTime: time }))
