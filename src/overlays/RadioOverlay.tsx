@@ -1,138 +1,23 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+/**
+ * RadioOverlay.tsx — v6.1
+ *
+ * Audio engine moved to App-level (lib/ambientAudio.ts).
+ * This component receives audio controls as props — no longer manages its own AudioContext.
+ * Audio continues playing after closing the overlay.
+ */
+
+import { useState, useRef, useEffect } from 'react'
 import { toolAssets } from '../lib/assets'
 import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
+import { CHANNELS, TIMER_OPTIONS, type AmbientAudioControls } from '../lib/ambientAudio'
 
-// ── Channel definitions ──
-
-type ChannelId = 'rain' | 'wind' | 'cafe' | 'fireplace'
-
-interface Channel {
-  id: ChannelId
-  name: string
-  desc: string
-  color: string
-  noiseType: 'white' | 'pink' | 'brown'
-  filterFreq: number
-  filterQ: number
+interface RadioOverlayProps {
+  audio: AmbientAudioControls
+  onClose: () => void
 }
 
-const CHANNELS: Channel[] = [
-  { id: 'rain', name: '雨声', desc: '窗外淅淅沥沥', color: '#7a9eb8', noiseType: 'white', filterFreq: 1200, filterQ: 0.7 },
-  { id: 'wind', name: '微风', desc: '树叶沙沙地响', color: '#8aab7a', noiseType: 'brown', filterFreq: 400, filterQ: 0.5 },
-  { id: 'cafe', name: '咖啡馆', desc: '远处有人小声说话', color: '#b89a7a', noiseType: 'pink', filterFreq: 800, filterQ: 0.4 },
-  { id: 'fireplace', name: '壁炉', desc: '柴火噼啪作响', color: '#c4816b', noiseType: 'brown', filterFreq: 250, filterQ: 1.0 },
-]
-
-const TIMER_OPTIONS = [
-  { label: '不限', minutes: 0 },
-  { label: '15 分钟', minutes: 15 },
-  { label: '30 分钟', minutes: 30 },
-  { label: '60 分钟', minutes: 60 },
-]
-
-// ── Audio engine ──
-
-function createNoiseBuffer(ctx: AudioContext, type: 'white' | 'pink' | 'brown'): AudioBuffer {
-  const size = ctx.sampleRate * 2
-  const buffer = ctx.createBuffer(1, size, ctx.sampleRate)
-  const data = buffer.getChannelData(0)
-
-  if (type === 'white') {
-    for (let i = 0; i < size; i++) data[i] = Math.random() * 2 - 1
-  } else if (type === 'brown') {
-    let last = 0
-    for (let i = 0; i < size; i++) {
-      const w = Math.random() * 2 - 1
-      data[i] = (last + 0.02 * w) / 1.02
-      last = data[i]
-      data[i] *= 3.5
-    }
-  } else {
-    // pink noise (Voss-McCartney)
-    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0
-    for (let i = 0; i < size; i++) {
-      const w = Math.random() * 2 - 1
-      b0 = 0.99886 * b0 + w * 0.0555179
-      b1 = 0.99332 * b1 + w * 0.0750759
-      b2 = 0.96900 * b2 + w * 0.1538520
-      b3 = 0.86650 * b3 + w * 0.3104856
-      b4 = 0.55000 * b4 + w * 0.5329522
-      b5 = -0.7616 * b5 - w * 0.0168980
-      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11
-      b6 = w * 0.115926
-    }
-  }
-  return buffer
-}
-
-function useAmbientAudio() {
-  const ctxRef = useRef<AudioContext | null>(null)
-  const sourceRef = useRef<AudioBufferSourceNode | null>(null)
-  const gainRef = useRef<GainNode | null>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentChannel, setCurrentChannel] = useState<ChannelId>('rain')
-  const [volume, setVolume] = useState(0.5)
-
-  const stop = useCallback(() => {
-    if (sourceRef.current) {
-      try { sourceRef.current.stop() } catch { /* already stopped */ }
-      sourceRef.current = null
-    }
-    setIsPlaying(false)
-  }, [])
-
-  const play = useCallback((channelId: ChannelId) => {
-    // Stop previous
-    if (sourceRef.current) {
-      try { sourceRef.current.stop() } catch { /* ok */ }
-      sourceRef.current = null
-    }
-
-    const channel = CHANNELS.find(c => c.id === channelId)!
-
-    if (!ctxRef.current) ctxRef.current = new AudioContext()
-    const ctx = ctxRef.current
-    if (ctx.state === 'suspended') ctx.resume()
-
-    const buffer = createNoiseBuffer(ctx, channel.noiseType)
-    const source = ctx.createBufferSource()
-    source.buffer = buffer
-    source.loop = true
-
-    const filter = ctx.createBiquadFilter()
-    filter.type = 'bandpass'
-    filter.frequency.value = channel.filterFreq
-    filter.Q.value = channel.filterQ
-
-    const gain = ctx.createGain()
-    gain.gain.value = volume
-    gainRef.current = gain
-
-    source.connect(filter).connect(gain).connect(ctx.destination)
-    source.start()
-    sourceRef.current = source
-    setCurrentChannel(channelId)
-    setIsPlaying(true)
-  }, [stop, volume])
-
-  const updateVolume = useCallback((v: number) => {
-    setVolume(v)
-    if (gainRef.current) gainRef.current.gain.value = v
-  }, [])
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (sourceRef.current) try { sourceRef.current.stop() } catch { /* ok */ }
-      if (ctxRef.current) try { ctxRef.current.close() } catch { /* ok */ }
-    }
-  }, [])
-
-  return { isPlaying, currentChannel, volume, play, stop, updateVolume }
-}
-
-// ── Breathing guide (4s inhale → 4s hold → 6s exhale) ──
+/* ── Breathing guide ── */
 
 function BreathingGuide({ active }: { active: boolean }) {
   const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale')
@@ -176,8 +61,7 @@ function BreathingGuide({ active }: { active: boolean }) {
       <div
         className="flex items-center justify-center rounded-full"
         style={{
-          width: 96,
-          height: 96,
+          width: 96, height: 96,
           transform: `scale(${scale})`,
           transition: 'transform 80ms linear',
           background: 'radial-gradient(circle, rgba(207,216,192,0.45) 0%, rgba(207,216,192,0.1) 70%, transparent 100%)',
@@ -190,19 +74,13 @@ function BreathingGuide({ active }: { active: boolean }) {
   )
 }
 
-// ── Main component ──
+/* ── Main ── */
 
-interface RadioOverlayProps {
-  onClose: () => void
-}
-
-export function RadioOverlay({ onClose }: RadioOverlayProps) {
-  const audio = useAmbientAudio()
+export function RadioOverlay({ audio, onClose }: RadioOverlayProps) {
   const [timerMinutes, setTimerMinutes] = useState(0)
   const [breathingActive, setBreathingActive] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Sleep timer
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
     if (timerMinutes > 0 && audio.isPlaying) {
@@ -217,7 +95,6 @@ export function RadioOverlay({ onClose }: RadioOverlayProps) {
     <GameOverlay title="收音机" onClose={onClose}>
       <section className="flex h-full flex-col bg-[#f5ead8] px-5 pb-6 pt-[5dvh] overflow-y-auto">
 
-        {/* Radio image */}
         <div className="mx-auto w-full max-w-[130px]">
           <AssetImage
             src={toolAssets.radio.src}
@@ -228,13 +105,11 @@ export function RadioOverlay({ onClose }: RadioOverlayProps) {
           />
         </div>
 
-        {/* Current station */}
         <div className="mt-4 text-center">
           <p className="text-lg font-semibold text-ink">{activeChannel.name}</p>
           <p className="mt-1 text-sm text-ink/40">{activeChannel.desc}</p>
         </div>
 
-        {/* Channel selector */}
         <div className="mt-5 flex justify-center gap-3">
           {CHANNELS.map((ch) => {
             const isActive = audio.currentChannel === ch.id && audio.isPlaying
@@ -263,7 +138,6 @@ export function RadioOverlay({ onClose }: RadioOverlayProps) {
           })}
         </div>
 
-        {/* Play / Pause */}
         <div className="mt-6 flex justify-center">
           <button
             type="button"
@@ -286,7 +160,6 @@ export function RadioOverlay({ onClose }: RadioOverlayProps) {
           </button>
         </div>
 
-        {/* Volume */}
         <div className="mt-5 flex items-center gap-3 px-3">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" className="shrink-0 text-ink/25">
             <path d="M8 2L4 5.5H1v5h3L8 14V2z"></path>
@@ -308,7 +181,6 @@ export function RadioOverlay({ onClose }: RadioOverlayProps) {
           </svg>
         </div>
 
-        {/* Sleep timer */}
         <div className="mt-6">
           <p className="text-xs text-ink/30">定时关闭</p>
           <div className="mt-2 flex gap-2">
@@ -329,7 +201,6 @@ export function RadioOverlay({ onClose }: RadioOverlayProps) {
           </div>
         </div>
 
-        {/* Breathing guide */}
         <div className="mt-6">
           <button
             type="button"
@@ -343,7 +214,6 @@ export function RadioOverlay({ onClose }: RadioOverlayProps) {
           </button>
           <BreathingGuide active={breathingActive} />
         </div>
-
       </section>
     </GameOverlay>
   )

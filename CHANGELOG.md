@@ -1,5 +1,19 @@
 # Changelog
 
+## v6.1
+
+Persistent ambient audio, dynamic message board content, recipe-book backdrop polish, and safe dead-code cleanup.
+
+Included in this version:
+- Added `ambientAudio.ts` and lifted the ambient audio engine to the app level so radio playback can continue after closing the radio overlay.
+- Updated `RadioOverlay` to consume shared audio controls instead of managing its own `AudioContext`.
+- Added a mini now-playing indicator on the home HUD so active ambient audio can be reopened quickly.
+- Fixed the `onSceneChange` confirmation ordering bug by prompting before mutating scene state.
+- Updated `MessageBoardOverlay` to generate guest notes, shop milestone notes, and released-worry notes dynamically from live progression data.
+- Updated `RecipeBookOverlay` to render over the shop background with a translucent dim layer, matching the more immersive book presentation used elsewhere.
+- Applied safe dead-code cleanup for unused legacy overlays/pages/helpers that are no longer imported by the active app flow.
+- Kept the existing store, spirit chat API configuration, and worry-loop behavior intact while layering in the `v6.1` media and board improvements.
+
 ## v6.0
 
 Post-closing state protection, spirit chat polish, and upgraded settings for API management.

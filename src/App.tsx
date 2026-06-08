@@ -1,5 +1,5 @@
 /**
- * App.tsx — v5.5
+ * App.tsx — v6.1
  *
  * Data layer unification:
  * - All persistent state loaded from one `loadStore()` call
@@ -47,6 +47,7 @@ import { MessageBoardOverlay } from './overlays/MessageBoardOverlay'
 import { RecipeBookConfirmView } from './views/RecipeBookConfirmView'
 import { GuestBookConfirmView } from './views/GuestBookConfirmView'
 import { GuestBookOpenView } from './views/GuestBookOpenView'
+import { useAmbientAudio, CHANNELS } from './lib/ambientAudio'
 
 // ── Ephemeral keys (outside the store) ──
 
@@ -110,6 +111,7 @@ export default function App() {
   const [guestBookPage, setGuestBookPage] = useState(0)
   const [debugHotspots, setDebugHotspots] = useState(false)
   const [returnMessage, setReturnMessage] = useState<string | null>(() => loadReturnMessage())
+  const ambientAudio = useAmbientAudio()
 
   // ── View routing ──
   const todayStr = getTodayString()
@@ -329,7 +331,16 @@ export default function App() {
             </button>
           ) : <div />}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-start">
+            {ambientAudio.isPlaying ? (
+              <button
+                type="button"
+                className="pointer-events-auto animate-pulse rounded-full bg-ink/20 px-3 py-1.5 text-xs text-paper backdrop-blur-sm transition hover:bg-ink/30"
+                onClick={() => setView('radio')}
+              >
+                ♫ {CHANNELS.find((c) => c.id === ambientAudio.currentChannel)?.name ?? '播放中'}
+              </button>
+            ) : null}
             <button
               type="button"
               className={`pointer-events-auto rounded-full px-3 py-1.5 text-xs backdrop-blur-sm transition ${
@@ -369,11 +380,11 @@ export default function App() {
         }}
         onSceneChange={(scene) => {
           autoSceneSuppressedUntil.current = Date.now() + 5 * 60 * 1000
-          setDemoScene(scene)
           if (tonightClosed && scene !== 'lightsOff') {
             if (!window.confirm('铺子已经打烊了，确定要重新开门吗？')) return
             setTonightClosed(false)
           }
+          setDemoScene(scene)
           if (scene === 'evening') setView('eveningPrepare')
           if (scene === 'night') setView('nightClosing')
           if (scene === 'daytime' && !middayDone) setView('middayTransition')
@@ -419,9 +430,15 @@ export default function App() {
           onClose={() => setView('home')}
         />
       ) : null}
-      {view === 'radio' ? <RadioOverlay onClose={() => setView('home')} /> : null}
+      {view === 'radio' ? <RadioOverlay audio={ambientAudio} onClose={() => setView('home')} /> : null}
       {view === 'logbook' ? <LogbookOverlay entries={logEntries} onClose={() => setView('home')} /> : null}
-      {view === 'messageBoard' ? <MessageBoardOverlay onClose={() => setView('home')} /> : null}
+      {view === 'messageBoard' ? (
+        <MessageBoardOverlay
+          guestProgress={guestProgress}
+          logEntries={logEntries}
+          onClose={() => setView('home')}
+        />
+      ) : null}
       {view === 'eveningPrepare' ? (
         <EveningPrepare
           initialValue={eveningPrepare}
