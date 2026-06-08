@@ -1,5 +1,19 @@
 # Changelog
 
+## v6.3
+
+Morning opening ceremony upgrade with a five-beat animated ritual and guest reveal.
+
+Included in this version:
+- Rebuilt `MorningOpening` into a five-beat opening ritual: shutter opening, light-on greeting, small reward, worry review, and guest arrival.
+- Added personalized greeting copy for each night type across both "closed properly" and "not closed" outcomes.
+- Added reward feedback that can surface skin-progress milestones, near-milestones, or warm encouragement depending on the previous night.
+- Preserved the worry-review beat from `v5.8`, now integrated into the wider opening ceremony with smarter skipping.
+- Added a final beat that reveals a subset of today's guests with staggered entry animation before opening the shop.
+- Added smart beat skipping so users without a reward or worry can reach the live shop state faster.
+- Updated `App.tsx` so `todayGuestKeys` are computed before rendering `MorningOpening`, allowing the opening ceremony to preview the actual guests that will visit that day.
+- Wired `nightType`, `trend`, `spiritProgress`, and `todayGuestKeys` into `MorningOpening` while keeping the rest of the daily progression flow intact.
+
 ## v6.2
 
 Lightweight i18n architecture, onboarding narrative redesign, and language switching.

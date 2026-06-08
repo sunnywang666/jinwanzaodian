@@ -1,5 +1,5 @@
 /**
- * App.tsx — v6.1
+ * App.tsx — v6.3
  *
  * Data layer unification:
  * - All persistent state loaded from one `loadStore()` call
@@ -272,13 +272,18 @@ export default function App() {
       recentEntries: logEntries.slice(0, 7),
       targetLightsOffTime: profile.defaultLightsOffTime,
     })
+    const todayGuestKeys = rollTodayGuests(trend.sceneMood, guestProgress)
 
     return (
       <MorningOpening
         spiritName={profile.spiritName}
+        nightType={profile.nightType}
         lastNightClosed={tonightClosed}
         lastCloseTime={logEntries[0]?.closeTime ?? null}
         lastNightWorry={logEntries[0]?.worry ?? null}
+        trend={trend}
+        spiritProgress={spiritProgress}
+        todayGuestKeys={todayGuestKeys}
         onWorryReviewed={(status: WorryStatus) => {
           setLogEntries((current) => {
             if (current.length === 0) return current
@@ -302,7 +307,6 @@ export default function App() {
           setLogEntries(stampedEntries)
           setTodayMood(trend.sceneMood)
 
-          const todayGuestKeys = rollTodayGuests(trend.sceneMood, guestProgress)
           const updatedGP = recordDailyVisits(todayGuestKeys, guestProgress)
           setGuestProgress(updatedGP)
           runProgressionChecks(stampedEntries, updatedGP)
