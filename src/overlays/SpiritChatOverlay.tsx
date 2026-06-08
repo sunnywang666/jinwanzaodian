@@ -15,61 +15,72 @@ interface SpiritChatOverlayProps {
 /* ── System prompts by night type ── */
 
 const systemPrompts: Record<NightType, string> = {
-  '报复型': `你是「今晚早点」的面点精灵，名字由店长起。你陪着一个报复型夜熬者——他不是不困，只是想把白天失去的时间拿回来。你懂得夜晚对他来说是唯一属于自己的时间。你不催促，不说教，只是温柔陪伴。铺子的语气是暖的、松的，像一个老朋友。回复控制在2-3句以内，说中文，不用"好的"开头。`,
-  '惯性型': `你是「今晚早点」的面点精灵，名字由店长起。你陪着一个惯性型夜熬者——知道该停下来但手总是停不下来。你用铺子里的小事转移注意力，让放下手机这件事变得自然。回复温暖、简短、不催促。2-3句，说中文。`,
-  '焦虑型': `你是「今晚早点」的面点精灵，名字由店长起。你陪着一个焦虑型夜熬者——脑子里停不下来。你帮他们把明天的事放到明天，说话慢而稳，让今晚不用担心。不给建议，只是陪着。2-3句，说中文。`,
-  '工作型': `你是「今晚早点」的面点精灵，名字由店长起。你陪着一个工作型夜熬者——总想把活儿做完再休息。你帮他们把待办放到明天，把早睡转化成"明天才能早起开门"的期待。温柔而实际。2-3句，说中文。`,
-  '猫头鹰型': `你是「今晚早点」的面点精灵，名字由店长起。你陪着一个天生节奏偏晚的店长。你不评判他们的作息，只是温柔陪着，把早睡变成可能而非任务。2-3句，说中文。`,
-  '说不清': `你是「今晚早点」的面点精灵，名字由店长起。你陪着一个今晚说不清是什么感觉的店长。你只是在，不追问，不定义，铺子的灯还亮着，你还在。说话极简，2句以内，说中文。`,
+  '报复型': '你是「今晚早点」的面点精灵，名字由店长起。你陪着一个报复型夜熬者——他不是不困，只是想把白天失去的时间拿回来。你懂得夜晚对他来说是唯一属于自己的时间。你不催促，不说教，只是温柔陪伴。铺子的语气是暖的、松的，像一个老朋友。回复控制在2-3句以内，说中文，不用"好的"开头。',
+  '惯性型': '你是「今晚早点」的面点精灵，名字由店长起。你陪着一个惯性型夜熬者——知道该停下来但手总是停不下来。你用铺子里的小事转移注意力，让放下手机这件事变得自然。回复温暖、简短、不催促。2-3句，说中文。',
+  '焦虑型': '你是「今晚早点」的面点精灵，名字由店长起。你陪着一个焦虑型夜熬者——脑子里停不下来。你帮他们把明天的事放到明天，说话慢而稳，让今晚不用担心。不给建议，只是陪着。2-3句，说中文。',
+  '工作型': '你是「今晚早点」的面点精灵，名字由店长起。你陪着一个工作型夜熬者——总想把活儿做完再休息。你帮他们把待办放到明天，把早睡转化成"明天才能早起开门"的期待。温柔而实际。2-3句，说中文。',
+  '猫头鹰型': '你是「今晚早点」的面点精灵，名字由店长起。你陪着一个天生节奏偏晚的店长。你不评判他们的作息，只是温柔陪着，把早睡变成可能而非任务。2-3句，说中文。',
+  '说不清': '你是「今晚早点」的面点精灵，名字由店长起。你陪着一个今晚说不清是什么感觉的店长。你只是在，不追问，不定义，铺子的灯还亮着，你还在。说话极简，2句以内，说中文。',
 }
 
-/* ── Claude API helper ── */
+/* ── API 配置 ── */
 
-function getApiKey(): string | null {
+/** Same-origin proxy endpoint for local deployment and Vercel */
+const DEFAULT_CHAT_API = '/api/chat'
+
+function getChatApiUrl(): string {
+  return DEFAULT_CHAT_API
+}
+
+/** 用户自带的 AIPing key（可选，不填则用服务端内置 key） */
+function getUserApiKey(): string | null {
   try {
-    return localStorage.getItem('jinwanzaodian:anthropic_key') ?? null
+    return localStorage.getItem('jinwanzaodian:aiping_key') ?? null
   } catch {
     return null
   }
 }
 
-async function callClaude(
+/* ── Chat API 调用 ── */
+
+async function callChat(
   messages: ChatMessage[],
   nightType: NightType,
   spiritName: string,
 ): Promise<string> {
-  const apiKey = getApiKey()
-  if (!apiKey) throw new Error('no_key')
-
   const systemPrompt = `${systemPrompts[nightType]}\n\n你的名字是${spiritName}。`
 
-  const apiMessages = messages
-    .filter((m) => m.speaker === 'user' || m.speaker === 'spirit')
-    .slice(-12)
-    .map((m) => ({
-      role: m.speaker === 'user' ? 'user' : 'assistant',
-      content: m.text,
-    }))
+  // OpenAI-compatible 格式：system prompt 放 messages[0]
+  const apiMessages = [
+    { role: 'system' as const, content: systemPrompt },
+    ...messages
+      .filter((m) => m.speaker === 'user' || m.speaker === 'spirit')
+      .slice(-12)
+      .map((m) => ({
+        role: (m.speaker === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+        content: m.text,
+      })),
+  ]
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const userKey = getUserApiKey()
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (userKey) {
+    headers['Authorization'] = `Bearer ${userKey}`
+  }
+
+  const response = await fetch(getChatApiUrl(), {
     method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-allow-browser': 'true',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
-      max_tokens: 150,
-      system: systemPrompt,
-      messages: apiMessages,
-    }),
+    headers,
+    body: JSON.stringify({ messages: apiMessages, max_tokens: 150 }),
   })
 
-  if (!response.ok) throw new Error(`api_error_${response.status}`)
-  const data = await response.json() as { content: Array<{ text: string }> }
-  return data.content[0]?.text ?? '……'
+  if (!response.ok) {
+    const err = await response.text().catch(() => '')
+    throw new Error(`api_error_${response.status}: ${err.slice(0, 200)}`)
+  }
+
+  const data = await response.json() as { reply?: string }
+  return data.reply ?? '……'
 }
 
 /* ── Main component ── */
@@ -79,7 +90,7 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
   const [isThinking, setIsThinking] = useState(false)
   const [showKeyInput, setShowKeyInput] = useState(false)
   const [keyDraft, setKeyDraft] = useState('')
-  const [hasKey, setHasKey] = useState(() => Boolean(getApiKey()))
+  const [hasKey, setHasKey] = useState(() => Boolean(getUserApiKey()))
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -96,7 +107,7 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
     setIsThinking(true)
 
     try {
-      const reply = await callClaude(nextMessages, nightType, spiritName)
+      const reply = await callChat(nextMessages, nightType, spiritName)
       setMessages((current) => [
         ...current,
         { id: `spirit-${stamp}`, speaker: 'spirit', text: reply },
@@ -115,8 +126,11 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
 
   const saveKey = () => {
     if (keyDraft.trim()) {
-      localStorage.setItem('jinwanzaodian:anthropic_key', keyDraft.trim())
+      localStorage.setItem('jinwanzaodian:aiping_key', keyDraft.trim())
       setHasKey(true)
+    } else {
+      localStorage.removeItem('jinwanzaodian:aiping_key')
+      setHasKey(false)
     }
     setShowKeyInput(false)
     setKeyDraft('')
@@ -147,7 +161,7 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
             </div>
           </div>
 
-          {/* API key toggle */}
+          {/* API key toggle — 可选：用户自带 key 或用内置服务 */}
           <button
             type="button"
             className={`rounded-full px-2.5 py-1 text-[10px] transition ${
@@ -155,27 +169,32 @@ export function SpiritChatOverlay({ spiritName, nightType, onGoToHut, onClose }:
             }`}
             onClick={() => setShowKeyInput((v) => !v)}
           >
-            {hasKey ? 'AI ✓' : '接入 AI'}
+            {hasKey ? '自定义 AI ✓' : 'AI 已接入'}
           </button>
         </div>
 
-        {/* API key input (collapsible) */}
+        {/* API key input (collapsible) — 可选，留空则用内置服务 */}
         {showKeyInput ? (
-          <div className="mx-4 mb-2 flex gap-2 rounded-[18px] bg-white/50 px-3 py-2">
-            <input
-              value={keyDraft}
-              onChange={(e) => setKeyDraft(e.target.value)}
-              placeholder="粘贴 Anthropic API Key"
-              className="min-w-0 flex-1 bg-transparent text-xs text-ink outline-none"
-              autoFocus
-            />
-            <button
-              type="button"
-              onClick={saveKey}
-              className="shrink-0 text-xs text-brown"
-            >
-              保存
-            </button>
+          <div className="mx-4 mb-2 rounded-[18px] bg-white/50 px-3 py-2">
+            <p className="mb-1.5 text-[10px] text-ink/40">
+              留空使用内置 AI · 填入 AIPing Key 使用自己的额度
+            </p>
+            <div className="flex gap-2">
+              <input
+                value={keyDraft}
+                onChange={(e) => setKeyDraft(e.target.value)}
+                placeholder="AIPing API Key（可选）"
+                className="min-w-0 flex-1 bg-transparent text-xs text-ink outline-none"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={saveKey}
+                className="shrink-0 text-xs text-brown"
+              >
+                保存
+              </button>
+            </div>
           </div>
         ) : null}
 

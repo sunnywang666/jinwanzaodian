@@ -1,5 +1,18 @@
 # Changelog
 
+## v5.7
+
+Spirit chat API migration to AIPing, with a server-side proxy and optional user keys.
+
+Included in this version:
+- Replaced the direct Claude browser integration in `SpiritChatOverlay` with an AIPing-based chat flow.
+- Added `api/chat.js` as a server-side proxy that forwards chat requests to AIPing and keeps the default API key off the client.
+- Switched the client chat payload to an OpenAI-compatible `messages` format with the system prompt inserted as the first message.
+- Added optional user-supplied AIPing key support in `SpiritChatOverlay`, stored under `jinwanzaodian:aiping_key` and sent through the proxy only when provided.
+- Added `.env.example` documenting `AIPING_API_KEY`, `AIPING_MODEL`, and `AIPING_API_ENDPOINT`.
+- Removed the old Anthropic-specific browser headers and direct client-side Claude request path.
+- Pointed the default chat endpoint at same-origin `/api/chat` so the proxy works cleanly in deployment without a manual URL replacement step.
+
 ## v5.6
 
 UI hotspot recalibration, scene item sizing fixes, and book layout polish.
