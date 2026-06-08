@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.6
+
+Guest encounter "Bond" system, replacing static guest stories with familiarity-based relationship beats.
+
+Included in this version:
+- Added `guestEncounters.ts` with bilingual four-beat relationship writing for all seven guests, unlocking by familiarity level.
+- Updated `GuestBookOpenView` so the right page now shows `来往 / Bond` instead of a single static story block.
+- Added familiarity badges beside guest names, aligned to the new four-stage relationship framing.
+- Updated the guest book to reveal only the unlocked encounter beats, letting each guest's relationship history grow over time.
+- Updated `guestProgression.ts` to align its labels with the new Bond system (`新客 → 渐熟 → 常来 → 熟客`) and removed the old familiarity-description helper.
+- Synced `demoData.ts` with the new guest naming and food-preference details so the guest book and dish references stay consistent.
+- Kept App-level wiring unchanged; this upgrade works through guest data and guest-book rendering changes only.
+
 ## v6.5
 
 Time simulation debug tooling for scene flow, date changes, and opening-cycle testing.
