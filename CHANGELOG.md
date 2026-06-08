@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.5
+
+Unified data layer with a versioned store, single-key persistence, and automatic migration.
+
+Included in this version:
+- Added `dataStore.ts` as the single source of truth for persistent app data, using one localStorage key (`jinwanzaodian:store`) with `schemaVersion: 1`.
+- Added `loadStore()`, `saveStore()`, and `clearStore()` as the main persistence entry points.
+- Added automatic migration from the old scattered keys into the unified store on first load, followed by cleanup of the migrated legacy keys.
+- Added `validateAndRepair()` safeguards so the store structure is repaired if required sections are missing or malformed.
+- Slimmed down `storage.ts` into a types-and-utilities module, keeping type exports, onboarding draft helpers, and pure helpers such as `createCloseLogEntry()` and `stampOpenTime()`.
+- Updated `App.tsx` to load persistent state from a single `loadStore()` call and save it through one centralized `useEffect`.
+- Updated reset behavior to use `clearStore()` instead of clearing many independent keys.
+- Preserved existing user data by migrating current `v5.4` local data automatically and without loss on first load after the update.
+
 ## v5.4
 
 Guest progression, dish and spirit unlocks, settings page, and visibility-session recovery.

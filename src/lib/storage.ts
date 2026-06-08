@@ -1,8 +1,17 @@
 /**
- * storage.ts — v5.4
+ * storage.ts — v5.5
  *
- * Change: clearDemoStorage now also clears progression keys.
+ * Now a types + utilities file. All persistent state lives in the unified
+ * store (dataStore.ts). Individual load/save functions are removed.
+ *
+ * What remains:
+ * - All type exports (used everywhere)
+ * - defaultOnboardingDraft (used by Onboarding.tsx)
+ * - Onboarding draft functions (temp data, outside the store)
+ * - createCloseLogEntry / stampOpenTime (pure helpers)
  */
+
+// ── Types ──
 
 export type DemoScene =
   | 'cover'
@@ -81,20 +90,9 @@ export interface LogEntry {
   isRealData?: boolean
 }
 
-const STORAGE_KEYS = {
-  onboarding: 'jinwanzaodian:onboarding',
-  onboardingDraft: 'jinwanzaodian:onboarding-draft',
-  spiritForm: 'jinwanzaodian:spirit-form',
-  demoScene: 'jinwanzaodian:demo-scene',
-  eveningPrepare: 'jinwanzaodian:evening-prepare',
-  tonightClosed: 'jinwanzaodian:tonight-closed',
-  logbook: 'jinwanzaodian:logbook',
-  lastOpenDate: 'jinwanzaodian:last-open-date',
-  todayMood: 'jinwanzaodian:today-mood',
-  middayDone: 'jinwanzaodian:midday-done',
-  autoSceneEnabled: 'jinwanzaodian:auto-scene-enabled',
-  returnMessage: 'jinwanzaodian:return-message',
-} as const
+// ── Onboarding draft (temporary, lives outside the store) ──
+
+const DRAFT_KEY = 'jinwanzaodian:onboarding-draft'
 
 export const defaultOnboardingDraft: OnboardingDraft = {
   step: 0,
@@ -106,60 +104,24 @@ export const defaultOnboardingDraft: OnboardingDraft = {
   defaultLightsOffTime: '23:00',
 }
 
-function canUseStorage() {
-  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
-}
-
-function readValue<T>(key: string, fallback: T): T {
-  if (!canUseStorage()) return fallback
-  const raw = window.localStorage.getItem(key)
-  if (!raw) return fallback
-  try { return JSON.parse(raw) as T } catch { return fallback }
-}
-
-function writeValue<T>(key: string, value: T) {
-  if (!canUseStorage()) return
-  window.localStorage.setItem(key, JSON.stringify(value))
-}
-
-export function loadOnboardingProfile() { return readValue<OnboardingProfile | null>(STORAGE_KEYS.onboarding, null) }
-export function saveOnboardingProfile(value: OnboardingProfile) { writeValue(STORAGE_KEYS.onboarding, value) }
-export function loadOnboardingDraft() { return readValue<OnboardingDraft>(STORAGE_KEYS.onboardingDraft, defaultOnboardingDraft) }
-export function saveOnboardingDraft(value: OnboardingDraft) { writeValue(STORAGE_KEYS.onboardingDraft, value) }
-export function clearOnboardingDraft() { if (canUseStorage()) window.localStorage.removeItem(STORAGE_KEYS.onboardingDraft) }
-export function loadSpiritForm() { return readValue<SpiritForm>(STORAGE_KEYS.spiritForm, 'base') }
-export function saveSpiritForm(value: SpiritForm) { writeValue(STORAGE_KEYS.spiritForm, value) }
-export function loadDemoScene() { return readValue<DemoScene>(STORAGE_KEYS.demoScene, 'cover') }
-export function saveDemoScene(value: DemoScene) { writeValue(STORAGE_KEYS.demoScene, value) }
-
-export function loadEveningPrepare(defaultLightsOffTime = '23:00') {
-  return readValue<EveningPrepareState>(STORAGE_KEYS.eveningPrepare, {
-    plannedLightsOffTime: defaultLightsOffTime, worry: '', savedAt: null,
-  })
-}
-export function saveEveningPrepare(value: EveningPrepareState) { writeValue(STORAGE_KEYS.eveningPrepare, value) }
-
-export function loadTonightClosed() { return readValue<boolean>(STORAGE_KEYS.tonightClosed, false) }
-export function saveTonightClosed(value: boolean) { writeValue(STORAGE_KEYS.tonightClosed, value) }
-export function loadLogbook(defaultValue: LogEntry[]) { return readValue<LogEntry[]>(STORAGE_KEYS.logbook, defaultValue) }
-export function saveLogbook(value: LogEntry[]) { writeValue(STORAGE_KEYS.logbook, value) }
-export function loadLastOpenDate() { return readValue<string | null>(STORAGE_KEYS.lastOpenDate, null) }
-export function saveLastOpenDate(value: string) { writeValue(STORAGE_KEYS.lastOpenDate, value) }
-export function loadTodayMood() { return readValue<'busy' | 'normal' | 'quiet'>(STORAGE_KEYS.todayMood, 'normal') }
-export function saveTodayMood(value: 'busy' | 'normal' | 'quiet') { writeValue(STORAGE_KEYS.todayMood, value) }
-export function loadMiddayDone() { return readValue<boolean>(STORAGE_KEYS.middayDone, false) }
-export function saveMiddayDone(value: boolean) { writeValue(STORAGE_KEYS.middayDone, value) }
-export function loadAutoSceneEnabled() { return readValue<boolean>(STORAGE_KEYS.autoSceneEnabled, true) }
-export function saveAutoSceneEnabled(value: boolean) { writeValue(STORAGE_KEYS.autoSceneEnabled, value) }
-
-export function loadReturnMessage() { return readValue<string | null>(STORAGE_KEYS.returnMessage, null) }
-export function saveReturnMessage(value: string | null) {
-  if (value === null) {
-    if (canUseStorage()) window.localStorage.removeItem(STORAGE_KEYS.returnMessage)
-    return
+export function loadOnboardingDraft(): OnboardingDraft {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY)
+    return raw ? (JSON.parse(raw) as OnboardingDraft) : defaultOnboardingDraft
+  } catch {
+    return defaultOnboardingDraft
   }
-  writeValue(STORAGE_KEYS.returnMessage, value)
 }
+
+export function saveOnboardingDraft(value: OnboardingDraft) {
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(value))
+}
+
+export function clearOnboardingDraft() {
+  localStorage.removeItem(DRAFT_KEY)
+}
+
+// ── Pure helpers (used by App.tsx) ──
 
 function formatTime(date: Date) {
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
@@ -194,17 +156,4 @@ export function stampOpenTime(entries: LogEntry[]): LogEntry[] {
     updated[0] = latest
   }
   return updated
-}
-
-export function clearDemoStorage() {
-  if (!canUseStorage()) return
-  Object.values(STORAGE_KEYS).forEach((key) => window.localStorage.removeItem(key))
-  // Visibility keys
-  window.localStorage.removeItem('jinwanzaodian:visibility-log')
-  window.localStorage.removeItem('jinwanzaodian:visibility-session')
-  window.localStorage.removeItem('jinwanzaodian:last-screen-off')
-  // v5.4: Progression keys
-  window.localStorage.removeItem('jinwanzaodian:guest-progress')
-  window.localStorage.removeItem('jinwanzaodian:dish-progress')
-  window.localStorage.removeItem('jinwanzaodian:spirit-progress')
 }
