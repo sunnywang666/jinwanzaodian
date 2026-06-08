@@ -2,6 +2,7 @@ import { sceneAssets, sceneByDemo } from '../lib/assets'
 import type { DemoScene } from '../lib/storage'
 import { sceneItems, type SceneItemTarget } from '../lib/sceneItems'
 import { AssetImage } from './AssetImage'
+import { ClockOverlay } from './ClockOverlay'
 import { SceneItemButton } from './SceneItemButton'
 
 interface ShopSceneInteractiveProps {
@@ -28,6 +29,7 @@ export function ShopSceneInteractive({ scene, debug = false, onItemOpen }: ShopS
           className="h-full w-full object-contain"
         />
 
+        <ClockOverlay />
         <div className="absolute inset-0">
           {sceneItems.map((item) => (
             <SceneItemButton key={item.id} item={item} debug={debug} onOpen={onItemOpen} />

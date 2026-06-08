@@ -69,6 +69,10 @@ export interface LogEntry {
   shopMood: ShopMood
   guestCount: number
   closingNote: string
+  realCloseTimestamp?: string
+  realOpenTimestamp?: string
+  screenOffTimestamp?: string
+  isRealData?: boolean
 }
 
 const STORAGE_KEYS = {
@@ -82,6 +86,8 @@ const STORAGE_KEYS = {
   lastOpenDate: 'jinwanzaodian:last-open-date',
   todayMood: 'jinwanzaodian:today-mood',
   middayDone: 'jinwanzaodian:midday-done',
+  autoSceneEnabled: 'jinwanzaodian:auto-scene-enabled',
+  returnMessage: 'jinwanzaodian:return-message',
 } as const
 
 export const defaultOnboardingDraft: OnboardingDraft = {
@@ -213,10 +219,77 @@ export function saveMiddayDone(value: boolean) {
   writeValue(STORAGE_KEYS.middayDone, value)
 }
 
+export function loadAutoSceneEnabled() {
+  return readValue<boolean>(STORAGE_KEYS.autoSceneEnabled, true)
+}
+
+export function saveAutoSceneEnabled(value: boolean) {
+  writeValue(STORAGE_KEYS.autoSceneEnabled, value)
+}
+
+export function loadReturnMessage() {
+  return readValue<string | null>(STORAGE_KEYS.returnMessage, null)
+}
+
+export function saveReturnMessage(value: string | null) {
+  if (value === null) {
+    if (canUseStorage()) {
+      window.localStorage.removeItem(STORAGE_KEYS.returnMessage)
+    }
+    return
+  }
+
+  writeValue(STORAGE_KEYS.returnMessage, value)
+}
+
+function formatTime(date: Date) {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
+
+function formatDate(date: Date) {
+  return `${date.getMonth() + 1}月${date.getDate()}日`
+}
+
+export function createCloseLogEntry(shopMood: ShopMood, guestCount: number): LogEntry {
+  const now = new Date()
+
+  return {
+    date: formatDate(now),
+    openTime: '',
+    closeTime: formatTime(now),
+    shopMood,
+    guestCount,
+    closingNote: '按时打烊',
+    realCloseTimestamp: now.toISOString(),
+    isRealData: true,
+  }
+}
+
+export function stampOpenTime(entries: LogEntry[]): LogEntry[] {
+  if (entries.length === 0) {
+    return entries
+  }
+
+  const now = new Date()
+  const updated = [...entries]
+  const latest = { ...updated[0]! }
+
+  if (!latest.realOpenTimestamp) {
+    latest.openTime = formatTime(now)
+    latest.realOpenTimestamp = now.toISOString()
+    updated[0] = latest
+  }
+
+  return updated
+}
+
 export function clearDemoStorage() {
   if (!canUseStorage()) {
     return
   }
 
   Object.values(STORAGE_KEYS).forEach((key) => window.localStorage.removeItem(key))
+  window.localStorage.removeItem('jinwanzaodian:visibility-log')
+  window.localStorage.removeItem('jinwanzaodian:visibility-session')
+  window.localStorage.removeItem('jinwanzaodian:last-screen-off')
 }

@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.3
+
+Time-driven core logic, real-time clock, visibilitychange tracking, and trend calculation.
+
+Included in this version:
+- Added `ClockOverlay`, syncing the painted wall clock to the user's real system time with live hour, minute, and second hands.
+- Added `timeScene.ts` to switch the shop scene automatically by real-world time, using the planned lights-off time and current daily mood.
+- Added `visibility.ts` to track `visibilitychange`, detect when the user leaves and returns, and record screen-off timestamps after nightly closing.
+- Added `trendCalculation.ts` to replace the old binary mood decision with a weighted recent-days trend model based on the last 5-7 log entries.
+- Expanded `LogEntry` in `storage.ts` with `realCloseTimestamp`, `realOpenTimestamp`, and `screenOffTimestamp`, and added helpers such as `createCloseLogEntry()` and `stampOpenTime()`.
+- Updated `ShopSceneInteractive.tsx` to embed the real-time `ClockOverlay` directly in the main scene.
+- Updated `App.tsx` to wire automatic scene polling, visibility tracking, real close/open logging, weighted trend calculation, and an `自动 / 手动` scene toggle on the home HUD.
+- Added a spirit return greeting when the user comes back after being away for a while, while preserving the current mainline onboarding and overlay flow.
+
 ## v5.1
 
 Morning opening flow and midday transition.
