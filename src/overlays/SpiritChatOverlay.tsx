@@ -1,23 +1,26 @@
 /**
- * SpiritChatOverlay.tsx — v5.8
+ * SpiritChatOverlay.tsx — v5.9
  *
- * 精灵对话完整重建：
- * - 自由文本输入（用户可以打字）
- * - 快捷回复可触发导航（写心事→傍晚准备，打烊→打烊流程）
- * - 温暖背景（渐变色调，非纯白）
- * - 保留 AIPing API 调用（已在 v5.7 接入）
+ * 改进：
+ * 1. 系统 prompt 注入当晚心事，让 AI 能接住
+ * 2. 快捷回复根据场景变化（白天/傍晚/打烊后）
+ * 3. 初始消息根据时间变化
  */
 
 import { useState, useRef, useEffect } from 'react'
 import { spiritAssets } from '../lib/assets'
-import { initialChatMessages, type ChatMessage } from '../lib/demoData'
+import { type ChatMessage } from '../lib/demoData'
 import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
-import type { NightType } from '../lib/storage'
+import type { DemoScene, NightType } from '../lib/storage'
 
 interface SpiritChatOverlayProps {
   spiritName: string
   nightType: NightType
+  /** 当前场景（用于快捷回复和初始消息） */
+  currentScene: DemoScene
+  /** 今晚写的心事（注入 AI 上下文） */
+  tonightWorry: string
   onGoToHut: () => void
   onGoToEveningPrepare: () => void
   onGoToNightClosing: () => void
@@ -47,8 +50,15 @@ async function callChat(
   messages: ChatMessage[],
   nightType: NightType,
   spiritName: string,
+  worry: string,
 ): Promise<string> {
-  const systemPrompt = `${systemPrompts[nightType]}\n\n你的名字是${spiritName}。`
+  let systemPrompt = `${systemPrompts[nightType]}\n\n你的名字是${spiritName}。`
+
+  // 注入心事上下文
+  if (worry.trim()) {
+    systemPrompt += `\n\n店长今晚写下了一件放不下的事："${worry.trim()}"。如果店长聊到相关话题，你可以温柔地回应，但不要主动提起，等店长自己说。`
+  }
+
   const apiMessages = [
     { role: 'system' as const, content: systemPrompt },
     ...messages
@@ -75,39 +85,95 @@ async function callChat(
   return data.reply ?? '……'
 }
 
-/* ── Quick replies with actions ── */
+/* ── 场景化快捷回复 ── */
 
 interface QuickReply {
   label: string
-  /** 'chat' = 正常对话, 'navigate' = 跳转到其他页面 */
   action: 'chat' | 'navigate'
-  /** action='navigate' 时的目标 */
   target?: 'eveningPrepare' | 'nightClosing' | 'spiritHut'
-  /** action='chat' 时 API 失败的 fallback 回复 */
   fallback?: string
 }
 
-const quickReplies: QuickReply[] = [
-  { label: '今天有点累', action: 'chat', fallback: '那今天就少做一点，铺子也可以慢慢来。' },
-  { label: '写下今晚的心事', action: 'navigate', target: 'eveningPrepare' },
-  { label: '该打烊了', action: 'navigate', target: 'nightClosing' },
-]
+function getQuickReplies(scene: DemoScene): QuickReply[] {
+  // 傍晚/夜晚场景
+  if (scene === 'evening' || scene === 'night') {
+    return [
+      { label: '今天有点累', action: 'chat', fallback: '那今天就少做一点，铺子也可以慢慢来。' },
+      { label: '写下今晚的心事', action: 'navigate', target: 'eveningPrepare' },
+      { label: '该打烊了', action: 'navigate', target: 'nightClosing' },
+    ]
+  }
+
+  // 熄灯后
+  if (scene === 'lightsOff') {
+    return [
+      { label: '睡不着', action: 'chat', fallback: '没关系，铺子的灯虽然关了，我还在。' },
+      { label: '今晚辛苦了', action: 'chat', fallback: '你也辛苦了，明天铺子还会开门的。' },
+    ]
+  }
+
+  // 白天场景（busy/normal/quiet/daytime/nap）
+  return [
+    { label: '今天有点累', action: 'chat', fallback: '那今天就少做一点，铺子也可以慢慢来。' },
+    { label: '去你的小屋看看', action: 'navigate', target: 'spiritHut' },
+    { label: '昨晚又晚了', action: 'chat', fallback: '没关系，铺子今天只是安静一点。我们先把豆浆热一热。' },
+  ]
+}
+
+/* ── 时间化初始消息 ── */
+
+function getInitialMessages(spiritName: string, scene: DemoScene): ChatMessage[] {
+  const now = new Date()
+  const hour = now.getHours()
+
+  if (scene === 'lightsOff') {
+    return [
+      { id: 'init-1', speaker: 'spirit', text: '铺子已经关灯了，我在小屋里陪你。' },
+      { id: 'init-2', speaker: 'spirit', text: '睡不着的话，就在这里待一会儿也好。' },
+    ]
+  }
+
+  if (scene === 'evening' || scene === 'night' || hour >= 20) {
+    return [
+      { id: 'init-1', speaker: 'spirit', text: '店长，今天铺子开着。我在柜台后面，先陪你待一会儿。' },
+      { id: 'init-2', speaker: 'spirit', text: '如果有什么放不下的事，可以先写在纸条上。' },
+    ]
+  }
+
+  if (hour < 12) {
+    return [
+      { id: 'init-1', speaker: 'spirit', text: '早上好呀，今天铺子的豆浆已经热好了。' },
+      { id: 'init-2', speaker: 'spirit', text: '有什么想聊的，随时说。' },
+    ]
+  }
+
+  // 下午
+  return [
+    { id: 'init-1', speaker: 'spirit', text: '下午了，铺子安静下来了。' },
+    { id: 'init-2', speaker: 'spirit', text: '想聊聊天，还是安静待一会儿？' },
+  ]
+}
 
 /* ── Main component ── */
 
 export function SpiritChatOverlay({
   spiritName,
   nightType,
+  currentScene,
+  tonightWorry,
   onGoToHut,
   onGoToEveningPrepare,
   onGoToNightClosing,
   onClose,
 }: SpiritChatOverlayProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>(initialChatMessages)
+  const [messages, setMessages] = useState<ChatMessage[]>(() =>
+    getInitialMessages(spiritName, currentScene),
+  )
   const [isThinking, setIsThinking] = useState(false)
   const [inputText, setInputText] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+
+  const quickReplies = getQuickReplies(currentScene)
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -126,13 +192,12 @@ export function SpiritChatOverlay({
     setIsThinking(true)
 
     try {
-      const reply = await callChat(nextMessages, nightType, spiritName)
+      const reply = await callChat(nextMessages, nightType, spiritName, tonightWorry)
       setMessages((current) => [
         ...current,
         { id: `spirit-${stamp}`, speaker: 'spirit', text: reply },
       ])
     } catch {
-      // API 失败时用 fallback
       const qr = quickReplies.find((r) => r.label === userText)
       const fallback = qr?.fallback ?? '……铺子里暖着，先不用说话也没关系。'
       setMessages((current) => [
@@ -218,7 +283,6 @@ export function SpiritChatOverlay({
             )
           })}
 
-          {/* Typing indicator */}
           {isThinking ? (
             <div className="flex items-end gap-2 justify-start">
               <AssetImage
@@ -259,7 +323,6 @@ export function SpiritChatOverlay({
         {/* Free text input */}
         <form onSubmit={handleSubmit} className="flex gap-2 px-4 pb-5 pt-1">
           <input
-            ref={inputRef}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             disabled={isThinking}

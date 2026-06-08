@@ -1,3 +1,9 @@
+/**
+ * LogbookOverlay.tsx — v5.9
+ *
+ * 显示心事 + 状态标签（放下了/还在）
+ */
+
 import { useState } from 'react'
 import type { LogEntry } from '../lib/storage'
 import { GameOverlay } from '../components/GameOverlay'
@@ -6,6 +12,12 @@ import { PageTurnButton } from '../components/PageTurnButton'
 interface LogbookOverlayProps {
   entries: LogEntry[]
   onClose: () => void
+}
+
+const worryStatusLabel: Record<string, { text: string; color: string }> = {
+  released: { text: '已放下', color: 'text-[#5a8a52]' },
+  carrying: { text: '还在', color: 'text-[#b87a3a]' },
+  pending: { text: '未回看', color: 'text-ink/35' },
 }
 
 export function LogbookOverlay({ entries, onClose }: LogbookOverlayProps) {
@@ -19,7 +31,7 @@ export function LogbookOverlay({ entries, onClose }: LogbookOverlayProps) {
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
           {pageEntries.map((entry, index) => (
             <article
-              key={entry.date}
+              key={entry.date + '-' + index}
               className={`px-4 py-3 ${index % 2 === 0 ? 'rotate-[-0.5deg]' : 'rotate-[0.4deg]'}`}
               style={{
                 background: 'repeating-linear-gradient(transparent, transparent 27px, rgba(212,179,147,0.25) 27px, rgba(212,179,147,0.25) 28px)',
@@ -28,17 +40,30 @@ export function LogbookOverlay({ entries, onClose }: LogbookOverlayProps) {
             >
               <p className="text-lg font-semibold text-ink">{entry.date}</p>
               <div className="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-sm leading-7 text-ink/70">
-                <p>开门：{entry.openTime}</p>
+                <p>开门：{entry.openTime || '—'}</p>
                 <p>关灯：{entry.closeTime}</p>
                 <p>状态：{entry.shopMood}</p>
                 <p>客人：{entry.guestCount} 位</p>
               </div>
+
+              {/* 心事 */}
+              {entry.worry ? (
+                <div className="mt-3 rounded-[14px] bg-white/30 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-ink/40">小纸条</span>
+                    {entry.worryStatus ? (
+                      <span className={`text-[10px] font-medium ${worryStatusLabel[entry.worryStatus]?.color ?? 'text-ink/35'}`}>
+                        {worryStatusLabel[entry.worryStatus]?.text ?? ''}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-1 text-sm leading-6 text-ink/60">
+                    {entry.worry}
+                  </p>
+                </div>
+              ) : null}
             </article>
           ))}
-
-          <p className="px-4 py-3 text-sm italic leading-6 text-ink/55">
-            这周你有两天很早关灯，铺子也跟着精神了一点。
-          </p>
         </div>
 
         <div className="mt-3 flex items-center justify-between">

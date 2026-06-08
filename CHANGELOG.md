@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.9
+
+Flow integration for worries, scene-aware spirit chat context, and richer logbook notes.
+
+Included in this version:
+- Updated `SpiritChatOverlay` so the AI prompt can receive tonight's worry as optional context without proactively bringing it up first.
+- Added scene-aware quick replies in spirit chat, with different actions and fallback lines for daytime, evening, and lights-off states.
+- Added time- and scene-based opening lines in spirit chat so the first messages feel more grounded in the current moment.
+- Updated `LogbookOverlay` to render worry notes as small paper slips with status labels such as released, carrying, and pending review.
+- Updated `EveningPrepare` so saving tonight's plan can lead directly back into spirit chat for a softer flow.
+- Updated `NightClosing` so the final screen acknowledges the saved note with a gentle "paper slip" line when the player wrote a worry that evening.
+- Updated `App.tsx` to pass current scene and current worry into spirit chat, route evening prepare back into chat, and pass tonight's worry into the night-closing flow.
+- Kept the existing Vercel-backed API endpoint and `v5.8` worry-loop behavior intact while layering in the `v5.9` flow integration.
+
 ## v5.8
 
 Spirit chat rebuild, free text input, and worry-loop closure across evening and morning flows.

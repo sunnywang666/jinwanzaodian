@@ -400,6 +400,8 @@ export default function App() {
         <SpiritChatOverlay
           spiritName={profile.spiritName}
           nightType={profile.nightType}
+          currentScene={demoScene}
+          tonightWorry={eveningPrepare.worry}
           onGoToHut={() => setView('spiritHut')}
           onGoToEveningPrepare={() => setView('eveningPrepare')}
           onGoToNightClosing={() => setView('nightClosing')}
@@ -423,6 +425,7 @@ export default function App() {
           initialValue={eveningPrepare}
           spiritName={profile.spiritName}
           onSave={(value) => setEveningPrepare(value)}
+          onGoToSpiritChat={() => setView('spiritChat')}
           onClose={() => setView('home')}
         />
       ) : null}
@@ -430,6 +433,7 @@ export default function App() {
         <NightClosing
           spiritName={profile.spiritName}
           tonightClosed={tonightClosed}
+          tonightWorry={eveningPrepare.worry}
           latestLog={logEntries[0]}
           onComplete={() => {
             const trend = calculateTrend({

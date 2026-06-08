@@ -1,3 +1,9 @@
+/**
+ * NightClosing.tsx — v5.9
+ *
+ * 打烊最后一步：如果写了心事，精灵提及"纸条收好了"
+ */
+
 import { useState } from 'react'
 import type { LogEntry } from '../lib/storage'
 import { GameOverlay } from '../components/GameOverlay'
@@ -6,6 +12,8 @@ import { SoftButton } from '../components/SoftButton'
 interface NightClosingProps {
   spiritName: string
   tonightClosed: boolean
+  /** 今晚写的心事（如果有） */
+  tonightWorry: string
   onComplete: () => void
   onClose: () => void
   latestLog: LogEntry
@@ -30,9 +38,11 @@ const closingSteps = [
   },
 ]
 
-export function NightClosing({ spiritName, tonightClosed, onComplete, onClose, latestLog }: NightClosingProps) {
+export function NightClosing({ spiritName, tonightClosed, tonightWorry, onComplete, onClose, latestLog }: NightClosingProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const isComplete = currentStep >= closingSteps.length
+
+  const hasWorry = tonightWorry.trim().length > 0
 
   return (
     <GameOverlay title="打烊" onClose={onClose}>
@@ -124,6 +134,16 @@ export function NightClosing({ spiritName, tonightClosed, onComplete, onClose, l
               {spiritName} 已经回小屋了。<br />
               灯关了，剩下的夜晚会自己安静下来。
             </p>
+
+            {/* 心事提及 */}
+            {hasWorry ? (
+              <div className="mt-5 rounded-[18px] bg-white/8 px-5 py-3">
+                <p className="text-sm leading-6 text-[#f0ddb3]/50">
+                  {spiritName}：今晚的小纸条已经收好了，明天再看。
+                </p>
+              </div>
+            ) : null}
+
             <p className="mt-6 text-base leading-7 text-[#f0ddb3]/60">
               把手机也放下吧，扣过来放远一点。
             </p>

@@ -1,3 +1,9 @@
+/**
+ * EveningPrepare.tsx — v5.9
+ *
+ * 保存后可选择"回去和精灵聊聊"（跳回 spiritChat）
+ */
+
 import { useState } from 'react'
 import type { EveningPrepareState } from '../lib/storage'
 import { GameOverlay } from '../components/GameOverlay'
@@ -7,12 +13,13 @@ interface EveningPrepareProps {
   initialValue: EveningPrepareState
   spiritName: string
   onSave: (value: EveningPrepareState) => void
+  onGoToSpiritChat: () => void
   onClose: () => void
 }
 
 const timeOptions = ['22:30', '23:00', '23:30', '00:00']
 
-export function EveningPrepare({ initialValue, spiritName, onSave, onClose }: EveningPrepareProps) {
+export function EveningPrepare({ initialValue, spiritName, onSave, onGoToSpiritChat, onClose }: EveningPrepareProps) {
   const [plannedLightsOffTime, setPlannedLightsOffTime] = useState(initialValue.plannedLightsOffTime)
   const [worry, setWorry] = useState(initialValue.worry)
   const [saved, setSaved] = useState(false)
@@ -83,8 +90,18 @@ export function EveningPrepare({ initialValue, spiritName, onSave, onClose }: Ev
           >
             {saved ? '已保存' : '保存今晚安排'}
           </SoftButton>
+
           {saved ? (
-            <p className="mt-3 text-center text-sm text-brown/70">已经写进铺子的明日纸条里。</p>
+            <div className="mt-3 text-center">
+              <p className="text-sm text-brown/70">已经写进铺子的明日纸条里。</p>
+              <button
+                type="button"
+                className="mt-2 text-sm text-brown/50 transition hover:text-brown/70"
+                onClick={onGoToSpiritChat}
+              >
+                回去和 {spiritName} 聊聊 →
+              </button>
+            </div>
           ) : null}
         </div>
       </section>
