@@ -25,8 +25,8 @@ const systemPrompts: Record<NightType, string> = {
 
 /* ── API 配置 ── */
 
-/** Same-origin proxy endpoint for local deployment and Vercel */
-const DEFAULT_CHAT_API = '/api/chat'
+/** Current deployed Vercel proxy endpoint for GitHub Pages frontend */
+const DEFAULT_CHAT_API = 'https://jinwanzaodian-mk8xhm66e-sunny-happy-projects.vercel.app/api/chat'
 
 function getChatApiUrl(): string {
   return DEFAULT_CHAT_API
