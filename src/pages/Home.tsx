@@ -1,7 +1,6 @@
 /**
- * Home.tsx — v5.4
- *
- * Added settings gear button in the top-right area.
+ * Home.tsx — v6.4
+ * Added i18n via useT()
  */
 
 import { DemoControls } from '../components/DemoControls'
@@ -9,6 +8,7 @@ import { ShopSceneInteractive } from '../components/ShopSceneInteractive'
 import { sceneCopy } from '../lib/demoData'
 import type { SceneItemTarget } from '../lib/sceneItems'
 import type { DemoScene } from '../lib/storage'
+import { useT } from '../lib/i18n'
 
 interface HomeProps {
   scene: DemoScene
@@ -20,18 +20,12 @@ interface HomeProps {
 }
 
 export function Home({
-  scene,
-  debugHotspots,
-  onToggleDebugHotspots,
-  onOpenHotspot,
-  onSceneChange,
-  onOpenSettings,
+  scene, debugHotspots, onToggleDebugHotspots,
+  onOpenHotspot, onSceneChange, onOpenSettings,
 }: HomeProps) {
-  const copy = sceneCopy[scene]
-  const nowLabel = new Intl.DateTimeFormat('zh-CN', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date())
+  const { t } = useT()
+  const sceneText = t(`scene.${scene}.body`)
+  const nowLabel = new Intl.DateTimeFormat('zh-CN', { hour: '2-digit', minute: '2-digit' }).format(new Date())
 
   return (
     <section className="relative h-full w-full">
@@ -42,44 +36,36 @@ export function Home({
       <div className="absolute left-3 top-3 z-20 flex max-w-[60%] flex-col gap-2">
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-ink/15 px-3 py-1.5 text-xs text-paper backdrop-blur-sm">
-            今晚早点
+            {t('home.shopName')}
           </span>
           <span className="rounded-full bg-ink/15 px-3 py-1.5 text-xs text-paper backdrop-blur-sm">
             {nowLabel}
           </span>
         </div>
         <p className="rounded-[20px] bg-paper/60 px-3 py-2 text-xs leading-5 text-ink/78 backdrop-blur-sm">
-          {copy.body}
+          {sceneText}
         </p>
       </div>
 
       <div className="absolute right-3 top-14 z-20 flex flex-col items-end gap-2">
-        {/* Settings gear */}
-        <button
-          type="button"
+        <button type="button"
           className="flex h-9 w-9 items-center justify-center rounded-full bg-ink/15 text-paper backdrop-blur-sm transition hover:bg-ink/25"
-          onClick={onOpenSettings}
-          aria-label="设置"
-        >
+          onClick={onOpenSettings} aria-label={t('settings.title')}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M6.5.5a1 1 0 00-1 .91L5.42 2.8a5.5 5.5 0 00-1.5.87L2.6 3.13a1 1 0 00-1.14.44L.46 5.43a1 1 0 00.22 1.25l1.14.93a5.6 5.6 0 000 1.78l-1.14.93a1 1 0 00-.22 1.25l1 1.86a1 1 0 001.14.44l1.32-.54a5.5 5.5 0 001.5.87l.08 1.39a1 1 0 001 .91h2a1 1 0 001-.91l.08-1.39a5.5 5.5 0 001.5-.87l1.32.54a1 1 0 001.14-.44l1-1.86a1 1 0 00-.22-1.25l-1.14-.93a5.6 5.6 0 000-1.78l1.14-.93a1 1 0 00.22-1.25l-1-1.86a1 1 0 00-1.14-.44l-1.32.54a5.5 5.5 0 00-1.5-.87L9.5 1.41a1 1 0 00-1-.91h-2zM8 5.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z" />
           </svg>
         </button>
 
-        <button
-          type="button"
-          className={`rounded-full px-3 py-1.5 text-xs backdrop-blur-sm transition ${
-            debugHotspots ? 'bg-butter/70 text-ink' : 'bg-ink/15 text-paper'
-          }`}
-          onClick={onToggleDebugHotspots}
-        >
-          DEBUG
+        <button type="button"
+          className={`rounded-full px-3 py-1.5 text-xs backdrop-blur-sm transition ${debugHotspots ? 'bg-butter/70 text-ink' : 'bg-ink/15 text-paper'}`}
+          onClick={onToggleDebugHotspots}>
+          {t('home.debug')}
         </button>
       </div>
 
       {debugHotspots ? (
         <div className="absolute inset-x-3 bottom-3 z-20 rounded-[24px] bg-paper/75 px-3 py-3 backdrop-blur-sm">
-          <p className="mb-2 text-xs tracking-[0.08em] text-ink/60">场景调试</p>
+          <p className="mb-2 text-xs tracking-[0.08em] text-ink/60">{t('home.sceneDebug')}</p>
           <DemoControls currentScene={scene} onChange={onSceneChange} />
         </div>
       ) : null}

@@ -1,5 +1,17 @@
 # Changelog
 
+## v6.4
+
+Animated night-closing ceremony, broader i18n migration, and language-aware default spirit naming.
+
+Included in this version:
+- Rebuilt `NightClosing` as a more cinematic four-step ceremony with progressive scene darkening, fading lamp glow, spirit-to-hut motion, and a moonlit final resting state.
+- Added CSS animation layers to the closing flow, including hut glow, moonrise, floating sleep markers, and a breathing silhouette effect for the sleeping shop.
+- Migrated additional UI surfaces to `useT()`, including Home, EveningPrepare, NightClosing, LogbookOverlay, SpiritHutOverlay, and MessageBoardOverlay.
+- Updated MessageBoardOverlay's generated guest/shop/worry notes so they respond to the current UI language.
+- Changed `defaultOnboardingDraft.spiritName` from a hardcoded Chinese value to an empty string, allowing onboarding to fall back to the translated naming placeholder per language.
+- Kept the app structure unchanged at the router level; this version works through file replacements only and does not require new App-level wiring.
+
 ## v6.3
 
 Morning opening ceremony upgrade with a five-beat animated ritual and guest reveal.
