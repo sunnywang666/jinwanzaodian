@@ -43,7 +43,7 @@ function getChatApiUrl(): string {
     const custom = localStorage.getItem('jinwanzaodian:chat_api_url')
     if (custom && custom.trim()) return custom.trim()
   } catch { /* ignore */ }
-  return 'https://jinwanzaodian-mk8xhm66e-sunny-happy-projects.vercel.app/api/chat'
+  return 'https://jinwanzaodian-test.vercel.app/api/chat'
 }
 
 function getUserApiKey(): string | null {
