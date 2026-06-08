@@ -1,14 +1,17 @@
 /**
- * Home.tsx — v6.4
- * Added i18n via useT()
+ * Home.tsx — v6.5
+ *
+ * Replaced DemoControls (scene picker) with TimeSimPanel (time scrubber).
+ * DEBUG button now opens time simulation panel.
  */
 
-import { DemoControls } from '../components/DemoControls'
 import { ShopSceneInteractive } from '../components/ShopSceneInteractive'
-import { sceneCopy } from '../lib/demoData'
+import { TimeSimPanel } from '../components/TimeSimPanel'
 import type { SceneItemTarget } from '../lib/sceneItems'
 import type { DemoScene } from '../lib/storage'
+import type { TimeSceneOptions } from '../lib/timeScene'
 import { useT } from '../lib/i18n'
+import { getNow } from '../lib/timeSimulator'
 
 interface HomeProps {
   scene: DemoScene
@@ -17,15 +20,20 @@ interface HomeProps {
   onOpenHotspot: (target: SceneItemTarget) => void
   onSceneChange: (scene: DemoScene) => void
   onOpenSettings: () => void
+  /** For time sim panel */
+  sceneOptions: TimeSceneOptions
+  onTimeSimChange: () => void
 }
 
 export function Home({
   scene, debugHotspots, onToggleDebugHotspots,
   onOpenHotspot, onSceneChange, onOpenSettings,
+  sceneOptions, onTimeSimChange,
 }: HomeProps) {
   const { t } = useT()
   const sceneText = t(`scene.${scene}.body`)
-  const nowLabel = new Intl.DateTimeFormat('zh-CN', { hour: '2-digit', minute: '2-digit' }).format(new Date())
+  const now = getNow()
+  const nowLabel = new Intl.DateTimeFormat('zh-CN', { hour: '2-digit', minute: '2-digit' }).format(now)
 
   return (
     <section className="relative h-full w-full">
@@ -65,8 +73,7 @@ export function Home({
 
       {debugHotspots ? (
         <div className="absolute inset-x-3 bottom-3 z-20 rounded-[24px] bg-paper/75 px-3 py-3 backdrop-blur-sm">
-          <p className="mb-2 text-xs tracking-[0.08em] text-ink/60">{t('home.sceneDebug')}</p>
-          <DemoControls currentScene={scene} onChange={onSceneChange} />
+          <TimeSimPanel sceneOptions={sceneOptions} onTimeChange={onTimeSimChange} />
         </div>
       ) : null}
     </section>

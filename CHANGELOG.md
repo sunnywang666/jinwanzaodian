@@ -1,5 +1,19 @@
 # Changelog
 
+## v6.5
+
+Time simulation debug tooling for scene flow, date changes, and opening-cycle testing.
+
+Included in this version:
+- Added `timeSimulator.ts` with a global `getNow()` abstraction so app logic can run on simulated time or real time from one place.
+- Added `TimeSimPanel` as a richer debug tool with a clock-face display, date stepping, time slider, and quick jumps for morning/noon/evening/late night.
+- Updated `timeScene.ts` to derive scene decisions from `getNow()`, allowing automatic scene changes to follow simulated time without extra branching.
+- Updated `Home.tsx` so the DEBUG panel now opens the time simulation panel instead of the old scene picker.
+- Updated `App.tsx` so `getTodayString()` also respects simulated time.
+- Wired `sceneOptions` and `onTimeSimChange` into `Home`, allowing the debug panel to recalculate the active scene immediately when simulated time changes.
+- Added cross-day handling so stepping the simulated date forward can naturally trigger the morning opening flow.
+- Simplified the top home HUD by removing the old auto/manual scene toggle, since the time simulator now serves as the more powerful debug path.
+
 ## v6.4
 
 Animated night-closing ceremony, broader i18n migration, and language-aware default spirit naming.

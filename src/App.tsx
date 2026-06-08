@@ -1,5 +1,5 @@
 /**
- * App.tsx — v6.3
+ * App.tsx — v6.5
  *
  * Data layer unification:
  * - All persistent state loaded from one `loadStore()` call
@@ -48,6 +48,7 @@ import { RecipeBookConfirmView } from './views/RecipeBookConfirmView'
 import { GuestBookConfirmView } from './views/GuestBookConfirmView'
 import { GuestBookOpenView } from './views/GuestBookOpenView'
 import { useAmbientAudio, CHANNELS } from './lib/ambientAudio'
+import { getNow } from './lib/timeSimulator'
 
 // ── Ephemeral keys (outside the store) ──
 
@@ -82,7 +83,7 @@ type AppView =
   | 'settings'
 
 function getTodayString() {
-  const now = new Date()
+  const now = getNow()
   return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
 }
 
@@ -345,15 +346,6 @@ export default function App() {
                 ♫ {CHANNELS.find((c) => c.id === ambientAudio.currentChannel)?.name ?? '播放中'}
               </button>
             ) : null}
-            <button
-              type="button"
-              className={`pointer-events-auto rounded-full px-3 py-1.5 text-xs backdrop-blur-sm transition ${
-                autoSceneEnabled ? 'bg-sage/30 text-ink/60' : 'bg-ink/15 text-paper'
-              }`}
-              onClick={() => setAutoSceneEnabled((c) => !c)}
-            >
-              {autoSceneEnabled ? '自动' : '手动'}
-            </button>
 
             <button
               type="button"
@@ -394,6 +386,23 @@ export default function App() {
           if (scene === 'daytime' && !middayDone) setView('middayTransition')
         }}
         onOpenSettings={() => setView('settings')}
+        sceneOptions={{
+          lightsOffTime: eveningPrepare.plannedLightsOffTime,
+          tonightClosed,
+          todayMood,
+        }}
+        onTimeSimChange={() => {
+          const suggested = getSceneForCurrentTime({
+            lightsOffTime: eveningPrepare.plannedLightsOffTime,
+            tonightClosed,
+            todayMood,
+          })
+          setDemoScene(suggested)
+          const newToday = getTodayString()
+          if (lastOpenDate !== newToday && profile) {
+            setView('morningOpening')
+          }
+        }}
       />
 
       {view === 'recipeBookConfirm' ? (
