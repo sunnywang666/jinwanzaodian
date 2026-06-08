@@ -8,6 +8,12 @@ interface SceneItemButtonProps {
   onOpen: (target: SceneItem['target']) => void
 }
 
+/**
+ * 场景物件按钮 — width-only sizing
+ *
+ * 不传 variant 给 AssetImage（默认 'scene' = 'w-full object-contain'）
+ * 避免 'item' variant 的 h-20 与 className 的 h-auto 冲突
+ */
 export function SceneItemButton({ item, debug = false, onOpen }: SceneItemButtonProps) {
   const [active, setActive] = useState(false)
   const [hovered, setHovered] = useState(false)
@@ -55,7 +61,6 @@ export function SceneItemButton({ item, debug = false, onOpen }: SceneItemButton
           src={item.src}
           fallbackSrc={item.fallbackSrc}
           alt={item.label}
-          variant={item.variant ?? 'item'}
           renderFallbackCard={false}
           className="h-auto w-full"
         />

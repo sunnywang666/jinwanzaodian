@@ -1,8 +1,10 @@
 /**
- * RecipeBookOverlay.tsx — v5.4
+ * RecipeBookOverlay.tsx — v5.6
  *
- * Now receives dishProgress to show locked/unlocked state.
- * Locked dishes show a silhouette + unlock hint.
+ * 文字区域热区校准（左右页独立参数）
+ * 描述居中显示，客人/来源左对齐
+ * 页码居中于热区
+ * 食物图片直接用 img 避免 variant 冲突
  */
 
 import { useState } from 'react'
@@ -18,12 +20,19 @@ interface RecipeBookOverlayProps {
   onClose: () => void
 }
 
-const lineClampStyle = (lines: number): React.CSSProperties => ({
-  display: '-webkit-box',
-  WebkitLineClamp: lines,
-  WebkitBoxOrient: 'vertical' as const,
-  overflow: 'hidden',
-})
+/**
+ * 热区参数（调试工具校准）
+ *
+ * 左页:
+ *   desc:   { left: 8,  top: 53,   width: 36.5, height: 8,  fs: 10 }
+ *   info:   { left: 8,  top: 57.5, width: 35.5, height: 10, fs: 10 }
+ *   pageNum:{ left: 26, top: 73.5, width: 5,    height: 3,  fs: 10 }
+ *
+ * 右页:
+ *   desc:   { left: 54, top: 53,   width: 36.5, height: 8,  fs: 10 }
+ *   info:   { left: 54, top: 57.5, width: 35.5, height: 10, fs: 10 }
+ *   pageNum:{ left: 72, top: 73.5, width: 5,    height: 3,  fs: 10 }
+ */
 
 function RecipePage({
   dish,
@@ -38,13 +47,20 @@ function RecipePage({
 }) {
   if (!dish) return null
 
+  // 上面固定区域（v5.4 不变）
   const colLeft = side === 'left' ? '3.5%' : '49.5%'
   const colLeftNum = side === 'left' ? 3.5 : 49.5
   const colWidth = '46.5%'
-  const pageNumLeft = side === 'left' ? '26%' : '72%'
+
+  // 下面文字区域（左右独立参数）
+  const descLeft = side === 'left' ? '8%' : '54%'
+  const infoLeft = side === 'left' ? '8%' : '54%'
+  const pnLeft = side === 'left' ? '26%' : '72%'
 
   return (
     <>
+      {/* ===== 上面固定区域 ===== */}
+
       {/* Dish frame */}
       <div className="absolute" style={{ left: colLeft, top: '13.5%', width: colWidth }}>
         <img
@@ -66,12 +82,15 @@ function RecipePage({
         }}
       >
         {isUnlocked ? (
-          <AssetImage
+          <img
             src={dish.image.src}
-            fallbackSrc={dish.image.fallbackSrc}
             alt={dish.name}
-            variant="item"
             className="h-full w-full object-contain"
+            onError={(e) => {
+              if (dish.image.fallbackSrc) {
+                (e.target as HTMLImageElement).src = dish.image.fallbackSrc
+              }
+            }}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
@@ -94,37 +113,70 @@ function RecipePage({
         {isUnlocked ? dish.name : '???'}
       </h2>
 
-      {/* Description */}
+      {/* ===== 下面文字区域（热区校准）===== */}
+
+      {isUnlocked ? (
+        <>
+          {/* 描述 — 居中显示 */}
+          <div
+            className="absolute flex items-center justify-center overflow-hidden text-center text-ink/68"
+            style={{
+              left: descLeft,
+              top: '53%',
+              width: '36.5%',
+              height: '8%',
+              fontSize: '10px',
+              lineHeight: '1.45',
+            }}
+          >
+            {dish.description}
+          </div>
+
+          {/* 客人 + 来源 — 左对齐 */}
+          <div
+            className="absolute overflow-hidden text-ink/68"
+            style={{
+              left: infoLeft,
+              top: '57.5%',
+              width: '35.5%',
+              height: '10%',
+              fontSize: '10px',
+              lineHeight: '1.45',
+            }}
+          >
+            <p>客人：{dish.lovedBy}</p>
+            <p style={{ marginTop: '2px' }}>来源：{dish.origin}</p>
+          </div>
+        </>
+      ) : (
+        <div
+          className="absolute flex items-center justify-center overflow-hidden text-center italic text-ink/40"
+          style={{
+            left: descLeft,
+            top: '53%',
+            width: '36.5%',
+            height: '18%',
+            fontSize: '10px',
+            lineHeight: '1.45',
+          }}
+        >
+          {getDishUnlockHint(dish.key)}
+        </div>
+      )}
+
+      {/* 页码 — 居中于热区 */}
       <div
-        className="absolute text-ink/68"
+        className="absolute flex items-center justify-center text-brown/65"
         style={{
-          left: `${colLeftNum + 3}%`,
-          top: '54.5%',
-          width: '35.5%',
+          left: pnLeft,
+          top: '73.5%',
+          width: '5%',
+          height: '3%',
           fontSize: '10px',
-          lineHeight: '1.45',
         }}
       >
-        {isUnlocked ? (
-          <>
-            <p style={lineClampStyle(1)}>{dish.description}</p>
-            <p style={{ marginTop: '2px', ...lineClampStyle(1) }}>客人：{dish.lovedBy}</p>
-            <p style={{ marginTop: '2px', ...lineClampStyle(1) }}>来源：{dish.origin}</p>
-          </>
-        ) : (
-          <p className="italic text-ink/40" style={lineClampStyle(2)}>
-            {getDishUnlockHint(dish.key)}
-          </p>
-        )}
-      </div>
-
-      {/* Page number */}
-      <p
-        className="absolute text-brown/65"
-        style={{ left: pageNumLeft, top: '73.5%', fontSize: '10px' }}
-      >
         {pageNumber}
-      </p>
+      </div>
     </>
   )
 }

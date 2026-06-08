@@ -1,8 +1,8 @@
 /**
- * GuestBookOpenView.tsx — v5.4
+ * GuestBookOpenView.tsx — v5.6
  *
- * Now receives guestProgress to show real visit counts,
- * familiarity levels, and dynamic descriptions.
+ * Uses independent hotzones for the book layout while preserving
+ * the real visit/familiarity data introduced in v5.4.
  */
 
 import { useEffect, useState } from 'react'
@@ -115,117 +115,79 @@ export function GuestBookOpenView({
             className="h-full w-full object-contain drop-shadow-[0_20px_26px_rgba(54,38,26,0.22)]"
           />
 
-          {/* Left page: character image */}
+          {/* Character image */}
           <div
-            className="absolute flex items-center justify-center overflow-hidden"
-            style={{ left: '17%', top: '18.5%', width: '30%', height: '32%' }}
+            className="absolute overflow-hidden"
+            style={{ left: '24%', top: '28%', width: '15%', height: '14%' }}
           >
-            <AssetImage
+            <img
               src={guest.image.src}
-              fallbackSrc={guest.image.fallbackSrc}
               alt={guest.name}
-              variant="character"
-              renderFallbackCard={false}
               className="h-full w-full object-contain"
+              onError={(e) => {
+                if (guest.image.fallbackSrc) {
+                  (e.target as HTMLImageElement).src = guest.image.fallbackSrc
+                }
+              }}
             />
           </div>
 
-          {/* Left page: name */}
+          {/* Name */}
           <div
-            className="font-tianrandai absolute text-center font-semibold leading-tight text-ink"
-            style={{ left: '15%', top: '45%', width: '32.5%', fontSize: '12.5px' }}
+            className="font-tianrandai absolute flex items-center justify-center text-center font-semibold leading-tight text-ink"
+            style={{ left: '20%', top: '46%', width: '23%', height: '3%', fontSize: '9.5px' }}
           >
             {guest.name}
           </div>
 
-          {/* Left page: description */}
-          <p
-            className="font-tianrandai absolute leading-[1.45] text-ink/72"
-            style={{
-              left: '18%',
-              top: '52.5%',
-              width: '26.5%',
-              fontSize: '12.5px',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}
+          {/* Description */}
+          <div
+            className="font-tianrandai absolute overflow-hidden text-center leading-[1.45] text-ink/72"
+            style={{ left: '17%', top: '52%', width: '28%', height: '15%', fontSize: '12.5px' }}
           >
             {guest.description}
-          </p>
+          </div>
 
-          {/* Right page: 喜欢 */}
-          <p
-            className="font-tianrandai absolute leading-[1.5] text-ink/84"
-            style={{ left: '55.5%', top: '31.5%', width: '36%', fontSize: '10px' }}
+          {/* Info block */}
+          <div
+            className="font-tianrandai absolute overflow-hidden leading-[1.6] text-ink/84"
+            style={{ left: '54%', top: '29%', width: '31%', height: '22%', fontSize: '10.5px' }}
           >
-            喜欢：{guest.favoriteFood}
-          </p>
+            <p><span className="text-ink/55">喜欢：</span>{guest.favoriteFood}</p>
+            <p><span className="text-ink/55">来访：</span>{realVisitCount} 次</p>
+            <p><span className="text-ink/55">熟络：</span>{familiarityDesc}</p>
+            <p><span className="text-ink/55">状态：</span>{familiarityLabel}</p>
+          </div>
 
-          {/* Right page: 来访 — uses real data */}
-          <p
-            className="font-tianrandai absolute leading-[1.5] text-ink/84"
-            style={{ left: '55.5%', top: '38.5%', width: '36%', fontSize: '10px' }}
-          >
-            来访：{realVisitCount} 次
-          </p>
-
-          {/* Right page: 熟络 — uses real progression */}
-          <p
-            className="font-tianrandai absolute leading-[1.5] text-ink/84"
-            style={{
-              left: '55.5%',
-              top: '45.5%',
-              width: '36%',
-              fontSize: '10px',
-              display: '-webkit-box',
-              WebkitLineClamp: 1,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}
-          >
-            {familiarityLabel}：{familiarityDesc}
-          </p>
-
-          {/* Right page: story label */}
-          <p
+          {/* Story title */}
+          <div
             className="font-tianrandai absolute font-semibold text-ink/60"
-            style={{ left: '55.5%', top: '50.5%', width: '30%', fontSize: '13px' }}
+            style={{ left: '54%', top: '52%', width: '30%', height: '5%', fontSize: '12px' }}
           >
             小故事
-          </p>
+          </div>
 
-          {/* Right page: story text */}
-          <p
-            className="font-tianrandai absolute leading-[1.55] text-ink/80"
-            style={{
-              left: '55.5%',
-              top: '58%',
-              width: '29.5%',
-              fontSize: '10px',
-              display: '-webkit-box',
-              WebkitLineClamp: 4,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}
+          {/* Story text */}
+          <div
+            className="font-tianrandai absolute overflow-hidden leading-[1.55] text-ink/80"
+            style={{ left: '54%', top: '58%', width: '31%', height: '12%', fontSize: '10px' }}
           >
             {guest.story}
-          </p>
+          </div>
 
-          {/* Page numbers */}
-          <p
-            className="font-tianrandai absolute text-brown/70"
-            style={{ left: '30%', top: '70%', fontSize: '10px' }}
+          {/* Left page number */}
+          <div
+            className="font-tianrandai absolute flex items-center justify-center text-brown/70"
+            style={{ left: '28%', top: '70%', width: '5%', height: '3%', fontSize: '10px' }}
           >
             {leftPageNum}
-          </p>
-          <p
-            className="font-tianrandai absolute text-brown/70"
-            style={{ left: '69%', top: '70.5%', fontSize: '10px' }}
+          </div>
+          <div
+            className="font-tianrandai absolute flex items-center justify-center text-brown/70"
+            style={{ left: '67%', top: '71%', width: '5%', height: '3%', fontSize: '10px' }}
           >
             {rightPageNum}
-          </p>
+          </div>
         </div>
       </div>
 

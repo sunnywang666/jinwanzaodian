@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.6
+
+UI hotspot recalibration, scene item sizing fixes, and book layout polish.
+
+Included in this version:
+- Recalibrated the main scene item hotspots to match the trimmed asset geometry used by the app, fixing the mismatch between the tuning tool and the rendered scene.
+- Updated `sceneItems.ts` with the v3-calibrated coordinates for all seven interactive objects in the shop.
+- Fixed `SceneItemButton` sizing by removing the conflicting `item` variant height class, so scene props render at their intended natural height.
+- Polished `GuestBookOpenView` with independently positioned layout zones for character art, text blocks, story content, and page numbers, while preserving the real guest progression data from `v5.4`.
+- Updated the guest-book text layout to wrap naturally without truncation and to adapt more cleanly to new animal entries.
+- Polished `RecipeBookOverlay` with independent left/right text parameters, centered description copy, left-aligned guest/origin metadata, centered page numbers, and unclamped text.
+- Switched recipe food images to plain `img` rendering inside the calibrated layout so they no longer inherit conflicting asset-size classes.
+- Kept the existing real-time clock and dish unlock logic intact while applying the `v5.6` layout fixes.
+
 ## v5.5
 
 Unified data layer with a versioned store, single-key persistence, and automatic migration.
