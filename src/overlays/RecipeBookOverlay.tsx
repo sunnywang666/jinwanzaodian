@@ -12,6 +12,7 @@ import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
 import { PageTurnButton } from '../components/PageTurnButton'
 import { getDishUnlockHint, type DishProgressMap } from '../lib/dishProgression'
+import { useT } from '../lib/i18n'
 
 interface RecipeBookOverlayProps {
   dishProgress: DishProgressMap
@@ -30,6 +31,7 @@ function RecipePage({
   isUnlocked: boolean
 }) {
   if (!dish) return null
+  const { t } = useT()
 
   const colLeft = side === 'left' ? '3.5%' : '49.5%'
   const colLeftNum = side === 'left' ? 3.5 : 49.5
@@ -90,8 +92,8 @@ function RecipePage({
             className="absolute overflow-hidden text-ink/68"
             style={{ left: infoLeft, top: '57.5%', width: '35.5%', height: '10%', fontSize: '10px', lineHeight: '1.45' }}
           >
-            <p>客人：{dish.lovedBy}</p>
-            <p style={{ marginTop: '2px' }}>来源：{dish.origin}</p>
+            <p>{t('recipeBook.guest')}：{dish.lovedBy}</p>
+            <p style={{ marginTop: '2px' }}>{t('recipeBook.origin')}：{dish.origin}</p>
           </div>
         </>
       ) : (
@@ -115,6 +117,7 @@ function RecipePage({
 
 export function RecipeBookOverlay({ dishProgress, onClose }: RecipeBookOverlayProps) {
   const [page, setPage] = useState(0)
+  const { t } = useT()
   const spreadCount = Math.ceil(dishes.length / 2)
   const leftDish = dishes[page * 2]
   const rightDish = dishes[page * 2 + 1]
@@ -124,7 +127,7 @@ export function RecipeBookOverlay({ dishProgress, onClose }: RecipeBookOverlayPr
   const isRightUnlocked = rightDish ? (dishProgress[rightDish.key]?.unlocked ?? false) : false
 
   return (
-    <GameOverlay title="菜谱本" onClose={onClose}>
+    <GameOverlay title={t('recipeBook.title')} onClose={onClose}>
       <section className="relative flex h-full flex-col">
         {/* 铺子背景 + 半透明遮罩 */}
         <div className="absolute inset-0 bg-[#d7d3cf]">

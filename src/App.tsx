@@ -49,6 +49,7 @@ import { GuestBookConfirmView } from './views/GuestBookConfirmView'
 import { GuestBookOpenView } from './views/GuestBookOpenView'
 import { useAmbientAudio, CHANNELS } from './lib/ambientAudio'
 import { getNow } from './lib/timeSimulator'
+import { useT } from './lib/i18n'
 
 // ── Ephemeral keys (outside the store) ──
 
@@ -113,6 +114,7 @@ export default function App() {
   const [debugHotspots, setDebugHotspots] = useState(false)
   const [returnMessage, setReturnMessage] = useState<string | null>(() => loadReturnMessage())
   const ambientAudio = useAmbientAudio()
+  const { t } = useT()
 
   // ── View routing ──
   const todayStr = getTodayString()
@@ -192,8 +194,8 @@ export default function App() {
         onReturn: (awayMs) => {
           if (awayMs <= 30_000) return
           const msg = awayMs > 600_000
-            ? '哎，你回来啦。铺子一直开着呢。'
-            : '欢迎回来，铺子还在。'
+            ? t('app.returnLong')
+            : t('app.returnShort')
           setReturnMessage(msg)
           saveReturnMessage(msg)
           window.setTimeout(() => {
@@ -351,11 +353,11 @@ export default function App() {
               type="button"
               className="pointer-events-auto rounded-full bg-ink/20 px-3 py-1.5 text-xs text-paper backdrop-blur-sm transition hover:bg-ink/30"
               onClick={() => {
-                if (!window.confirm('要清空开店流程和本地演示记录吗？')) return
+                if (!window.confirm(t('app.resetConfirm'))) return
                 resetAll()
               }}
             >
-              重置
+              {t('app.resetBtn')}
             </button>
           </div>
         </div>
@@ -444,7 +446,7 @@ export default function App() {
         />
       ) : null}
       {view === 'radio' ? <RadioOverlay audio={ambientAudio} onClose={() => setView('home')} /> : null}
-      {view === 'logbook' ? <LogbookOverlay entries={logEntries} onClose={() => setView('home')} /> : null}
+      {view === 'logbook' ? <LogbookOverlay entries={logEntries} spiritName={profile.spiritName} onClose={() => setView('home')} /> : null}
       {view === 'messageBoard' ? (
         <MessageBoardOverlay
           guestProgress={guestProgress}

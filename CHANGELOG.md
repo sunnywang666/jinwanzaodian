@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.7
+
+Logbook trend visualization, broader i18n migration, and onboarding/confirm-copy polish.
+
+Included in this version:
+- Added `LogbookTrend.tsx`, a hand-drawn style trend view for the logbook.
+- Updated `LogbookOverlay` with a tabbed interface so players can switch between entry records and the new trend chart.
+- Expanded i18n coverage across more screens, including spirit chat, recipe book, guest-book confirmation, recipe-book confirmation, and parts of the opening flow.
+- Updated `Home`, `EveningPrepare`, `NightClosing`, `LogbookOverlay`, `SpiritHutOverlay`, and `MessageBoardOverlay` to rely more consistently on translated UI strings.
+- Updated `MorningOpening` so greeting and reward copy are increasingly locale-driven instead of hardcoded.
+- Updated `package.json` version metadata to `6.7.0`.
+- Kept the current time-simulation flow, spirit chat API path, and guest bond system while broadening translation coverage and adding trend visibility.
+
 ## v6.6
 
 Guest encounter "Bond" system, replacing static guest stories with familiarity-based relationship beats.

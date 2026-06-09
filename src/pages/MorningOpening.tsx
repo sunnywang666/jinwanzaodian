@@ -38,77 +38,31 @@ interface MorningOpeningProps {
 
 /* ── 精灵迎接语（按人格类型 × 昨晚状态） ── */
 
+const nightTypeKeyMap: Record<string, string> = {
+  '报复型': 'revenge', '惯性型': 'inertia', '焦虑型': 'anxiety',
+  '工作型': 'work', '猫头鹰型': 'owl', '说不清': 'unsure',
+}
+
 function getSpiritGreeting(
+  t: (key: string, vars?: Record<string, string>) => string,
   name: string,
   nightType: NightType,
   closed: boolean,
   closeTime: string | null,
 ): { line1: string; line2: string } {
-  if (closed) {
-    // 好好打烊了
-    const timeStr = closeTime ?? '23:00'
-    const greetings: Record<string, { line1: string; line2: string }> = {
-      '报复型': {
-        line1: `昨晚 ${timeStr} 就关了灯，你把时间还给了夜晚。`,
-        line2: `${name}：铺子替你守着，你睡得很好。`,
-      },
-      '惯性型': {
-        line1: `昨晚 ${timeStr} 关的灯，你真的停下来了。`,
-        line2: `${name}：手放下了，铺子就安心了。`,
-      },
-      '焦虑型': {
-        line1: `昨晚 ${timeStr} 关的灯，铺子休息得不错。`,
-        line2: `${name}：脑子里的事明天再说，今天先开门。`,
-      },
-      '工作型': {
-        line1: `昨晚 ${timeStr} 就收摊了，做得好。`,
-        line2: `${name}：活儿明天还在，但你今天更有精神了。`,
-      },
-      '猫头鹰型': {
-        line1: `昨晚 ${timeStr} 关的灯，节奏慢慢在调。`,
-        line2: `${name}：不急，每一步都算数。`,
-      },
-      '说不清': {
-        line1: `昨晚 ${timeStr} 关了灯。`,
-        line2: `${name}：不管昨晚是什么感觉，今天铺子照常开。`,
-      },
-    }
-    return greetings[nightType] ?? greetings['说不清']
+  const typeKey = nightTypeKeyMap[nightType] ?? 'unsure'
+  const state = closed ? 'closed' : 'notClosed'
+  const vars = { time: closeTime ?? '23:00', name }
+  return {
+    line1: t(`morning.greetings.${state}.${typeKey}.line1`, vars),
+    line2: t(`morning.greetings.${state}.${typeKey}.line2`, vars),
   }
-
-  // 没打烊
-  const greetings: Record<string, { line1: string; line2: string }> = {
-    '报复型': {
-      line1: '昨晚没来得及打烊，夜晚被你多留了一会儿。',
-      line2: `${name}：没关系，灯我一直留着，今天我们再来。`,
-    },
-    '惯性型': {
-      line1: '昨晚没关灯，手可能还是没停下来。',
-      line2: `${name}：没事，铺子不记仇，今天还在。`,
-    },
-    '焦虑型': {
-      line1: '昨晚铺子没关上，可能脑子里还有事。',
-      line2: `${name}：今天不用急，铺子先替你稳着。`,
-    },
-    '工作型': {
-      line1: '昨晚没打烊，可能活儿太多了。',
-      line2: `${name}：没关系，今天铺子帮你兜着。`,
-    },
-    '猫头鹰型': {
-      line1: '昨晚没来得及关灯。',
-      line2: `${name}：你的节奏本来就晚一点，没关系的。`,
-    },
-    '说不清': {
-      line1: '昨晚没有打烊。',
-      line2: `${name}：没事，铺子照常为你开着。`,
-    },
-  }
-  return greetings[nightType] ?? greetings['说不清']
 }
 
 /* ── 小回报文案 ── */
 
 function getRewardContent(
+  t: (key: string, vars?: Record<string, string>) => string,
   trend: TrendResult,
   spiritProgress: SpiritProgressState,
   closed: boolean,
@@ -116,8 +70,8 @@ function getRewardContent(
   if (!closed) {
     return {
       hasReward: false,
-      text: '铺子今天照常为你开门',
-      subtext: '没有奖励也没有惩罚，只是陪着。',
+      text: t('morning.rewardNoClose'),
+      subtext: t('morning.rewardNoCloseSub'),
     }
   }
 
@@ -136,15 +90,15 @@ function getRewardContent(
       // 刚好解锁！
       return {
         hasReward: true,
-        text: `精灵学会了${m.name}的样子！`,
-        subtext: '新的点心形态已解锁，去小屋看看吧。',
+        text: t('morning.rewardNewSkin', { skin: m.name }),
+        subtext: t('morning.rewardNewSkinSub'),
       }
     }
     if (remaining <= 3) {
       return {
         hasReward: true,
-        text: `离${m.name}还差 ${remaining} 晚`,
-        subtext: '继续好好关灯，精灵在努力变形呢。',
+        text: t('morning.rewardClose', { skin: m.name, count: String(remaining) }),
+        subtext: t('morning.rewardCloseSub'),
       }
     }
     break
@@ -154,15 +108,15 @@ function getRewardContent(
   if (trend.score > 0.5) {
     return {
       hasReward: true,
-      text: '这几天铺子越来越热闹了',
-      subtext: '早睡带来的好精神，客人们都感觉到了。',
+      text: t('morning.rewardTrending'),
+      subtext: t('morning.rewardTrendingSub'),
     }
   }
 
   return {
     hasReward: true,
-    text: '又一个好好关灯的夜晚',
-    subtext: '每一晚都算数，铺子记着呢。',
+    text: t('morning.rewardDefault'),
+    subtext: t('morning.rewardDefaultSub'),
   }
 }
 
@@ -221,8 +175,8 @@ export function MorningOpening({
   const { t } = useT()
 
   const hasWorry = lastNightWorry !== null && lastNightWorry.trim() !== ''
-  const greeting = getSpiritGreeting(spiritName, nightType, lastNightClosed, lastCloseTime)
-  const reward = getRewardContent(trend, spiritProgress, lastNightClosed)
+  const greeting = getSpiritGreeting(t, spiritName, nightType, lastNightClosed, lastCloseTime)
+  const reward = getRewardContent(t, trend, spiritProgress, lastNightClosed)
   const todayGuests = todayGuestKeys
     .map((key) => allGuests.find((g) => g.key === key))
     .filter(Boolean)
@@ -267,7 +221,7 @@ export function MorningOpening({
             </div>
 
             <p className="morning-fade mt-6 text-sm text-[#e8ddd0]/40">
-              铺子还暗着……
+              {t('morning.shopDark')}
             </p>
 
             <button
@@ -276,7 +230,7 @@ export function MorningOpening({
               style={{ animationDelay: '300ms' }}
               onClick={() => setBeat(1)}
             >
-              <span>拉开卷帘</span>
+              <span>{t('morning.pullShutter')}</span>
               <span className="text-[#f0ddb3]/30">↑</span>
             </button>
           </div>
@@ -483,6 +437,7 @@ interface MiddayTransitionProps {
 }
 
 export function MiddayTransition({ spiritName, guestCount, shopMood, onContinue }: MiddayTransitionProps) {
+  const { t } = useT()
   const middayCopy = middayTransitionCopy[shopMood]
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#f5ead8]">
@@ -496,11 +451,11 @@ export function MiddayTransition({ spiritName, guestCount, shopMood, onContinue 
         />
         <h2 className="mt-6 text-xl font-semibold text-ink">{middayCopy.title}</h2>
         <p className="mt-3 text-base leading-7 text-ink/60">
-          今天上午来了 {guestCount} 位客人。
+          {t('morning.middayGuests', { count: String(guestCount) })}
         </p>
         <p className="mt-2 text-sm leading-6 text-ink/50">{middayCopy.body(spiritName)}</p>
         <SoftButton className="mt-8" type="button" variant="primary" block onClick={onContinue}>
-          开始备菜
+          {t('morning.middayStart')}
         </SoftButton>
       </section>
     </div>

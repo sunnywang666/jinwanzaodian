@@ -14,6 +14,7 @@ import { type ChatMessage } from '../lib/demoData'
 import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
 import type { DemoScene, NightType } from '../lib/storage'
+import { useT } from '../lib/i18n'
 
 interface SpiritChatOverlayProps {
   spiritName: string
@@ -190,6 +191,7 @@ export function SpiritChatOverlay({
   const [inputText, setInputText] = useState('')
   const [apiError, setApiError] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const { t } = useT()
 
   const quickReplies = getQuickReplies(currentScene)
 
@@ -272,7 +274,7 @@ export function SpiritChatOverlay({
         {/* API error toast */}
         {apiError ? (
           <div className="mx-4 rounded-[14px] bg-[#d4a574]/15 px-3 py-2 text-center text-xs text-brown/60">
-            精灵暂时连不上，先用离线模式陪你
+            {t('spiritChat.apiError')}
           </div>
         ) : null}
 
@@ -347,7 +349,7 @@ export function SpiritChatOverlay({
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             disabled={isThinking}
-            placeholder="想说点什么……"
+            placeholder={t('spiritChat.inputPlaceholder')}
             className="min-w-0 flex-1 rounded-full bg-white/50 px-4 py-3 text-sm text-ink outline-none transition placeholder:text-ink/25 focus:bg-white/65 disabled:opacity-40"
           />
           <button
@@ -355,7 +357,7 @@ export function SpiritChatOverlay({
             disabled={isThinking || !inputText.trim()}
             className="shrink-0 rounded-full bg-[#d4a574]/40 px-5 py-3 text-sm font-medium text-ink/70 transition hover:bg-[#d4a574]/55 disabled:opacity-30"
           >
-            发送
+            {t('spiritChat.send')}
           </button>
         </form>
       </section>

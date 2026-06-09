@@ -148,7 +148,7 @@ export const zh = {
     },
     about: {
       title: '关于',
-      version: '「今晚早点」v6.2',
+      version: '「今晚早点」v6.7',
       line1: '一家只在你手机里的早点铺。',
       line2: '不是闹钟，不是打卡，不是助眠白噪音。',
       line3: '铺子不会催你睡觉，只是会在你放下手机的时候，安静地陪着你。',
@@ -197,6 +197,42 @@ export const zh = {
     openUp: '开门啦',
     openDesc: '柜台擦好了，豆浆热好了，门口的小灯亮起来了。',
     welcome: '迎客',
+    // Beat 0
+    shopDark: '铺子还暗着……',
+    pullShutter: '拉开卷帘',
+    // 奖励
+    rewardNewSkin: '精灵学会了{skin}的样子！',
+    rewardNewSkinSub: '新的点心形态已解锁，去小屋看看吧。',
+    rewardClose: '离{skin}还差 {count} 晚',
+    rewardCloseSub: '继续好好关灯，精灵在努力变形呢。',
+    rewardTrending: '这几天铺子越来越热闹了',
+    rewardTrendingSub: '早睡带来的好精神，客人们都感觉到了。',
+    rewardDefault: '又一个好好关灯的夜晚',
+    rewardDefaultSub: '每一晚都算数，铺子记着呢。',
+    rewardNoClose: '铺子今天照常为你开门',
+    rewardNoCloseSub: '没有奖励也没有惩罚，只是陪着。',
+    // Midday
+    middayGuests: '今天上午来了 {count} 位客人。',
+    middayStart: '开始备菜',
+    // 个性化问候
+    greetings: {
+      closed: {
+        revenge: { line1: '昨晚 {time} 就关了灯，你把时间还给了夜晚。', line2: '{name}：铺子替你守着，你睡得很好。' },
+        inertia: { line1: '昨晚 {time} 关的灯，你真的停下来了。', line2: '{name}：手放下了，铺子就安心了。' },
+        anxiety: { line1: '昨晚 {time} 关的灯，铺子休息得不错。', line2: '{name}：脑子里的事明天再说，今天先开门。' },
+        work: { line1: '昨晚 {time} 就收摊了，做得好。', line2: '{name}：活儿明天还在，但你今天更有精神了。' },
+        owl: { line1: '昨晚 {time} 关的灯，节奏慢慢在调。', line2: '{name}：不急，每一步都算数。' },
+        unsure: { line1: '昨晚 {time} 关了灯。', line2: '{name}：不管昨晚是什么感觉，今天铺子照常开。' },
+      },
+      notClosed: {
+        revenge: { line1: '昨晚没来得及打烊，夜晚被你多留了一会儿。', line2: '{name}：没关系，灯我一直留着，今天我们再来。' },
+        inertia: { line1: '昨晚没关灯，手可能还是没停下来。', line2: '{name}：没事，铺子不记仇，今天还在。' },
+        anxiety: { line1: '昨晚铺子没关上，可能脑子里还有事。', line2: '{name}：今天不用急，铺子先替你稳着。' },
+        work: { line1: '昨晚没打烊，可能活儿太多了。', line2: '{name}：没关系，今天铺子帮你兜着。' },
+        owl: { line1: '昨晚没来得及关灯。', line2: '{name}：你的节奏本来就晚一点，没关系的。' },
+        unsure: { line1: '昨晚没有打烊。', line2: '{name}：没事，铺子照常为你开着。' },
+      },
+    },
   },
 
   // ── 傍晚 ──
@@ -272,6 +308,36 @@ export const zh = {
   // ── 留言板 ──
   messageBoard: {
     title: '留言板',
+  },
+
+  // ── 确认视图 ──
+  confirm: {
+    guestBook: '要打开客人图鉴吗？',
+    recipeBook: '要打开菜品图鉴吗？',
+    yes: '要',
+    no: '不要',
+  },
+
+  // ── 菜谱本 ──
+  recipeBook: {
+    title: '菜谱本',
+    guest: '客人',
+    origin: '来源',
+  },
+
+  // ── App 顶栏 ──
+  app: {
+    resetBtn: '重置',
+    resetConfirm: '要清空开店流程和本地演示记录吗？',
+    returnLong: '哎，你回来啦。铺子一直开着呢。',
+    returnShort: '欢迎回来，铺子还在。',
+  },
+
+  // ── 精灵对话 UI ──
+  spiritChat: {
+    apiError: '精灵暂时连不上，先用离线模式陪你',
+    inputPlaceholder: '想说点什么……',
+    send: '发送',
   },
 
   // ── Home ──

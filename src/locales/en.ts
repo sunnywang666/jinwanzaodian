@@ -142,7 +142,7 @@ export const en = {
     },
     about: {
       title: 'About',
-      version: '"Tonight, Sleep Early" v6.2',
+      version: '"Tonight, Sleep Early" v6.7',
       line1: 'A breakfast shop that lives in your phone.',
       line2: 'Not an alarm. Not a tracker. Not a white noise machine.',
       line3: 'The shop won\'t tell you to sleep — it just quietly keeps you company when you put your phone down.',
@@ -189,6 +189,38 @@ export const en = {
     openUp: 'Opening up!',
     openDesc: 'Counter is clean, soy milk is warm, the little light by the door is on.',
     welcome: 'Welcome guests',
+    shopDark: 'The shop is still dark\u2026',
+    pullShutter: 'Pull up the shutters',
+    rewardNewSkin: 'The spirit learned to look like a {skin}!',
+    rewardNewSkinSub: 'New pastry form unlocked \u2014 visit the hut to see!',
+    rewardClose: '{count} more nights until {skin}',
+    rewardCloseSub: 'Keep closing well \u2014 the spirit is working on its transformation.',
+    rewardTrending: 'The shop has been getting busier lately',
+    rewardTrendingSub: 'Your better rest shows \u2014 the guests can feel it.',
+    rewardDefault: 'Another good lights-off night',
+    rewardDefaultSub: 'Every night counts. The shop remembers.',
+    rewardNoClose: 'The shop opens for you as usual today',
+    rewardNoCloseSub: 'No reward, no punishment \u2014 just company.',
+    middayGuests: '{count} guests came this morning.',
+    middayStart: 'Start prepping',
+    greetings: {
+      closed: {
+        revenge: { line1: 'Lights off at {time} last night \u2014 you gave the night back its quiet.', line2: '{name}: The shop kept watch. You slept well.' },
+        inertia: { line1: 'Lights off at {time} last night \u2014 you really stopped.', line2: '{name}: Hands down, the shop feels at ease.' },
+        anxiety: { line1: 'Lights off at {time} \u2014 the shop rested well.', line2: '{name}: The thoughts can wait till tomorrow. Let\'s open up first.' },
+        work: { line1: 'You closed at {time} last night \u2014 well done.', line2: '{name}: The work will still be there, but you\'re sharper today.' },
+        owl: { line1: 'Lights off at {time} \u2014 the rhythm is slowly shifting.', line2: '{name}: No rush. Every step counts.' },
+        unsure: { line1: 'Lights off at {time} last night.', line2: '{name}: Whatever last night felt like, the shop opens as usual today.' },
+      },
+      notClosed: {
+        revenge: { line1: 'Didn\'t close up last night \u2014 the night kept you a little longer.', line2: '{name}: That\'s okay. I left the light on. Let\'s try again today.' },
+        inertia: { line1: 'Didn\'t close last night \u2014 couldn\'t quite stop.', line2: '{name}: No worries. The shop doesn\'t hold grudges.' },
+        anxiety: { line1: 'The shop didn\'t close \u2014 maybe something was still on your mind.', line2: '{name}: Take it easy today. The shop\'s got you.' },
+        work: { line1: 'Didn\'t close up \u2014 maybe too much to do.', line2: '{name}: That\'s okay. The shop will cover for you today.' },
+        owl: { line1: 'Didn\'t get to close last night.', line2: '{name}: Your rhythm just runs a bit late. That\'s okay.' },
+        unsure: { line1: 'Didn\'t close up last night.', line2: '{name}: No worries. The shop\'s open for you as always.' },
+      },
+    },
   },
 
   evening: {
@@ -258,6 +290,32 @@ export const en = {
 
   messageBoard: {
     title: 'Message Board',
+  },
+
+  confirm: {
+    guestBook: 'Open the guest book?',
+    recipeBook: 'Open the recipe book?',
+    yes: 'Yes',
+    no: 'No',
+  },
+
+  recipeBook: {
+    title: 'Recipe Book',
+    guest: 'Guest',
+    origin: 'Origin',
+  },
+
+  app: {
+    resetBtn: 'Reset',
+    resetConfirm: 'Clear all shop data and demo records?',
+    returnLong: 'Hey, you\'re back. The shop\'s been open the whole time.',
+    returnShort: 'Welcome back. The shop\'s still here.',
+  },
+
+  spiritChat: {
+    apiError: 'Spirit is offline \u2014 using fallback mode',
+    inputPlaceholder: 'Say something\u2026',
+    send: 'Send',
   },
 
   home: {
