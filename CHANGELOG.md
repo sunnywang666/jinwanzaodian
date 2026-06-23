@@ -1,5 +1,17 @@
 # Changelog
 
+## v6.9
+
+P1 patch: split demo vs. real data, and hide debug entry points from real users.
+
+Included in this version:
+- Added `src/lib/devMode.ts` with a single `isDemoMode()` switch controlling fake data + debug entry points. Resolution order: `?demo=1/0` → localStorage → `npm run dev` (DEV) → build-injected `VITE_DEMO=1`.
+- Updated `src/App.tsx` so new/reset users start with an empty logbook; fake data is only injected in demo mode; the home "reset" button only shows in demo mode (real users reset via Settings).
+- Updated `src/pages/Home.tsx` so the home DEBUG (time simulation) only shows in demo mode.
+- Updated `src/overlays/LogbookOverlay.tsx` with a friendly empty state and fixed the `1 / 0` pager indicator on an empty logbook.
+- Net effect: `npm run build` deploy = clean real app (empty logbook, no debug); `npm run dev` or `?demo=1` = full demo state for showcases. Trend/opening logic is already safe on empty arrays.
+- Updated `package.json` version metadata to `6.9.0`.
+
 ## v6.8
 
 P0 patch: local notifications, installable PWA shell, and reminder settings — the three things needed to make 「今晚早点」usable day-to-day.

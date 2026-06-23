@@ -51,6 +51,15 @@ export function LogbookOverlay({ entries, spiritName, onClose }: LogbookOverlayP
         </div>
 
         {tab === 'entries' ? (
+          entries.length === 0 ? (
+            <div className="flex min-h-0 flex-1 items-center justify-center px-6">
+              <p className="whitespace-pre-line text-center text-sm leading-7 text-ink/40">
+                {lang === 'en'
+                  ? 'No records yet.\nClose the shop tonight and the first entry will appear here.'
+                  : '还没有记录。\n今晚好好打烊，第一笔流水就会记在这里。'}
+              </p>
+            </div>
+          ) : (
           <>
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
               {pageEntries.map((entry, index) => (
@@ -89,6 +98,7 @@ export function LogbookOverlay({ entries, spiritName, onClose }: LogbookOverlayP
               <PageTurnButton direction="next" disabled={page >= pageCount - 1} onClick={() => setPage((c) => c + 1)} />
             </div>
           </>
+          )
         ) : (
           <div className="min-h-0 flex-1 overflow-y-auto">
             <LogbookTrend entries={entries} spiritName={spiritName} />

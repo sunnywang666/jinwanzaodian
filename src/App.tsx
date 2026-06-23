@@ -27,6 +27,7 @@ import {
 } from './lib/storage'
 import { loadStore, saveStore, clearStore, createDefaultStore, type AppStore } from './lib/dataStore'
 import { startReminderScheduler, type StoredReminderSettings } from './lib/notifications'
+import { isDemoMode } from './lib/devMode'
 import { getSceneForCurrentTime } from './lib/timeScene'
 import { clearLastScreenOffTime, clearVisibilityData, getLastScreenOffTime, startVisibilityTracking } from './lib/visibility'
 import { calculateTrend } from './lib/trendCalculation'
@@ -99,7 +100,7 @@ export default function App() {
   const [demoScene, setDemoScene] = useState(initialStore.today.scene)
   const [tonightClosed, setTonightClosed] = useState(initialStore.today.tonightClosed)
   const [logEntries, setLogEntries] = useState<LogEntry[]>(() =>
-    initialStore.days.length > 0 ? initialStore.days : createDefaultLogEntries(),
+    initialStore.days.length > 0 ? initialStore.days : (isDemoMode() ? createDefaultLogEntries() : []),
   )
   const [eveningPrepare, setEveningPrepare] = useState<EveningPrepareState>(initialStore.today.eveningPrepare)
   const [todayMood, setTodayMood] = useState(initialStore.today.mood)
@@ -295,7 +296,7 @@ export default function App() {
     setAutoSceneEnabled(true)
     setReminders(defaults.settings.reminders)
     setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
-    setLogEntries(createDefaultLogEntries())
+    setLogEntries(isDemoMode() ? createDefaultLogEntries() : [])
     setGuestProgress({})
     setDishProgress({})
     setSpiritProgress(defaults.spirit.progress)
@@ -407,16 +408,18 @@ export default function App() {
               </button>
             ) : null}
 
-            <button
-              type="button"
-              className="pointer-events-auto rounded-full bg-ink/20 px-3 py-1.5 text-xs text-paper backdrop-blur-sm transition hover:bg-ink/30"
-              onClick={() => {
-                if (!window.confirm(t('app.resetConfirm'))) return
-                resetAll()
-              }}
-            >
-              {t('app.resetBtn')}
-            </button>
+            {isDemoMode() ? (
+              <button
+                type="button"
+                className="pointer-events-auto rounded-full bg-ink/20 px-3 py-1.5 text-xs text-paper backdrop-blur-sm transition hover:bg-ink/30"
+                onClick={() => {
+                  if (!window.confirm(t('app.resetConfirm'))) return
+                  resetAll()
+                }}
+              >
+                {t('app.resetBtn')}
+              </button>
+            ) : null}
           </div>
         </div>
       ) : null}

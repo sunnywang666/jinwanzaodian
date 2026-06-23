@@ -12,6 +12,7 @@ import type { DemoScene } from '../lib/storage'
 import type { TimeSceneOptions } from '../lib/timeScene'
 import { useT } from '../lib/i18n'
 import { getNow } from '../lib/timeSimulator'
+import { isDemoMode } from '../lib/devMode'
 
 interface HomeProps {
   scene: DemoScene
@@ -64,11 +65,13 @@ export function Home({
           </svg>
         </button>
 
-        <button type="button"
-          className={`rounded-full px-3 py-1.5 text-xs backdrop-blur-sm transition ${debugHotspots ? 'bg-butter/70 text-ink' : 'bg-ink/15 text-paper'}`}
-          onClick={onToggleDebugHotspots}>
-          {t('home.debug')}
-        </button>
+        {isDemoMode() ? (
+          <button type="button"
+            className={`rounded-full px-3 py-1.5 text-xs backdrop-blur-sm transition ${debugHotspots ? 'bg-butter/70 text-ink' : 'bg-ink/15 text-paper'}`}
+            onClick={onToggleDebugHotspots}>
+            {t('home.debug')}
+          </button>
+        ) : null}
       </div>
 
       {debugHotspots ? (
