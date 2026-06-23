@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:app": "tsc && vite build --base=./",
+    "cap:android": "npm run build:app && npx cap sync android",
     "preview": "vite preview",
     "sync-assets": "node scripts/sync-assets.mjs",
     "trim-assets": "node scripts/trim-transparent-assets.mjs",
