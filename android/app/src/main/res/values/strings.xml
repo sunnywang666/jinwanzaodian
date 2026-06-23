@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">今晚早点</string>
+    <string name="title_activity_main">今晚早点</string>
+    <string name="package_name">com.jinwanzaodian.app</string>
+    <string name="custom_url_scheme">com.jinwanzaodian.app</string>
+</resources>
