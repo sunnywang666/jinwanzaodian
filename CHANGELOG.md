@@ -1,5 +1,16 @@
 # Changelog
 
+## v6.10
+
+P2 patch: surface the "a regular teaches you a dish" hidden thread during the morning opening ceremony.
+
+Included in this version:
+- The dish-unlock was previously silent — `App.tsx` discarded `evaluateDishUnlocks`'s `newUnlocks` and dishes just quietly appeared in the recipe book. This version makes it a felt beat in the morning opening.
+- Updated `src/lib/dishProgression.ts` to export `getDishUnlockSource(key)`, attributing a newly unlocked dish to the regular who taught it (or to milestone R&D).
+- Updated `src/pages/MorningOpening.tsx` with a new "new recipe" beat: dish illustration + "{guest} taught you to make {dish}", with a pipeline-style rhythm (greet → (reward) → (new recipe) → (thoughts) → open), showing "and N more" when several unlock.
+- Updated `src/App.tsx` to pre-compute today's visits and dish unlocks before rendering the ceremony and pass the attributed unlocks in; `onComplete` still commits via the original logic using the same `todayGuestKeys`, so display and persistence agree and nothing double-fires.
+- Updated `package.json` version metadata to `6.10.0`.
+
 ## v6.9
 
 P1 patch: split demo vs. real data, and hide debug entry points from real users.

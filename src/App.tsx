@@ -16,7 +16,7 @@ import { EveningPrepare } from './pages/EveningPrepare'
 import { NightClosing } from './pages/NightClosing'
 import { MorningOpening, MiddayTransition } from './pages/MorningOpening'
 import { Settings } from './pages/Settings'
-import { createDefaultLogEntries, getGuestCountByMood, guests } from './lib/demoData'
+import { createDefaultLogEntries, getGuestCountByMood, guests, dishes } from './lib/demoData'
 import {
   createCloseLogEntry,
   stampOpenTime,
@@ -35,7 +35,7 @@ import {
   rollTodayGuests, recordDailyVisits, type GuestProgressMap,
 } from './lib/guestProgression'
 import {
-  evaluateDishUnlocks, type DishProgressMap,
+  evaluateDishUnlocks, getDishUnlockSource, type DishProgressMap,
 } from './lib/dishProgression'
 import {
   evaluateSpiritUnlocks, type SpiritProgressState,
@@ -336,6 +336,26 @@ export default function App() {
     })
     const todayGuestKeys = rollTodayGuests(trend.sceneMood, guestProgress)
 
+    // Project today's visits + dish unlocks so the ceremony can reveal a guest-taught dish
+    const projectedGuestProgress = recordDailyVisits(todayGuestKeys, guestProgress)
+    const projectedDish = evaluateDishUnlocks(dishProgress, logEntries, projectedGuestProgress)
+    const newDishUnlocks = projectedDish.newUnlocks
+      .map((key) => {
+        const dish = dishes.find((d) => d.key === key)
+        if (!dish) return null
+        const src = getDishUnlockSource(key)
+        const guest = src.guestKey ? guests.find((g) => g.key === src.guestKey) : null
+        return {
+          dishKey: key,
+          dishName: dish.name,
+          dishImageSrc: dish.image.src,
+          dishImageFallback: dish.image.fallbackSrc,
+          guestName: guest?.name ?? null,
+          type: src.type,
+        }
+      })
+      .filter((d): d is NonNullable<typeof d> => d !== null)
+
     return (
       <MorningOpening
         spiritName={profile.spiritName}
@@ -346,6 +366,7 @@ export default function App() {
         trend={trend}
         spiritProgress={spiritProgress}
         todayGuestKeys={todayGuestKeys}
+        newDishUnlocks={newDishUnlocks}
         onWorryReviewed={(status: WorryStatus) => {
           setLogEntries((current) => {
             if (current.length === 0) return current

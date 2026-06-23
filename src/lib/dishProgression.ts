@@ -91,6 +91,13 @@ export function evaluateDishUnlocks(
   return { updated, newUnlocks }
 }
 
+/** Get the unlock source for a dish (used to attribute guest-taught dishes) */
+export function getDishUnlockSource(key: string): { type: 'default' | 'milestone' | 'guest'; guestKey?: string } {
+  const rule = UNLOCK_RULES.find((r) => r.key === key)
+  if (!rule) return { type: 'default' }
+  return { type: rule.type, guestKey: rule.guestKey }
+}
+
 /** Get unlock hint text for a locked dish */
 export function getDishUnlockHint(key: string): string {
   const rule = UNLOCK_RULES.find((r) => r.key === key)

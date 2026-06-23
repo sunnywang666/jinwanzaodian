@@ -22,6 +22,15 @@ import type { WorryStatus, NightType } from '../lib/storage'
 import type { TrendResult } from '../lib/trendCalculation'
 import type { SpiritProgressState } from '../lib/spiritProgression'
 
+export interface DishUnlockReveal {
+  dishKey: string
+  dishName: string
+  dishImageSrc: string
+  dishImageFallback?: string
+  guestName: string | null
+  type: 'default' | 'milestone' | 'guest'
+}
+
 interface MorningOpeningProps {
   spiritName: string
   nightType: NightType
@@ -32,6 +41,8 @@ interface MorningOpeningProps {
   spiritProgress: SpiritProgressState
   /** 今天来的客人 key 列表 */
   todayGuestKeys: string[]
+  /** 今早新解锁的菜品（熟客教菜 / 里程碑研发） */
+  newDishUnlocks: DishUnlockReveal[]
   onWorryReviewed: (status: WorryStatus) => void
   onComplete: () => void
 }
@@ -168,11 +179,12 @@ export function MorningOpening({
   trend,
   spiritProgress,
   todayGuestKeys,
+  newDishUnlocks,
   onWorryReviewed,
   onComplete,
 }: MorningOpeningProps) {
   const [beat, setBeat] = useState(0)
-  const { t } = useT()
+  const { t, lang } = useT()
 
   const hasWorry = lastNightWorry !== null && lastNightWorry.trim() !== ''
   const greeting = getSpiritGreeting(t, spiritName, nightType, lastNightClosed, lastCloseTime)
@@ -182,11 +194,30 @@ export function MorningOpening({
     .filter(Boolean)
     .slice(0, 4)
 
-  // 计算跳转：没有回报就跳过 beat 2，没有心事跳过 beat 3
-  function nextBeat(current: number) {
-    if (current === 1 && !reward.hasReward && !lastNightClosed) return hasWorry ? 3 : 4
-    if (current === 2 && !hasWorry) return 4
-    return current + 1
+  // 新菜谱揭面文案
+  const firstDish = newDishUnlocks[0]
+  const dishTitle = firstDish
+    ? (firstDish.type === 'guest' && firstDish.guestName
+        ? (lang === 'en' ? `${firstDish.guestName} taught you to make ${firstDish.dishName}` : `${firstDish.guestName}教了你做${firstDish.dishName}`)
+        : (lang === 'en' ? `You and ${spiritName} worked out ${firstDish.dishName}` : `你和${spiritName}研究出了${firstDish.dishName}`))
+    : ''
+  const dishSubtext = firstDish
+    ? (firstDish.type === 'guest'
+        ? (lang === 'en' ? 'You two have grown close — this dish is now part of the shop.' : '你俩处出了交情，这道菜成了铺子的新手艺。')
+        : (lang === 'en' ? 'A new recipe, prepped into being bit by bit.' : '白天备菜时一点点研出来的新菜谱。'))
+    : ''
+
+  // 节奏管线：迮接 → (回报) → (新菜谱) → (心事) → 开门
+  const pipeline: number[] = [1]
+  if (lastNightClosed || reward.hasReward) pipeline.push(2)
+  if (newDishUnlocks.length > 0) pipeline.push(5)
+  if (hasWorry) pipeline.push(3)
+  pipeline.push(4)
+
+  function goNext(current: number): number {
+    const idx = pipeline.indexOf(current)
+    if (idx === -1 || idx >= pipeline.length - 1) return 4
+    return pipeline[idx + 1]!
   }
 
   return (
@@ -276,7 +307,7 @@ export function MorningOpening({
               type="button"
               className="morning-fade mt-10 flex w-full items-center justify-between rounded-[22px] bg-white/40 px-5 py-3 text-sm text-ink/55 transition hover:bg-white/60"
               style={{ animationDelay: '800ms' }}
-              onClick={() => setBeat(nextBeat(1))}
+              onClick={() => setBeat(goNext(1))}
             >
               <span>{t('common.continue')}</span>
               <span className="text-ink/30">→</span>
@@ -323,7 +354,43 @@ export function MorningOpening({
               type="button"
               className="morning-fade mt-10 flex w-full items-center justify-between rounded-[22px] bg-white/40 px-5 py-3 text-sm text-ink/55 transition hover:bg-white/60"
               style={{ animationDelay: '600ms' }}
-              onClick={() => setBeat(nextBeat(2))}
+              onClick={() => setBeat(goNext(2))}
+            >
+              <span>{t('common.continue')}</span>
+              <span className="text-ink/30">→</span>
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {/* ── Beat 5: 新菜谱（熟客教菜 / 研发） ── */}
+      {beat === 5 && firstDish ? (
+        <section className="relative flex flex-1 flex-col items-center justify-center bg-[#f5ead8] px-6 text-center">
+          <div className="relative z-10 flex flex-col items-center">
+            <div className="reward-pop flex h-24 w-24 items-center justify-center rounded-full bg-[#fae49c]/25">
+              <img
+                src={firstDish.dishImageSrc}
+                alt={firstDish.dishName}
+                className="h-16 w-16 object-contain drop-shadow-[0_4px_10px_rgba(138,97,74,0.16)]"
+                onError={(e) => { if (firstDish.dishImageFallback) (e.target as HTMLImageElement).src = firstDish.dishImageFallback }}
+              />
+            </div>
+            <h2 className="morning-fade mt-6 text-lg font-semibold text-ink" style={{ animationDelay: '200ms' }}>
+              {dishTitle}
+            </h2>
+            <p className="morning-fade mt-3 text-sm leading-6 text-ink/50" style={{ animationDelay: '400ms' }}>
+              {dishSubtext}
+            </p>
+            {newDishUnlocks.length > 1 ? (
+              <p className="morning-fade mt-2 text-xs text-ink/35" style={{ animationDelay: '500ms' }}>
+                {lang === 'en' ? `+${newDishUnlocks.length - 1} more new recipe` : `还多了 ${newDishUnlocks.length - 1} 道新菜`}
+              </p>
+            ) : null}
+            <button
+              type="button"
+              className="morning-fade mt-10 flex w-full items-center justify-between rounded-[22px] bg-white/40 px-5 py-3 text-sm text-ink/55 transition hover:bg-white/60"
+              style={{ animationDelay: '600ms' }}
+              onClick={() => setBeat(goNext(5))}
             >
               <span>{t('common.continue')}</span>
               <span className="text-ink/30">→</span>
