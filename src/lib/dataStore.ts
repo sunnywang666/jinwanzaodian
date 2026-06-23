@@ -25,6 +25,8 @@ import type {
 } from './storage'
 import type { GuestProgressMap } from './guestProgression'
 import type { DishProgressMap } from './dishProgression'
+import type { StoredReminderSettings } from './notifications'
+import { defaultStoredReminders } from './notifications'
 
 // ── Schema ──
 
@@ -73,6 +75,8 @@ export interface AppStore {
   /** User preferences */
   settings: {
     autoSceneEnabled: boolean
+    /** 提醒设置：傍晚预承诺提醒 + 夜晚打烊提醒 */
+    reminders: StoredReminderSettings
   }
 }
 
@@ -106,6 +110,7 @@ export function createDefaultStore(): AppStore {
     days: [],
     settings: {
       autoSceneEnabled: true,
+      reminders: { ...defaultStoredReminders },
     },
   }
 }
@@ -185,10 +190,19 @@ function validateAndRepair(store: AppStore): AppStore {
 
   // Ensure settings exists
   if (!store.settings) {
-    store.settings = { autoSceneEnabled: true }
+    store.settings = { autoSceneEnabled: true, reminders: { ...defaultStoredReminders } }
   }
   if (typeof store.settings.autoSceneEnabled !== 'boolean') {
     store.settings.autoSceneEnabled = true
+  }
+  // Backfill reminders for stores saved before this field existed
+  if (!store.settings.reminders || typeof store.settings.reminders !== 'object') {
+    store.settings.reminders = { ...defaultStoredReminders }
+  } else {
+    const r = store.settings.reminders
+    if (typeof r.eveningEnabled !== 'boolean') r.eveningEnabled = defaultStoredReminders.eveningEnabled
+    if (typeof r.eveningTime !== 'string') r.eveningTime = defaultStoredReminders.eveningTime
+    if (typeof r.closingEnabled !== 'boolean') r.closingEnabled = defaultStoredReminders.closingEnabled
   }
 
   // Ensure arrays are arrays
@@ -295,6 +309,7 @@ function migrateFromScatteredKeys(): AppStore | null {
     days: oldDays,
     settings: {
       autoSceneEnabled: oldAutoScene,
+      reminders: { ...defaultStoredReminders },
     },
   }
 }

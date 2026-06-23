@@ -1,5 +1,19 @@
 # Changelog
 
+## v6.8
+
+P0 patch: local notifications, installable PWA shell, and reminder settings — the three things needed to make 「今晚早点」usable day-to-day.
+
+Included in this version:
+- Added a PWA shell: `public/manifest.webmanifest`, `public/sw.js`, app icons under `public/icons/`, and `src/lib/pwa.ts` to register the service worker in production builds. Enables "add to home screen" install and an offline fallback.
+- Added `src/lib/notifications.ts`, a local reminder scheduler that fires an evening pre-commitment reminder and a night closing reminder, with notification clicks deep-linking to the matching screen.
+- Updated `src/pages/Settings.tsx` with a new "Reminders" section: enable-notifications button, evening reminder toggle + time, and closing reminder toggle.
+- Updated `src/lib/dataStore.ts` so `settings` carries a `reminders` field, with `createDefaultStore`, `validateAndRepair` (backward-compatible with old saves), and legacy-key migration all handled.
+- Updated `index.html` (manifest link, theme-color, apple-touch-icon, PWA meta, `viewport-fit=cover`), `src/main.tsx` (calls `registerServiceWorker()`), and `src/App.tsx` (reminder state/persistence, scheduler startup, `/?reminder=evening|closing` deep links).
+- Reminder copy uses inline bilingual strings rather than touching the large locale files, to keep the patch isolated.
+- Updated `package.json` version metadata to `6.8.0`.
+- Note: web notifications only fire while the app/SW is alive; true "push even when fully closed" needs Push API + a server or a native shell — planned as the next P0.5 step.
+
 ## v6.7
 
 Logbook trend visualization, broader i18n migration, and onboarding/confirm-copy polish.

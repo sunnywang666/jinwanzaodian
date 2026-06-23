@@ -26,6 +26,7 @@ import {
   type WorryStatus,
 } from './lib/storage'
 import { loadStore, saveStore, clearStore, createDefaultStore, type AppStore } from './lib/dataStore'
+import { startReminderScheduler, type StoredReminderSettings } from './lib/notifications'
 import { getSceneForCurrentTime } from './lib/timeScene'
 import { clearLastScreenOffTime, clearVisibilityData, getLastScreenOffTime, startVisibilityTracking } from './lib/visibility'
 import { calculateTrend } from './lib/trendCalculation'
@@ -104,6 +105,7 @@ export default function App() {
   const [todayMood, setTodayMood] = useState(initialStore.today.mood)
   const [middayDone, setMiddayDone] = useState(initialStore.today.middayDone)
   const [autoSceneEnabled, setAutoSceneEnabled] = useState(initialStore.settings.autoSceneEnabled)
+  const [reminders, setReminders] = useState<StoredReminderSettings>(initialStore.settings.reminders)
   const [guestProgress, setGuestProgress] = useState<GuestProgressMap>(initialStore.guests)
   const [dishProgress, setDishProgress] = useState<DishProgressMap>(initialStore.dishes)
   const [spiritProgress, setSpiritProgress] = useState<SpiritProgressState>(initialStore.spirit.progress)
@@ -114,17 +116,35 @@ export default function App() {
   const [debugHotspots, setDebugHotspots] = useState(false)
   const [returnMessage, setReturnMessage] = useState<string | null>(() => loadReturnMessage())
   const ambientAudio = useAmbientAudio()
-  const { t } = useT()
+  const { t, lang } = useT()
 
   // ── View routing ──
   const todayStr = getTodayString()
   const needsMorningOpening = profile !== null && lastOpenDate !== todayStr
   const autoSceneSuppressedUntil = useRef(0)
 
+  // Deep link from a tapped reminder notification (/?reminder=evening|closing)
+  const reminderParam = (() => {
+    try { return new URLSearchParams(window.location.search).get('reminder') } catch { return null }
+  })()
+
   const [view, setView] = useState<AppView>(() => {
     if (needsMorningOpening) return 'morningOpening'
+    if (reminderParam === 'evening') return 'eveningPrepare'
+    if (reminderParam === 'closing') return 'nightClosing'
     return 'home'
   })
+
+  // Strip the ?reminder= param so a later refresh doesn't re-route
+  useEffect(() => {
+    if (!reminderParam) return
+    try {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('reminder')
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash)
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // ── Centralized persistence: one save for all state ──
   useEffect(() => {
@@ -148,6 +168,7 @@ export default function App() {
       days: logEntries,
       settings: {
         autoSceneEnabled,
+        reminders,
       },
     }
     saveStore(store)
@@ -155,7 +176,43 @@ export default function App() {
     profile, spiritForm, spiritProgress, demoScene, todayMood,
     middayDone, tonightClosed, eveningPrepare, lastOpenDate,
     guestProgress, dishProgress, logEntries, autoSceneEnabled,
+    reminders,
   ])
+
+  // ── Reminder scheduling (local notifications) ──
+  // closingTime tracks tonight's planned lights-off time automatically.
+  const reminderRuntimeRef = useRef({
+    eveningEnabled: reminders.eveningEnabled,
+    eveningTime: reminders.eveningTime,
+    closingEnabled: reminders.closingEnabled,
+    closingTime: eveningPrepare.plannedLightsOffTime,
+  })
+  reminderRuntimeRef.current = {
+    eveningEnabled: reminders.eveningEnabled,
+    eveningTime: reminders.eveningTime,
+    closingEnabled: reminders.closingEnabled,
+    closingTime: eveningPrepare.plannedLightsOffTime,
+  }
+
+  useEffect(() => {
+    if (!profile) return
+    const spiritName = profile.spiritName
+    const copy = lang === 'zh'
+      ? {
+          eveningTitle: '今晚早点',
+          eveningBody: `${spiritName}：今晚打算几点关灯歇着呀？先把心事写下来吧。`,
+          closingTitle: '要打烊了哦',
+          closingBody: `${spiritName}：铺子该关灯歇业了，把手机也放下吧。`,
+        }
+      : {
+          eveningTitle: 'Tonight, Sleep Early',
+          eveningBody: `${spiritName}: what time shall we turn off the lights tonight? Jot down what's on your mind first.`,
+          closingTitle: 'Time to close up',
+          closingBody: `${spiritName}: the shop is closing for the night — put your phone down too.`,
+        }
+    return startReminderScheduler(() => reminderRuntimeRef.current, copy)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile, lang])
 
   // ── Init dish progress if empty ──
   useEffect(() => {
@@ -236,6 +293,7 @@ export default function App() {
     setTodayMood('normal')
     setMiddayDone(false)
     setAutoSceneEnabled(true)
+    setReminders(defaults.settings.reminders)
     setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
     setLogEntries(createDefaultLogEntries())
     setGuestProgress({})
@@ -507,6 +565,8 @@ export default function App() {
           spiritName={profile.spiritName}
           defaultLightsOffTime={profile.defaultLightsOffTime}
           nightType={profile.nightType}
+          reminders={reminders}
+          onUpdateReminders={setReminders}
           onUpdateLightsOffTime={(time) => {
             setProfile((prev) => prev ? { ...prev, defaultLightsOffTime: time } : prev)
             setEveningPrepare((prev) => ({ ...prev, plannedLightsOffTime: time }))
