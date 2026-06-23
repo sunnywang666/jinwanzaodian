@@ -4,15 +4,28 @@ import { sceneItems, type SceneItemTarget } from '../lib/sceneItems'
 import { AssetImage } from './AssetImage'
 import { ClockOverlay } from './ClockOverlay'
 import { SceneItemButton } from './SceneItemButton'
+import { ShopGuests } from './ShopGuests'
 
 interface ShopSceneInteractiveProps {
   scene: DemoScene
   debug?: boolean
   onItemOpen: (target: SceneItemTarget) => void
+  /** 今天在铺子里的客人 key（由 App 按作息 roll） */
+  guestKeys?: string[]
+  /** 刚开门 → 播「出餐迎客」动画一次 */
+  playArrival?: boolean
+  onArrivalComplete?: () => void
+  spiritName?: string
+  onSpiritTap?: () => void
 }
 
-export function ShopSceneInteractive({ scene, debug = false, onItemOpen }: ShopSceneInteractiveProps) {
+export function ShopSceneInteractive({
+  scene, debug = false, onItemOpen,
+  guestKeys = [], playArrival = false, onArrivalComplete, spiritName, onSpiritTap,
+}: ShopSceneInteractiveProps) {
   const background = scene === 'cover' ? sceneAssets.mainBackground : sceneByDemo[scene]
+  // 只在清晨热闹场景显示客人；白天/傍晚/夜晚铺子自然冷清
+  const showGuests = scene === 'busy' || scene === 'normal' || scene === 'quiet'
 
   return (
     <div className="relative flex h-full w-full items-center justify-center bg-[#efe1cb]">
@@ -35,6 +48,16 @@ export function ShopSceneInteractive({ scene, debug = false, onItemOpen }: ShopS
             <SceneItemButton key={item.id} item={item} debug={debug} onOpen={onItemOpen} />
           ))}
         </div>
+
+        {showGuests ? (
+          <ShopGuests
+            guestKeys={guestKeys}
+            playArrival={playArrival}
+            onArrivalComplete={onArrivalComplete}
+            spiritName={spiritName}
+            onSpiritTap={onSpiritTap}
+          />
+        ) : null}
       </div>
     </div>
   )

@@ -24,12 +24,20 @@ interface HomeProps {
   /** For time sim panel */
   sceneOptions: TimeSceneOptions
   onTimeSimChange: () => void
+  /** 今天在铺子里的客人 */
+  guestKeys?: string[]
+  /** 刚从开门仪式进来 → 播出餐迎客动画一次 */
+  playArrival?: boolean
+  onArrivalComplete?: () => void
+  spiritName?: string
+  onOpenSpiritChat?: () => void
 }
 
 export function Home({
   scene, debugHotspots, onToggleDebugHotspots,
   onOpenHotspot, onSceneChange, onOpenSettings,
   sceneOptions, onTimeSimChange,
+  guestKeys = [], playArrival = false, onArrivalComplete, spiritName, onOpenSpiritChat,
 }: HomeProps) {
   const { t } = useT()
   const sceneText = t(`scene.${scene}.body`)
@@ -38,7 +46,16 @@ export function Home({
 
   return (
     <section className="relative h-full w-full">
-      <ShopSceneInteractive scene={scene} debug={debugHotspots} onItemOpen={onOpenHotspot} />
+      <ShopSceneInteractive
+        scene={scene}
+        debug={debugHotspots}
+        onItemOpen={onOpenHotspot}
+        guestKeys={guestKeys}
+        playArrival={playArrival}
+        onArrivalComplete={onArrivalComplete}
+        spiritName={spiritName}
+        onSpiritTap={onOpenSpiritChat}
+      />
 
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#f5ead8]/92 via-[#f5ead8]/36 to-transparent" />
 

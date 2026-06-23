@@ -454,35 +454,19 @@ export function MorningOpening({
               {t('morning.openDesc')}
             </p>
 
-            {/* 今天来的客人 */}
-            {todayGuests.length > 0 ? (
-              <div className="mt-6 flex items-end gap-3">
-                {todayGuests.map((guest, i) => (
-                  <div
-                    key={guest!.key}
-                    className="guest-appear flex flex-col items-center"
-                    style={{ animationDelay: `${400 + i * 150}ms` }}
-                  >
-                    <img
-                      src={guest!.image.src}
-                      alt={guest!.name}
-                      className="h-12 w-12 object-contain drop-shadow-[0_3px_8px_rgba(138,97,74,0.12)]"
-                      onError={(e) => {
-                        if (guest!.image.fallbackSrc) (e.target as HTMLImageElement).src = guest!.image.fallbackSrc
-                      }}
-                    />
-                    <span className="mt-1 text-[10px] text-ink/40">{guest!.name.slice(0, 4)}</span>
-                  </div>
-                ))}
-              </div>
-            ) : null}
+            {/* 客人不再在这里静态预告——推门进店后他们会自己走进来（见 ShopGuests 出餐迎客） */}
+            <p className="morning-fade mt-2 text-xs text-ink/35" style={{ animationDelay: '350ms' }}>
+              {todayGuests.length > 0
+                ? (lang === 'en' ? `${todayGuests.length} guests are waiting outside` : `门外好像有 ${todayGuests.length} 位客人在等`)
+                : ''}
+            </p>
 
             <SoftButton
               className="morning-fade mt-10"
               type="button"
               variant="primary"
               block
-              style={{ animationDelay: `${400 + todayGuests.length * 150 + 200}ms` }}
+              style={{ animationDelay: '500ms' }}
               onClick={onComplete}
             >
               {t('morning.welcome')}

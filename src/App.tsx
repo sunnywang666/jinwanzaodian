@@ -110,6 +110,9 @@ export default function App() {
   const [autoSceneEnabled, setAutoSceneEnabled] = useState(initialStore.settings.autoSceneEnabled)
   const [reminders, setReminders] = useState<StoredReminderSettings>(initialStore.settings.reminders)
   const [tourDone, setTourDone] = useState(initialStore.settings.tourDone)
+  // 首页在场的客人 + 是否该播出餐迎客动画
+  const [homeGuestKeys, setHomeGuestKeys] = useState<string[]>([])
+  const [arrivalPending, setArrivalPending] = useState(false)
   const [guestProgress, setGuestProgress] = useState<GuestProgressMap>(initialStore.guests)
   const [dishProgress, setDishProgress] = useState<DishProgressMap>(initialStore.dishes)
   const [spiritProgress, setSpiritProgress] = useState<SpiritProgressState>(initialStore.spirit.progress)
@@ -323,6 +326,8 @@ export default function App() {
     setLastOpenDate(null)
     setView('home')
     setGuestBookPage(0)
+    setHomeGuestKeys([])
+    setArrivalPending(false)
     setDebugHotspots(false)
     setReturnMessage(null)
     saveReturnMessage(null)
@@ -425,6 +430,10 @@ export default function App() {
           setGuestProgress(updatedGP)
           runProgressionChecks(stampedEntries, updatedGP)
 
+          // 让客人“走进来”：仪式结束回首页时播一次出餐迎客
+          setHomeGuestKeys(todayGuestKeys)
+          setArrivalPending(true)
+
           setTonightClosed(false)
           setMiddayDone(false)
           setDemoScene(trend.sceneMood === 'busy' ? 'busy' : trend.sceneMood === 'quiet' ? 'quiet' : 'normal')
@@ -479,6 +488,11 @@ export default function App() {
       <Home
         scene={demoScene}
         debugHotspots={debugHotspots}
+        guestKeys={homeGuestKeys}
+        playArrival={arrivalPending}
+        onArrivalComplete={() => setArrivalPending(false)}
+        spiritName={profile.spiritName}
+        onOpenSpiritChat={() => setView('spiritChat')}
         onToggleDebugHotspots={() => setDebugHotspots((c) => !c)}
         onOpenHotspot={(target) => {
           if (target === 'guestBook') { setGuestBookPage(0); setView('guestBookConfirm'); return }

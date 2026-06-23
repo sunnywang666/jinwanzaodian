@@ -19,17 +19,18 @@ function trimmedAsset(filename: string): AssetSource {
 }
 
 export const sceneAssets = {
-  mainBackground: asset('shop-main-background.png'),
+  // 主场景天色四图（用户提供）：清晨 / 白天 / 傍晚 / 夜晚
+  mainBackground: asset('scene-day.png'),
   coverShop: asset('cover-shop.png'),
   coverShopTransparent: asset('cover-shop-transparent.png'),
-  busyMorning: asset('shop-busy-morning.png'),
-  normalMorning: asset('shop-normal-morning.png'),
-  quietMorning: asset('shop-quiet-morning.png'),
-  daytimePrep: asset('shop-daytime-prep.png'),
-  afternoonNap: asset('shop-afternoon-nap.png'),
-  eveningPrepare: asset('shop-evening-prepare.png'),
-  nightClose: asset('shop-night-close.png'),
-  lightsOff: asset('shop-night-close.png'),
+  busyMorning: asset('scene-morning.png'),
+  normalMorning: asset('scene-morning.png'),
+  quietMorning: asset('scene-morning.png'),
+  daytimePrep: asset('scene-day.png'),
+  afternoonNap: asset('scene-day.png'),
+  eveningPrepare: asset('scene-evening.png'),
+  nightClose: asset('scene-night.png'),
+  lightsOff: asset('scene-night.png'),
 } as const
 
 export const bookAssets = {

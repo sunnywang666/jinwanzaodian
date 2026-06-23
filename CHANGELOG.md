@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.13
+
+Living home: guests inhabit the scene, a serve-and-greet open animation, tappable guests, and four time-of-day backgrounds.
+
+Included in this version:
+- Added `src/components/ShopGuests.tsx`: a live guest layer in the shop — seated guests with breathing + occasional side shuffle, the "serve and greet" open animation (lights up → guests walk in staggered with thought bubbles → spirit brings real dishes), tap a guest for a profile card, tap the spirit to open chat.
+- Added four scene backgrounds (`scene-morning/day/evening/night.png`) and pointed `src/lib/assets.ts` at them, replacing the shop-busy-morning etc. images that were missing from the repo.
+- Updated `src/components/ShopSceneInteractive.tsx` to render `<ShopGuests>` inside the scaled scene container; guests only show in the morning scene (day/evening/night stay naturally quiet).
+- Updated `src/pages/Home.tsx` and `src/App.tsx` to thread today's guests to the home screen and play the walk-in once when the ceremony ends; tapping the spirit opens spirit chat; reset clears the state.
+- Updated `src/pages/MorningOpening.tsx`: Beat 4 drops the static guest-preview icon row (avoids double-spoiling the walk-in) in favor of a one-line count + push-the-door-in.
+- Updated `package.json` version metadata to `6.13.0`.
+- Next (not in this patch): wire the "who came this morning" icon row into `MiddayTransition` (needs `todayGuestKeys` passed in); seat coordinates may need a couple of percent of fine-tuning on real devices.
+
 ## v6.12
 
 New-user pass: fix fake data in the guest book, add a first-run guided tour, and persist a tour flag.
