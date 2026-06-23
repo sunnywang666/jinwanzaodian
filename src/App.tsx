@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AppShell } from './components/AppShell'
 import { Home } from './pages/Home'
 import { Onboarding } from './pages/Onboarding'
+import { GuideTour } from './pages/GuideTour'
 import { EveningPrepare } from './pages/EveningPrepare'
 import { NightClosing } from './pages/NightClosing'
 import { MorningOpening, MiddayTransition } from './pages/MorningOpening'
@@ -108,6 +109,7 @@ export default function App() {
   const [middayDone, setMiddayDone] = useState(initialStore.today.middayDone)
   const [autoSceneEnabled, setAutoSceneEnabled] = useState(initialStore.settings.autoSceneEnabled)
   const [reminders, setReminders] = useState<StoredReminderSettings>(initialStore.settings.reminders)
+  const [tourDone, setTourDone] = useState(initialStore.settings.tourDone)
   const [guestProgress, setGuestProgress] = useState<GuestProgressMap>(initialStore.guests)
   const [dishProgress, setDishProgress] = useState<DishProgressMap>(initialStore.dishes)
   const [spiritProgress, setSpiritProgress] = useState<SpiritProgressState>(initialStore.spirit.progress)
@@ -171,6 +173,7 @@ export default function App() {
       settings: {
         autoSceneEnabled,
         reminders,
+        tourDone,
       },
     }
     saveStore(store)
@@ -178,7 +181,7 @@ export default function App() {
     profile, spiritForm, spiritProgress, demoScene, todayMood,
     middayDone, tonightClosed, eveningPrepare, lastOpenDate,
     guestProgress, dishProgress, logEntries, autoSceneEnabled,
-    reminders,
+    reminders, tourDone,
   ])
 
   // ── Reminder scheduling (local notifications) ──
@@ -311,6 +314,7 @@ export default function App() {
     setMiddayDone(false)
     setAutoSceneEnabled(true)
     setReminders(defaults.settings.reminders)
+    setTourDone(false)
     setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
     setLogEntries(isDemoMode() ? createDefaultLogEntries() : [])
     setGuestProgress({})
@@ -340,6 +344,17 @@ export default function App() {
           const initialDish = evaluateDishUnlocks({}, [], {})
           setDishProgress(initialDish.updated)
         }}
+      />
+    )
+  }
+
+  // ── New-shopkeeper guided tour (runs once after onboarding) ──
+  if (!tourDone) {
+    return (
+      <GuideTour
+        spiritName={profile.spiritName}
+        onGoToEveningPrepare={() => { setTourDone(true); setDemoScene('evening'); setView('eveningPrepare') }}
+        onFinishToHome={() => { setTourDone(true); setView('home') }}
       />
     )
   }

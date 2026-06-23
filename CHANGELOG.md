@@ -1,5 +1,17 @@
 # Changelog
 
+## v6.12
+
+New-user pass: fix fake data in the guest book, add a first-run guided tour, and persist a tour flag.
+
+Included in this version:
+- Fixed a real bug in `src/views/GuestBookOpenView.tsx`: guests who had never visited were falling back to demo values (e.g. "阿橘 visited 9 times / regular" with a full story). Now a never-visited guest shows a blurred silhouette + "？？？" + "还没来过你的铺子"; real data only appears once they've actually visited.
+- Added `src/pages/GuideTour.tsx`: a first-run store tour — spirit welcome → introduces recipe book / guest book / logbook / blackboard / hut (thumbnail + description + location) → a cold-start retention closing beat.
+- Updated `src/lib/dataStore.ts` with a `settings.tourDone` flag so the tour runs only once; existing users (already have a profile) auto-skip. Also fixed the missing `tourDone` on the legacy-settings backfill path so the build type-checks.
+- Updated `src/App.tsx` to wire the tour after onboarding, gated on `settings.tourDone`.
+- Note: the "no onboarding shown" report was stale WebView localStorage surviving reinstalls, not a code bug. To see a true first run, clear app data (`adb shell pm clear com.jinwanzaodian.app` / reinstall / Settings → reset shop). New users still start with 2 signature dishes (包子 + 豆浆) by design.
+- Updated `package.json` version metadata to `6.12.0`.
+
 ## v6.11
 
 Native shell patch: Capacitor wrapper + OS-level local notifications (resolves the P0.5 gap — reminders fire even when the app is fully closed).

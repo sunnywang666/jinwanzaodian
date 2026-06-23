@@ -77,6 +77,8 @@ export interface AppStore {
     autoSceneEnabled: boolean
     /** 提醒设置：傍晚预承诺提醒 + 夜晚打烊提醒 */
     reminders: StoredReminderSettings
+    /** 新手店铺导览是否已看过 */
+    tourDone: boolean
   }
 }
 
@@ -111,6 +113,7 @@ export function createDefaultStore(): AppStore {
     settings: {
       autoSceneEnabled: true,
       reminders: { ...defaultStoredReminders },
+      tourDone: false,
     },
   }
 }
@@ -190,7 +193,7 @@ function validateAndRepair(store: AppStore): AppStore {
 
   // Ensure settings exists
   if (!store.settings) {
-    store.settings = { autoSceneEnabled: true, reminders: { ...defaultStoredReminders } }
+    store.settings = { autoSceneEnabled: true, reminders: { ...defaultStoredReminders }, tourDone: store.profile != null }
   }
   if (typeof store.settings.autoSceneEnabled !== 'boolean') {
     store.settings.autoSceneEnabled = true
@@ -203,6 +206,11 @@ function validateAndRepair(store: AppStore): AppStore {
     if (typeof r.eveningEnabled !== 'boolean') r.eveningEnabled = defaultStoredReminders.eveningEnabled
     if (typeof r.eveningTime !== 'string') r.eveningTime = defaultStoredReminders.eveningTime
     if (typeof r.closingEnabled !== 'boolean') r.closingEnabled = defaultStoredReminders.closingEnabled
+  }
+  // Backfill tour flag: existing users (already have a profile) skip the tour;
+  // truly fresh stores start with tourDone=false so onboarding → tour runs.
+  if (typeof store.settings.tourDone !== 'boolean') {
+    store.settings.tourDone = store.profile != null
   }
 
   // Ensure arrays are arrays
@@ -310,6 +318,7 @@ function migrateFromScatteredKeys(): AppStore | null {
     settings: {
       autoSceneEnabled: oldAutoScene,
       reminders: { ...defaultStoredReminders },
+      tourDone: oldProfile != null,
     },
   }
 }
