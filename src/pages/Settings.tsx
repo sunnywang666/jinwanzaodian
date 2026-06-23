@@ -58,7 +58,21 @@ export function Settings({
   const [apiSaved, setApiSaved] = useState(false)
   const [perm, setPerm] = useState<NotifPermission>(() => getNotifPermission())
 
-  useEffect(() => { setPerm(getNotifPermission()) }, [])
+  useEffect(() => {
+    let active = true
+    void (async () => {
+      try {
+        const native = await import('../lib/nativeNotifications')
+        if (native.isNativePlatform()) {
+          const p = await native.getNativePermission()
+          if (active) setPerm(p === 'prompt' ? 'default' : (p as NotifPermission))
+          return
+        }
+      } catch { /* 非原生 / 未安装 Capacitor */ }
+      if (active) setPerm(getNotifPermission())
+    })()
+    return () => { active = false }
+  }, [])
 
   const zhCN = lang === 'zh'
   const rx = {
@@ -89,6 +103,14 @@ export function Settings({
   const granted = perm === 'granted'
 
   async function handleEnable() {
+    try {
+      const native = await import('../lib/nativeNotifications')
+      if (native.isNativePlatform()) {
+        const ok = await native.requestNativePermission()
+        setPerm(ok ? 'granted' : 'denied')
+        return
+      }
+    } catch { /* fall through to web */ }
     const next = await requestNotifPermission()
     setPerm(next)
   }

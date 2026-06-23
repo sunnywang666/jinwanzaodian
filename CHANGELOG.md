@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.11
+
+Native shell patch: Capacitor wrapper + OS-level local notifications (resolves the P0.5 gap — reminders fire even when the app is fully closed).
+
+Included in this version:
+- Added `capacitor.config.ts` (appId / appName / `webDir: 'dist'` / theme color / LocalNotifications plugin).
+- Added `src/lib/nativeNotifications.ts`: native notification module — permission requests, daily-repeating OS-scheduled notifications rebuilt from settings, and deep-link routing on notification tap (`extra.url`).
+- Updated `src/App.tsx` so reminders branch by platform: native uses `syncNativeReminders()` (OS scheduling), web keeps the foreground scheduler as a fallback; added a native notification-tap listener.
+- Updated `src/pages/Settings.tsx` so "enable notifications" requests native permission on native platforms, with permission state adapting to native/web.
+- Added Capacitor deps (`@capacitor/core`, `@capacitor/local-notifications`, `@capacitor/ios`, `@capacitor/android`, dev `@capacitor/cli`). Same copy and settings as the web version; only the trigger upgrades from foreground polling to OS scheduling. On web, `isNativePlatform()` is false so native calls are skipped.
+- Updated `package.json` version metadata to `6.11.0`.
+- Note: building/signing/shipping the native apps must be done locally (Mac + Xcode / Android Studio + developer account) via `npx cap add ios|android`, `npx cap sync`, `npx cap open`. The `ios/`/`android/` native projects are not committed here.
+
 ## v6.10
 
 P2 patch: surface the "a regular teaches you a dish" hidden thread during the morning opening ceremony.

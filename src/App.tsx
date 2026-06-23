@@ -27,6 +27,7 @@ import {
 } from './lib/storage'
 import { loadStore, saveStore, clearStore, createDefaultStore, type AppStore } from './lib/dataStore'
 import { startReminderScheduler, type StoredReminderSettings } from './lib/notifications'
+import { isNativePlatform, syncNativeReminders, registerNativeTapHandler } from './lib/nativeNotifications'
 import { isDemoMode } from './lib/devMode'
 import { getSceneForCurrentTime } from './lib/timeScene'
 import { clearLastScreenOffTime, clearVisibilityData, getLastScreenOffTime, startVisibilityTracking } from './lib/visibility'
@@ -211,9 +212,24 @@ export default function App() {
           closingTitle: 'Time to close up',
           closingBody: `${spiritName}: the shop is closing for the night — put your phone down too.`,
         }
+    if (isNativePlatform()) {
+      // 原生：交给 OS 定时（每日重复），app 关闭也能准时弹。设置变动时重排。
+      void syncNativeReminders(reminderRuntimeRef.current, copy)
+      return
+    }
     return startReminderScheduler(() => reminderRuntimeRef.current, copy)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile, lang])
+  }, [profile, lang, reminders, eveningPrepare.plannedLightsOffTime])
+
+  // 原生通知点击 → 深链跳转到对应界面（仅原生壳，注册一次）
+  useEffect(() => {
+    if (!profile) return
+    void registerNativeTapHandler((kind) => {
+      if (kind === 'evening') setView('eveningPrepare')
+      else if (kind === 'closing') setView('nightClosing')
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile])
 
   // ── Init dish progress if empty ──
   useEffect(() => {
