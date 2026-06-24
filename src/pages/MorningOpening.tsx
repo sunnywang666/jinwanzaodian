@@ -426,12 +426,12 @@ export function MorningOpening({
 
             <div className="morning-fade mt-6 flex w-full gap-3" style={{ animationDelay: '800ms' }}>
               <button type="button"
-                className="flex-1 rounded-[18px] bg-white/45 px-4 py-3.5 text-sm font-medium text-ink/70 transition hover:bg-white/60"
+                className="flex-1 rounded-[18px] bg-[#e3ecdf] px-4 py-3.5 text-sm font-medium text-[#5f7a55] transition hover:bg-[#d8e5d2]"
                 onClick={() => { onWorryReviewed('released'); setBeat(4) }}>
                 {t('morning.released')}
               </button>
               <button type="button"
-                className="flex-1 rounded-[18px] bg-white/45 px-4 py-3.5 text-sm font-medium text-ink/70 transition hover:bg-white/60"
+                className="flex-1 rounded-[18px] bg-[#d4a574]/22 px-4 py-3.5 text-sm font-medium text-[#8a614a] transition hover:bg-[#d4a574]/30"
                 onClick={() => { onWorryReviewed('carrying'); setBeat(4) }}>
                 {t('morning.carrying')}
               </button>

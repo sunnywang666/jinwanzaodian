@@ -123,6 +123,7 @@ export const zh = {
     },
     namingTitle: '给它起个名字',
     namingPlaceholder: '阿团',
+    nameHint: '先给它起个名字，就能继续啦',
     lightsOff: {
       title: '平时希望几点关灯？',
       subtitle: '这只是参考，铺子不会催你。',

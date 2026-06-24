@@ -351,6 +351,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           <SoftButton className="mt-8" type="button" variant="primary" block disabled={!draft.spiritName.trim()} onClick={() => setStep(5)}>
             {t('common.nextStep')}
           </SoftButton>
+          {!draft.spiritName.trim() ? (
+            <p className="mt-3 text-xs text-ink/35">{t('onboarding.nameHint')}</p>
+          ) : null}
         </section>
       </OnboardingFrame>
     )

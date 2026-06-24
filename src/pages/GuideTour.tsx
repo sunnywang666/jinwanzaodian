@@ -193,7 +193,7 @@ export function GuideTour({ spiritName, onGoToEveningPrepare, onFinishToHome }: 
             {Array.from({ length: TOTAL }).map((_, i) => (
               <span
                 key={i}
-                className={`h-1.5 rounded-full transition-all ${i === step ? 'w-4 bg-[#8a614a]/70' : 'w-1.5 bg-ink/15'}`}
+                className={`h-1.5 rounded-full transition-all ${i === step ? 'w-4 bg-[#8a614a]/70' : 'w-1.5 bg-ink/25'}`}
               />
             ))}
           </div>

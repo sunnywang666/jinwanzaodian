@@ -118,6 +118,7 @@ export const en = {
     },
     namingTitle: 'Give it a name',
     namingPlaceholder: 'Tuanzi',
+    nameHint: 'Give it a name first to continue',
     lightsOff: {
       title: 'When do you usually want lights off?',
       subtitle: 'Just a reference — the shop won\'t rush you.',

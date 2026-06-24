@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.24
+
+Small polish across the morning ceremony, onboarding, and guided tour.
+
+Included in this version:
+- `MorningOpening` worry-review: the two choices (let go / still on my mind) now have distinct gentle colors so they're not mis-tapped — different hues, neither framed as the "right" answer.
+- `Onboarding` naming step shows a soft hint ("give it a name first to continue") when the name is empty, so the disabled button isn't a dead end.
+- `GuideTour` progress dots are a little more visible (ink/15→25).
+- Updated `package.json` version metadata to `6.24.0`.
+
 ## v6.23
 
 Polish the night-closing ritual.
