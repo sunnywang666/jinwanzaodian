@@ -548,6 +548,7 @@ export default function App() {
         <EveningPrepare
           initialValue={eveningPrepare}
           spiritName={profile.spiritName}
+          nightType={profile.nightType}
           onSave={(value) => setEveningPrepare(value)}
           onGoToSpiritChat={() => setView('spiritChat')}
           onClose={() => setView('home')}

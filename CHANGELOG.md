@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.22
+
+Deepen the evening pre-commitment (the product's core window).
+
+Included in this version:
+- `EveningPrepare` now personalizes the spirit's opening line by night-type (`evening.ask.{revenge|inertia|anxiety|work|owl|unsure}` in `zh.ts`/`en.ts`), instead of the same "Ginger is coming for youtiao" for everyone. Closes the biggest design-vs-implementation gap (the persona was wired everywhere except this window). `App` passes `profile.nightType`.
+- The worry textarea gets a `{n}/500` character counter, a 500-char cap, and a warmer placeholder; input now silently auto-saves a draft ~0.7s after you stop typing, so closing the screen no longer loses what you wrote.
+- The selected lights-off time is more clearly highlighted; save shows a clearer confirmation.
+- Updated `package.json` version metadata to `6.22.0`.
+
 ## v6.21
 
 Conservative App.tsx refactor — extract routing decision and persistence, behavior unchanged.

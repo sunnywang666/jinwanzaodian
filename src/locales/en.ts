@@ -225,10 +225,18 @@ export const en = {
 
   evening: {
     title: 'Let\'s make tonight lighter',
-    spiritAsk: '{name} says: Ginger is coming for youtiao tomorrow — what time shall we turn off the lights tonight?',
+    ask: {
+      default: '{name} says: Ginger is coming for youtiao tomorrow — what time shall we turn off the lights tonight?',
+      revenge: '{name} says: You spent all day on everyone else, didn\'t you. Keep a little of tonight for yourself — then pick a lights-off time?',
+      inertia: '{name} says: The phone makes it so easy to lose track of time. Let\'s settle on a lights-off time, and I\'ll remind you when it comes.',
+      anxiety: '{name} says: If something\'s on your mind tonight, write it down and hand it to me first. Then shall we pick a lights-off time?',
+      work: '{name} says: That task — does it really have to be tonight? Set a lights-off time, and leave the rest to the shop tomorrow morning.',
+      owl: '{name} says: I won\'t rush you to sleep. Roughly when do you wake up tomorrow? I\'ll work back to a comfortable lights-off time.',
+      unsure: '{name} says: It\'s okay if you can\'t name it tonight. Just pick a lights-off time for now — I\'m here with you.',
+    },
     lightsOffLabel: 'Lights-off time tonight',
     worryLabel: 'Something on your mind tonight',
-    worryPlaceholder: 'Just write it down. You don\'t have to solve it tonight.',
+    worryPlaceholder: 'Say whatever you like — I\'m listening. You don\'t have to solve it all tonight.',
     spiritReply: '{name}: Let\'s put it on tomorrow\'s note. You don\'t have to carry it in your head tonight.',
     saveBtn: 'Save tonight\'s plan',
     savedMsg: 'Written into the shop\'s tomorrow note.',
