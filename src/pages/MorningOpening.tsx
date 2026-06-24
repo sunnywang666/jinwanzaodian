@@ -19,9 +19,22 @@ import { guestReferences as allGuests } from '../lib/guestReferences'
 import { AssetImage } from '../components/AssetImage'
 import { SoftButton } from '../components/SoftButton'
 import { useT } from '../lib/i18n'
+import { getNow } from '../lib/timeSimulator'
 import type { WorryStatus, NightType } from '../lib/storage'
 import type { TrendResult } from '../lib/trendCalculation'
 import type { SpiritProgressState } from '../lib/spiritProgression'
+
+/** 清晨"昨晚铺子小剧场"——按日变化的过夜小惊喜，制造每天打开的可变奖励（纯氛围、不影响机制） */
+const OVERNIGHT_VIGNETTES: Array<{ zh: string; en: string }> = [
+  { zh: '昨晚铺子歇着的时候，阿橘在门口蹲了好一会儿，天亮前才走，说今早还来。', en: 'While the shop slept, Ginger sat by the door a while, leaving before dawn — it said it\'d be back this morning.' },
+  { zh: '夜里我做了个梦，梦见一道新点心，醒来还在回味呢。', en: 'I had a dream in the night — a new little treat. I\'m still savoring it.' },
+  { zh: '昨晚下了点小雨，柜台被夜风擦得格外亮。', en: 'A little rain fell overnight; the night air left the counter extra bright.' },
+  { zh: '窗台那盆小绿植，昨晚悄悄冒了个新芽。', en: 'The little plant on the sill quietly sprouted a new bud overnight.' },
+  { zh: '收音机昨夜自己轻轻响了一会儿，又安安静静睡下了。', en: 'The radio hummed softly to itself in the night, then settled back to sleep.' },
+  { zh: '昨晚月亮很圆，铺子睡得很安稳。', en: 'The moon was full last night; the shop slept soundly.' },
+  { zh: '蒸笼里好像还留着昨天的一点暖意。', en: 'The steamers still seem to hold a little of yesterday\'s warmth.' },
+  { zh: '一只猫昨晚在卷帘外打了个盹，留下一小撮软毛。', en: 'A cat napped outside the shutter last night and left a little tuft of soft fur.' },
+]
 
 export interface DishUnlockReveal {
   dishKey: string
@@ -189,6 +202,8 @@ export function MorningOpening({
 
   const hasWorry = lastNightWorry !== null && lastNightWorry.trim() !== ''
   const greeting = getSpiritGreeting(t, spiritName, nightType, lastNightClosed, lastCloseTime)
+  // 按日选一条过夜小剧场（同一天稳定、每天不同）
+  const vignette = OVERNIGHT_VIGNETTES[getNow().getDate() % OVERNIGHT_VIGNETTES.length]!
   const reward = getRewardContent(t, trend, spiritProgress, lastNightClosed)
   const todayGuests = todayGuestKeys
     .map((key) => allGuests.find((g) => g.key === key))
@@ -304,10 +319,15 @@ export function MorningOpening({
               {greeting.line2}
             </p>
 
+            {/* 昨晚铺子小剧场：过夜的一点小惊喜（每天不同） */}
+            <p className="morning-fade mt-5 w-full rounded-[16px] bg-white/35 px-4 py-2.5 text-xs leading-6 text-ink/55" style={{ animationDelay: '750ms' }}>
+              {lang === 'en' ? vignette.en : vignette.zh}
+            </p>
+
             <button
               type="button"
-              className="morning-fade mt-10 flex w-full items-center justify-between rounded-[22px] bg-white/40 px-5 py-3 text-sm text-ink/55 transition hover:bg-white/60"
-              style={{ animationDelay: '800ms' }}
+              className="morning-fade mt-8 flex w-full items-center justify-between rounded-[22px] bg-white/40 px-5 py-3 text-sm text-ink/55 transition hover:bg-white/60"
+              style={{ animationDelay: '950ms' }}
               onClick={() => setBeat(goNext(1))}
             >
               <span>{t('common.continue')}</span>

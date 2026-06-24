@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.28
+
+A small "overnight" surprise in the morning open — a daily reason to come back.
+
+Included in this version:
+- `MorningOpening` Beat 1 now shows a short "while the shop slept…" vignette below the greeting — a gentle overnight happening (Ginger left a note, the spirit dreamed of a new treat, a little rain, a sprouting bud, a napping cat…). One of 8, chosen by the date so it's stable through the day and different each day.
+- Pure ambience: no mechanics, no reward, nothing to grind — just the variable-reward "what happened overnight?" delight that drives daily opens in Pokémon Sleep / Finch, done the cozy way.
+- Updated `package.json` version metadata to `6.28.0`.
+
 ## v6.27
 
 The evening spirit now offers a concrete, per-persona method — not just company.
