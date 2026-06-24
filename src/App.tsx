@@ -489,6 +489,7 @@ export default function App() {
         scene={demoScene}
         debugHotspots={debugHotspots}
         guestKeys={homeGuestKeys}
+        guestProgress={guestProgress}
         playArrival={arrivalPending}
         onArrivalComplete={() => setArrivalPending(false)}
         spiritName={profile.spiritName}

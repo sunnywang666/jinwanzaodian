@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.14
+
+Fixes for the living-home (v6.13) feature found in review.
+
+Included in this version:
+- Fixed a duplicate spirit on the home screen: the static `spirit` scene-item hotspot and the new `ShopGuests` live spirit both rendered, showing two spirits in the morning. `ShopSceneInteractive` now hides the static `spirit` hotspot when guests are shown (morning); day/evening/night still keep the tappable spirit hotspot.
+- Fixed the guest profile card showing fake demo data: `ShopGuests` accepted a `guestProgress` prop but nothing passed it, so tapping a guest fell back to demo values (e.g. a brand-new user seeing "阿橘 visited 9 times / regular"). Wired real `guestProgress` through `App → Home → ShopSceneInteractive → ShopGuests` so the card shows true visit count and familiarity, falling back to defaults only when a guest has no record.
+- Updated `package.json` version metadata to `6.14.0`.
+
 ## v6.13
 
 Living home: guests inhabit the scene, a serve-and-greet open animation, tappable guests, and four time-of-day backgrounds.

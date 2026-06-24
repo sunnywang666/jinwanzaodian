@@ -10,6 +10,7 @@ import { TimeSimPanel } from '../components/TimeSimPanel'
 import type { SceneItemTarget } from '../lib/sceneItems'
 import type { DemoScene } from '../lib/storage'
 import type { TimeSceneOptions } from '../lib/timeScene'
+import type { GuestProgressMap } from '../lib/guestProgression'
 import { useT } from '../lib/i18n'
 import { getNow } from '../lib/timeSimulator'
 import { isDemoMode } from '../lib/devMode'
@@ -31,13 +32,15 @@ interface HomeProps {
   onArrivalComplete?: () => void
   spiritName?: string
   onOpenSpiritChat?: () => void
+  /** 真实来访次数/熟络度，传给客人资料卡 */
+  guestProgress?: GuestProgressMap
 }
 
 export function Home({
   scene, debugHotspots, onToggleDebugHotspots,
   onOpenHotspot, onSceneChange, onOpenSettings,
   sceneOptions, onTimeSimChange,
-  guestKeys = [], playArrival = false, onArrivalComplete, spiritName, onOpenSpiritChat,
+  guestKeys = [], playArrival = false, onArrivalComplete, spiritName, onOpenSpiritChat, guestProgress,
 }: HomeProps) {
   const { t } = useT()
   const sceneText = t(`scene.${scene}.body`)
@@ -55,6 +58,7 @@ export function Home({
         onArrivalComplete={onArrivalComplete}
         spiritName={spiritName}
         onSpiritTap={onOpenSpiritChat}
+        guestProgress={guestProgress}
       />
 
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#f5ead8]/92 via-[#f5ead8]/36 to-transparent" />

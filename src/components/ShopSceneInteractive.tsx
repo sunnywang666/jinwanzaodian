@@ -1,5 +1,6 @@
 import { sceneAssets, sceneByDemo } from '../lib/assets'
 import type { DemoScene } from '../lib/storage'
+import type { GuestProgressMap } from '../lib/guestProgression'
 import { sceneItems, type SceneItemTarget } from '../lib/sceneItems'
 import { AssetImage } from './AssetImage'
 import { ClockOverlay } from './ClockOverlay'
@@ -17,11 +18,13 @@ interface ShopSceneInteractiveProps {
   onArrivalComplete?: () => void
   spiritName?: string
   onSpiritTap?: () => void
+  /** 真实来访次数/熟络度，传给客人资料卡（否则回退图鉴默认值） */
+  guestProgress?: GuestProgressMap
 }
 
 export function ShopSceneInteractive({
   scene, debug = false, onItemOpen,
-  guestKeys = [], playArrival = false, onArrivalComplete, spiritName, onSpiritTap,
+  guestKeys = [], playArrival = false, onArrivalComplete, spiritName, onSpiritTap, guestProgress,
 }: ShopSceneInteractiveProps) {
   const background = scene === 'cover' ? sceneAssets.mainBackground : sceneByDemo[scene]
   // 只在清晨热闹场景显示客人；白天/傍晚/夜晚铺子自然冷清
@@ -44,9 +47,12 @@ export function ShopSceneInteractive({
 
         <ClockOverlay />
         <div className="absolute inset-0">
-          {sceneItems.map((item) => (
-            <SceneItemButton key={item.id} item={item} debug={debug} onOpen={onItemOpen} />
-          ))}
+          {sceneItems
+            // 清晨显示 ShopGuests 的活精灵时，隐藏原静态「面点精灵」热点，避免两个精灵重复
+            .filter((item) => !(showGuests && item.id === 'spirit'))
+            .map((item) => (
+              <SceneItemButton key={item.id} item={item} debug={debug} onOpen={onItemOpen} />
+            ))}
         </div>
 
         {showGuests ? (
@@ -56,6 +62,7 @@ export function ShopSceneInteractive({
             onArrivalComplete={onArrivalComplete}
             spiritName={spiritName}
             onSpiritTap={onSpiritTap}
+            guestProgress={guestProgress}
           />
         ) : null}
       </div>
