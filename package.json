@@ -1,7 +1,7 @@
 {
   "name": "jinwan-zaodian-demo",
   "private": true,
-  "version": "6.15.0",
+  "version": "6.16.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "sync-assets": "node scripts/sync-assets.mjs",
     "trim-assets": "node scripts/trim-transparent-assets.mjs",
+    "compress-assets": "node scripts/compress-assets.mjs",
     "prepare-assets": "npm run sync-assets && npm run trim-assets"
   },
   "dependencies": {

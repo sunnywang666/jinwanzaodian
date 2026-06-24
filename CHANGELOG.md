@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.16
+
+Near-lossless image compression — shrinks the asset payload by ~75%.
+
+Included in this version:
+- Added `scripts/compress-assets.mjs` (npm script `compress-assets`): in-place PNG compression of everything under `public/assets/` (incl. `trimmed/`) via sharp palette quantization (`palette: true, quality: 80`). Filenames/paths unchanged, so no source references needed touching.
+- Recompressed all assets: total `public/assets` ~56.5MB -> ~14.2MB (-75%). Scene backgrounds ~2.5-2.9MB -> ~0.6-0.8MB each; food/UI art similarly. Watercolor art verified visually with no noticeable quality loss.
+- Updated `package.json` version metadata to `6.16.0`.
+
 ## v6.15
 
 Wire the morning guests into the midday transition (completes the v6.13 follow-up TODO).
