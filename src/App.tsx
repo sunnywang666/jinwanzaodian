@@ -22,6 +22,7 @@ import { createDefaultLogEntries, getGuestCountByMood, dishes } from './lib/demo
 import { guestReferences as guests } from './lib/guestReferences'
 import { injectDemoGuestSeeds } from './lib/demoSeed'
 import { type AppView, resolveInitialView } from './lib/appView'
+import { updateWidget } from './lib/widget'
 import {
   createCloseLogEntry,
   stampOpenTime,
@@ -137,6 +138,11 @@ export default function App() {
     } catch { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // 把今晚关灯时间同步给桌面小组件（仅安卓原生有效）
+  useEffect(() => {
+    updateWidget(eveningPrepare.plannedLightsOffTime)
+  }, [eveningPrepare.plannedLightsOffTime])
 
   // ── Centralized persistence: one save for all state ──
   usePersistStore({

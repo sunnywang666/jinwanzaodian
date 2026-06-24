@@ -1,5 +1,16 @@
 # Changelog
 
+## v6.29
+
+Android home-screen widget (MVP) — the spirit + tonight's lights-off, on your home screen.
+
+Included in this version:
+- Added a native Android app widget (`ZaodianWidgetProvider` + `res/layout/widget_zaodian.xml` + `res/xml/zaodian_widget_info.xml` + a cream rounded background and the dough-spirit image): shows the spirit and a time-aware line centered on tonight's commitment — "今晚 23:00 关灯" through the day, "早呀，铺子开门了" in the morning, "打烊了，放下手机，明早见" after close. Tap opens the app.
+- Added a tiny custom Capacitor plugin `ZaodianWidget` (registered in `MainActivity`) so the React app writes the lights-off time into native SharedPreferences and refreshes the widget; `src/lib/widget.ts` wraps it and `App` calls it whenever `eveningPrepare.plannedLightsOffTime` changes. Snapshot architecture (widget self-refreshes ~30min, opening the app syncs immediately) — the same approach Finch uses.
+- Android only for now (iOS widgets are a separate WidgetKit build, needs a Mac). Verified on emulator: provider registered, appears in the widget picker, preview renders.
+- To use it: long-press the home screen → Widgets → 今晚早点 → drag onto home.
+- Updated `package.json` version metadata to `6.29.0`.
+
 ## v6.28
 
 A small "overnight" surprise in the morning open — a daily reason to come back.
