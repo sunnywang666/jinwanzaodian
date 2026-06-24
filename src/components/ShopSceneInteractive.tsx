@@ -29,6 +29,9 @@ export function ShopSceneInteractive({
   const background = scene === 'cover' ? sceneAssets.mainBackground : sceneByDemo[scene]
   // 只在清晨热闹场景显示客人；白天/傍晚/夜晚铺子自然冷清
   const showGuests = scene === 'busy' || scene === 'normal' || scene === 'quiet'
+  // ShopGuests 仅在「清晨 且 今天确有客人」时才渲染活精灵；此时才隐藏静态精灵热点，
+  // 否则（清晨但没人）ShopGuests 返回 null，静态精灵需保留，避免连一个精灵都没有
+  const hasLiveGuests = showGuests && guestKeys.length > 0
 
   return (
     <div className="relative flex h-full w-full items-center justify-center bg-[#efe1cb]">
@@ -48,8 +51,8 @@ export function ShopSceneInteractive({
         <ClockOverlay />
         <div className="absolute inset-0">
           {sceneItems
-            // 清晨显示 ShopGuests 的活精灵时，隐藏原静态「面点精灵」热点，避免两个精灵重复
-            .filter((item) => !(showGuests && item.id === 'spirit'))
+            // 有活精灵时隐藏原静态「面点精灵」热点，避免两个精灵重复
+            .filter((item) => !(hasLiveGuests && item.id === 'spirit'))
             .map((item) => (
               <SceneItemButton key={item.id} item={item} debug={debug} onOpen={onItemOpen} />
             ))}
