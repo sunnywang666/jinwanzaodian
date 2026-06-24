@@ -61,6 +61,9 @@ const closingAnimStyles = `
 .moonrise { animation: moonrise 800ms ease-out 200ms both; }
 .night-breathe { animation: nightBreathe 5s ease-in-out infinite; }
 .zz-float { animation: zzFloat 2.5s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .closing-fade, .lamp-off, .spirit-float, .hut-glow, .moonrise, .night-breathe, .zz-float { animation: none !important; }
+}
 `
 
 export function NightClosing({ spiritName, tonightClosed, tonightWorry, onComplete, onClose, latestLog }: NightClosingProps) {
@@ -147,8 +150,8 @@ export function NightClosing({ spiritName, tonightClosed, tonightWorry, onComple
                     key={i}
                     type="button"
                     disabled={!isCurrent}
-                    className={`rounded-[20px] px-5 py-4 text-left transition-all duration-300 ${
-                      isDone ? 'bg-white/6 opacity-40' : isCurrent ? 'bg-white/10' : 'bg-transparent opacity-15'
+                    className={`rounded-[20px] px-5 py-4 text-left transition-all duration-300 disabled:cursor-default ${
+                      isDone ? 'bg-white/6 opacity-40' : isCurrent ? 'bg-white/10' : 'bg-transparent opacity-25'
                     }`}
                     onClick={() => { if (isCurrent) setStep(step + 1) }}
                   >
@@ -175,7 +178,7 @@ export function NightClosing({ spiritName, tonightClosed, tonightWorry, onComple
           </div>
         ) : (
           /* ── 完成画面：铺子睡了 ── */
-          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 text-center">
+          <div className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-5 py-8 text-center">
             {/* 月光 */}
             <div className="moonrise absolute right-[15%] top-[12%] h-16 w-16 rounded-full" style={{
               background: 'radial-gradient(circle, rgba(230,225,215,0.3) 0%, transparent 70%)',

@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.23
+
+Polish the night-closing ritual.
+
+Included in this version:
+- `NightClosing` step list: future steps are a touch more visible (opacity 15→25), completed steps keep their ✓ + strikethrough, and non-current steps get `cursor-default` so they read as not-tappable.
+- The completion screen now scrolls safely on short screens (`overflow-y-auto` + padding) instead of risking clipped text.
+- Animations (lamp-off, spirit float, moonrise, zz, breathe) respect `prefers-reduced-motion`.
+- Updated `package.json` version metadata to `6.23.0`.
+
 ## v6.22
 
 Deepen the evening pre-commitment (the product's core window).
