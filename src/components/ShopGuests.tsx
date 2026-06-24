@@ -41,6 +41,18 @@ const SEATS = [
   { left: '24%', top: '52%', w: '18%', side: 'left' as const },
 ]
 
+/** 出餐迎客动画时序（毫秒），抽成常量便于调 */
+const ARRIVAL = {
+  opening: 80,        // 开门灯亮
+  enterStart: 1000,   // 客人开始走进来
+  firstGuest: 300,    // 第一位相对 enterStart 的延迟
+  guestStagger: 1000, // 每位客人间隔
+  beforeServe: 300,   // 全部进来到开始上菜
+  serveStart: 500,    // serving 相位到第一道菜
+  serveStagger: 450,  // 每道菜间隔
+  settle: 500,        // 最后一道菜到安定
+}
+
 /** 想法 emoji（按爱吃猜一个，纯氛围） */
 const THOUGHT: Record<string, string> = {
   cat: '🐟', fox: '🥣', rabbit: '🍵', bear: '🥟', raccoon: '🥛', sparrow: '🥚', bird: '🥛',
@@ -89,14 +101,13 @@ export function ShopGuests({
     if (!playArrival) return
     const at = (ms: number, fn: () => void) => { timers.current.push(window.setTimeout(fn, ms)) }
     setPhase('dark'); setArrived(0); setServed(0)
-    at(80, () => setPhase('opening'))
-    const enterStart = 1000
-    at(enterStart, () => setPhase('enter'))
-    present.forEach((_, i) => at(enterStart + 300 + i * 1000, () => setArrived(i + 1)))
-    const allIn = enterStart + 300 + present.length * 1000 + 300
+    at(ARRIVAL.opening, () => setPhase('opening'))
+    at(ARRIVAL.enterStart, () => setPhase('enter'))
+    present.forEach((_, i) => at(ARRIVAL.enterStart + ARRIVAL.firstGuest + i * ARRIVAL.guestStagger, () => setArrived(i + 1)))
+    const allIn = ARRIVAL.enterStart + ARRIVAL.firstGuest + present.length * ARRIVAL.guestStagger + ARRIVAL.beforeServe
     at(allIn, () => setPhase('serving'))
-    present.forEach((_, i) => at(allIn + 500 + i * 450, () => setServed(i + 1)))
-    at(allIn + 500 + present.length * 450 + 500, () => { setPhase('settled'); onArrivalComplete?.() })
+    present.forEach((_, i) => at(allIn + ARRIVAL.serveStart + i * ARRIVAL.serveStagger, () => setServed(i + 1)))
+    at(allIn + ARRIVAL.serveStart + present.length * ARRIVAL.serveStagger + ARRIVAL.settle, () => { setPhase('settled'); onArrivalComplete?.() })
     return () => { timers.current.forEach(clearTimeout); timers.current = [] }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playArrival, guestKeys.join(',')])
@@ -194,7 +205,7 @@ export function ShopGuests({
             aria-label={g.name}
           >
             {isIn ? (
-              <div className="absolute left-1/2 top-[-20px] -translate-x-1/2 whitespace-nowrap rounded-xl bg-white px-[7px] py-[2px] text-[13px] shadow-[0_2px_6px_rgba(54,38,26,.2)]" style={{ animation: 'sg-thought .4s ease-out' }}>
+              <div className="absolute left-1/2 top-[-16px] -translate-x-1/2 whitespace-nowrap rounded-xl bg-white px-[7px] py-[2px] text-[13px] shadow-[0_2px_6px_rgba(54,38,26,.2)]" style={{ animation: 'sg-thought .4s ease-out' }}>
                 {THOUGHT[g.key] ?? '🥢'}
               </div>
             ) : null}
@@ -208,7 +219,7 @@ export function ShopGuests({
 
       {/* 客人资料卡 */}
       {sel ? (
-        <div className="pointer-events-auto absolute inset-0 flex items-center justify-center px-7" style={{ zIndex: 32, background: 'rgba(42,37,32,0.34)' }} onClick={() => setSelected(null)}>
+        <div className="pointer-events-auto absolute inset-0 flex items-center justify-center px-7" style={{ zIndex: 50, background: 'rgba(42,37,32,0.34)' }} onClick={() => setSelected(null)}>
           <div className="w-full max-w-[286px] rounded-[22px] bg-[#f7efe0] p-[18px] text-center shadow-[0_14px_32px_rgba(54,38,26,0.3)]" style={{ animation: 'sg-pop .3s ease-out' }} onClick={(e) => e.stopPropagation()}>
             <img src={sel.image.src} alt={sel.name} className="mx-auto h-[84px] object-contain" style={{ filter: 'drop-shadow(0 4px 9px rgba(54,38,26,.18))' }}
               onError={(e) => { if (sel.image.fallbackSrc) (e.target as HTMLImageElement).src = sel.image.fallbackSrc }} />
@@ -224,7 +235,7 @@ export function ShopGuests({
               </div>
               <div className="flex-1 rounded-xl bg-white/60 p-2">
                 <div className="text-[10px] text-ink/40">爱吃</div>
-                <div className="text-[14px] font-semibold text-ink">{sel.favoriteFood}</div>
+                <div className="truncate text-[14px] font-semibold text-ink">{sel.favoriteFood}</div>
               </div>
             </div>
             <button type="button" className="mt-[14px] text-[13px] text-ink/45" onClick={() => setSelected(null)}>关上</button>

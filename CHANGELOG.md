@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.25
+
+Polish the home shop scene (ShopGuests).
+
+Included in this version:
+- Guest profile card: long `favoriteFood` text now truncates instead of stretching the card; raised the card overlay z-index (32→50) so nothing overlaps it.
+- Thought-bubble emoji offset nudged so it's less likely to clip at the top on small screens.
+- Extracted the serve-and-greet animation timing into a named `ARRIVAL` constant (same timing, clearer to tune). Seat coordinates left as-is — the scene's locked aspect ratio keeps them on the art.
+- Updated `package.json` version metadata to `6.25.0`.
+
 ## v6.24
 
 Small polish across the morning ceremony, onboarding, and guided tour.
