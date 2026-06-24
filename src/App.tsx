@@ -114,7 +114,7 @@ export default function App() {
   const [reminders, setReminders] = useState<StoredReminderSettings>(initialStore.settings.reminders)
   const [tourDone, setTourDone] = useState(initialStore.settings.tourDone)
   // 首页在场的客人 + 是否该播出餐迎客动画
-  const [homeGuestKeys, setHomeGuestKeys] = useState<string[]>([])
+  const [homeGuestKeys, setHomeGuestKeys] = useState<string[]>(initialStore.today.homeGuestKeys)
   const [arrivalPending, setArrivalPending] = useState(false)
   const [guestProgress, setGuestProgress] = useState<GuestProgressMap>(() =>
     Object.keys(initialStore.guests).length > 0 ? initialStore.guests : injectDemoGuestSeeds({}),
@@ -174,6 +174,7 @@ export default function App() {
         middayDone,
         tonightClosed,
         eveningPrepare,
+        homeGuestKeys,
       },
       guests: guestProgress,
       dishes: dishProgress,
@@ -189,7 +190,7 @@ export default function App() {
     profile, spiritForm, spiritProgress, demoScene, todayMood,
     middayDone, tonightClosed, eveningPrepare, lastOpenDate,
     guestProgress, dishProgress, logEntries, autoSceneEnabled,
-    reminders, tourDone,
+    reminders, tourDone, homeGuestKeys,
   ])
 
   // ── Reminder scheduling (local notifications) ──

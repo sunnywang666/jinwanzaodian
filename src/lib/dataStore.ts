@@ -61,6 +61,8 @@ export interface AppStore {
     middayDone: boolean
     tonightClosed: boolean
     eveningPrepare: EveningPrepareState
+    /** 今天在店的客人 key（开门仪式 roll 出）；持久化以便半路重载后不丢 */
+    homeGuestKeys: string[]
   }
 
   /** Guest progression */
@@ -106,6 +108,7 @@ export function createDefaultStore(): AppStore {
         worry: '',
         savedAt: null,
       },
+      homeGuestKeys: [],
     },
     guests: {},
     dishes: {},
@@ -189,6 +192,10 @@ function validateAndRepair(store: AppStore): AppStore {
   }
   if (!store.today.eveningPrepare) {
     store.today.eveningPrepare = createDefaultStore().today.eveningPrepare
+  }
+  // Backfill homeGuestKeys for stores saved before this field existed
+  if (!Array.isArray(store.today.homeGuestKeys)) {
+    store.today.homeGuestKeys = []
   }
 
   // Ensure settings exists
@@ -311,6 +318,7 @@ function migrateFromScatteredKeys(): AppStore | null {
         worry: '',
         savedAt: null,
       },
+      homeGuestKeys: [],
     },
     guests: oldGuests,
     dishes: oldDishes,

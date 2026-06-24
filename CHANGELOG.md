@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.19
+
+Persist today's guests so they survive a mid-day reload.
+
+Included in this version:
+- Added `today.homeGuestKeys: string[]` to the store schema (`dataStore.ts`): `createDefaultStore` defaults it to `[]`, `validateAndRepair` backfills it for old saves, and `migrateFromScatteredKeys` includes it.
+- `App.tsx` now initializes `homeGuestKeys` from the store, writes it in the centralized persistence effect, and lists it as a dependency.
+- Fixes the morning guests and the midday-transition avatar row disappearing when the app is reloaded part-way through the day (they were previously in-memory only). A new day still resets them via the opening ceremony.
+- Updated `package.json` version metadata to `6.19.0`.
+
 ## v6.18
 
 Two coexisting builds: a clean app for real users and a demo app for showcases.
