@@ -1,5 +1,16 @@
 # Changelog
 
+## v6.21
+
+Conservative App.tsx refactor — extract routing decision and persistence, behavior unchanged.
+
+Included in this version:
+- Added `src/lib/appView.ts`: moved the `AppView` type out of `App.tsx` and added `resolveInitialView()` — a pure function for the startup view decision (new-day ceremony > reminder deep-link > home). Covered by `appView.test.ts`.
+- Added `src/hooks/usePersistStore.ts`: the centralized "assemble all state into an AppStore and save" effect, typed via `AppStore` indexed types so tsc enforces the store shape. `App.tsx` now calls `usePersistStore({...})` instead of the inline effect.
+- Net: `App.tsx` is smaller and the two most bug-prone seams (initial routing, persistence) are isolated and (for routing) unit-tested. No behavior change — same branches, same store assembly, same effect deps.
+- 25 tests passing across 5 files.
+- Updated `package.json` version metadata to `6.21.0`.
+
 ## v6.20
 
 Add a test harness and unit tests for the bug-prone pure logic.

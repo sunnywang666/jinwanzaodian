@@ -21,6 +21,7 @@ import { Settings } from './pages/Settings'
 import { createDefaultLogEntries, getGuestCountByMood, dishes } from './lib/demoData'
 import { guestReferences as guests } from './lib/guestReferences'
 import { injectDemoGuestSeeds } from './lib/demoSeed'
+import { type AppView, resolveInitialView } from './lib/appView'
 import {
   createCloseLogEntry,
   stampOpenTime,
@@ -29,7 +30,8 @@ import {
   type SpiritForm,
   type WorryStatus,
 } from './lib/storage'
-import { loadStore, saveStore, clearStore, createDefaultStore, type AppStore } from './lib/dataStore'
+import { loadStore, clearStore, createDefaultStore } from './lib/dataStore'
+import { usePersistStore } from './hooks/usePersistStore'
 import { startReminderScheduler, type StoredReminderSettings } from './lib/notifications'
 import { isNativePlatform, syncNativeReminders, registerNativeTapHandler } from './lib/nativeNotifications'
 import { isDemoMode } from './lib/devMode'
@@ -70,25 +72,6 @@ function saveReturnMessage(value: string | null) {
   if (value === null) localStorage.removeItem('jinwanzaodian:return-message')
   else localStorage.setItem('jinwanzaodian:return-message', JSON.stringify(value))
 }
-
-// ── Types ──
-
-type AppView =
-  | 'home'
-  | 'guestBookConfirm'
-  | 'guestBookOpen'
-  | 'recipeBookConfirm'
-  | 'recipeBookOpen'
-  | 'spiritChat'
-  | 'spiritHut'
-  | 'radio'
-  | 'logbook'
-  | 'messageBoard'
-  | 'eveningPrepare'
-  | 'nightClosing'
-  | 'morningOpening'
-  | 'middayTransition'
-  | 'settings'
 
 function getTodayString() {
   const now = getNow()
@@ -140,12 +123,9 @@ export default function App() {
     try { return new URLSearchParams(window.location.search).get('reminder') } catch { return null }
   })()
 
-  const [view, setView] = useState<AppView>(() => {
-    if (needsMorningOpening) return 'morningOpening'
-    if (reminderParam === 'evening') return 'eveningPrepare'
-    if (reminderParam === 'closing') return 'nightClosing'
-    return 'home'
-  })
+  const [view, setView] = useState<AppView>(() =>
+    resolveInitialView({ needsMorningOpening, reminderParam }),
+  )
 
   // Strip the ?reminder= param so a later refresh doesn't re-route
   useEffect(() => {
@@ -159,39 +139,11 @@ export default function App() {
   }, [])
 
   // ── Centralized persistence: one save for all state ──
-  useEffect(() => {
-    const store: AppStore = {
-      schemaVersion: 1,
-      profile,
-      spirit: {
-        currentForm: spiritForm,
-        progress: spiritProgress,
-      },
-      today: {
-        date: lastOpenDate,
-        mood: todayMood,
-        scene: demoScene,
-        middayDone,
-        tonightClosed,
-        eveningPrepare,
-        homeGuestKeys,
-      },
-      guests: guestProgress,
-      dishes: dishProgress,
-      days: logEntries,
-      settings: {
-        autoSceneEnabled,
-        reminders,
-        tourDone,
-      },
-    }
-    saveStore(store)
-  }, [
+  usePersistStore({
     profile, spiritForm, spiritProgress, demoScene, todayMood,
-    middayDone, tonightClosed, eveningPrepare, lastOpenDate,
-    guestProgress, dishProgress, logEntries, autoSceneEnabled,
-    reminders, tourDone, homeGuestKeys,
-  ])
+    middayDone, tonightClosed, eveningPrepare, lastOpenDate, homeGuestKeys,
+    guestProgress, dishProgress, logEntries, autoSceneEnabled, reminders, tourDone,
+  })
 
   // ── Reminder scheduling (local notifications) ──
   // closingTime tracks tonight's planned lights-off time automatically.
