@@ -484,14 +484,22 @@ interface MiddayTransitionProps {
   spiritName: string
   guestCount: number
   shopMood: 'busy' | 'normal' | 'quiet'
+  /** 今早来过的客人 key（用于显示头像排）；空时只显示人数 */
+  guestKeys?: string[]
   onContinue: () => void
 }
 
-export function MiddayTransition({ spiritName, guestCount, shopMood, onContinue }: MiddayTransitionProps) {
+export function MiddayTransition({ spiritName, guestCount, shopMood, guestKeys = [], onContinue }: MiddayTransitionProps) {
   const { t } = useT()
   const middayCopy = middayTransitionCopy[shopMood]
+  const todayGuests = guestKeys
+    .map((key) => allGuests.find((g) => g.key === key))
+    .filter((g): g is (typeof allGuests)[number] => Boolean(g))
+    .slice(0, 6)
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#f5ead8]">
+      {/* guest-appear keyframe（MiddayTransition 独立渲染，需自带，否则头像排无淡入动画） */}
+      <style>{`@keyframes guestAppear{from{opacity:0;transform:translateY(6px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}.guest-appear{animation:guestAppear 400ms ease-out both}`}</style>
       <section className="flex max-w-[380px] flex-col items-center px-6 text-center">
         <AssetImage
           src={spiritAssets.base.src}
@@ -504,6 +512,27 @@ export function MiddayTransition({ spiritName, guestCount, shopMood, onContinue 
         <p className="mt-3 text-base leading-7 text-ink/60">
           {t('morning.middayGuests', { count: String(guestCount) })}
         </p>
+
+        {/* 今早来过的客人头像排 */}
+        {todayGuests.length > 0 ? (
+          <div className="mt-4 flex items-end justify-center gap-2">
+            {todayGuests.map((g, i) => (
+              <div
+                key={g.key}
+                className="guest-appear flex h-14 w-14 items-center justify-center rounded-full bg-white/45"
+                style={{ animationDelay: `${i * 90}ms` }}
+              >
+                <img
+                  src={g.image.src}
+                  alt={g.name}
+                  className="h-11 w-11 object-contain drop-shadow-[0_3px_6px_rgba(54,38,26,0.16)]"
+                  onError={(e) => { if (g.image.fallbackSrc) (e.target as HTMLImageElement).src = g.image.fallbackSrc }}
+                />
+              </div>
+            ))}
+          </div>
+        ) : null}
+
         <p className="mt-2 text-sm leading-6 text-ink/50">{middayCopy.body(spiritName)}</p>
         <SoftButton className="mt-8" type="button" variant="primary" block onClick={onContinue}>
           {t('morning.middayStart')}

@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.15
+
+Wire the morning guests into the midday transition (completes the v6.13 follow-up TODO).
+
+Included in this version:
+- `MiddayTransition` now takes a `guestKeys` prop and renders a row of this morning's guest avatars above the body copy, instead of only a count. Falls back to count-only when no keys are available.
+- `App.tsx` passes the persisted `homeGuestKeys` to `MiddayTransition`.
+- Added a self-contained `guestAppear` keyframe inside `MiddayTransition` (it renders independently of `MorningOpening`, which owns the original keyframe).
+- Updated `package.json` version metadata to `6.15.0`.
+
 ## v6.14
 
 Fixes for the living-home (v6.13) feature found in review.

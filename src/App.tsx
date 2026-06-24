@@ -623,6 +623,7 @@ export default function App() {
           spiritName={profile.spiritName}
           guestCount={getGuestCountByMood(todayMood)}
           shopMood={todayMood}
+          guestKeys={homeGuestKeys}
           onContinue={() => {
             setMiddayDone(true)
             setDemoScene('daytime')
