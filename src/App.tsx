@@ -10,6 +10,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { AppShell } from './components/AppShell'
+import { DemoNotice } from './components/DemoNotice'
 import { Home } from './pages/Home'
 import { Onboarding } from './pages/Onboarding'
 import { GuideTour } from './pages/GuideTour'
@@ -340,20 +341,24 @@ export default function App() {
   // ── Onboarding ──
   if (!profile) {
     return (
-      <Onboarding
-        onComplete={(p) => {
-          setProfile(p)
-          setSpiritForm(p.spiritAppearance)
-          setEveningPrepare({
-            plannedLightsOffTime: p.defaultLightsOffTime,
-            worry: '',
-            savedAt: null,
-          })
-          setLastOpenDate(getTodayString())
-          const initialDish = evaluateDishUnlocks({}, [], {})
-          setDishProgress(initialDish.updated)
-        }}
-      />
+      <>
+        <Onboarding
+          onComplete={(p) => {
+            setProfile(p)
+            setSpiritForm(p.spiritAppearance)
+            setEveningPrepare({
+              plannedLightsOffTime: p.defaultLightsOffTime,
+              worry: '',
+              savedAt: null,
+            })
+            setLastOpenDate(getTodayString())
+            const initialDish = evaluateDishUnlocks({}, [], {})
+            setDishProgress(initialDish.updated)
+          }}
+        />
+        {/* 路演版首次进入即说明这是演示数据 */}
+        <DemoNotice />
+      </>
     )
   }
 
@@ -650,6 +655,8 @@ export default function App() {
           onClose={() => setView('home')}
         />
       ) : null}
+
+      <DemoNotice />
     </AppShell>
   )
 }

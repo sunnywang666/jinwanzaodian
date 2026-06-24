@@ -1,5 +1,16 @@
 # Changelog
 
+## v6.18
+
+Two coexisting builds: a clean app for real users and a demo app for showcases.
+
+Included in this version:
+- Added `src/components/DemoNotice.tsx`: a one-time first-launch modal shown only in demo mode (`isDemoMode()`), explaining the data is pre-filled sample data. Remembered per device via localStorage. Mounted on both the onboarding screen and the main shell so it shows on the very first launch.
+- Android: `android/app/build.gradle` adds `applicationIdSuffix ".demo"` and a different app label when built with `-Pdemo`, and `AndroidManifest.xml` uses `${appLabel}`. So the demo build installs as `com.jinwanzaodian.app.demo` / 「今晚早点·演示」 alongside the regular `com.jinwanzaodian.app` / 「今晚早点」 — both can live on one phone.
+- Added `scripts/build-apks.ps1`: one command builds both APKs to the desktop — regular (no demo data) and demo (sample data via `VITE_DEMO=1` + `-Pdemo`).
+- Verified on emulator: both packages coexist; demo shows the notice + sample data; the clean build shows no notice and starts empty.
+- Updated `package.json` version metadata to `6.18.0`.
+
 ## v6.17
 
 Split guest data into permanent identity vs demo-only progress — root-fixes the recurring fake-data leak.
