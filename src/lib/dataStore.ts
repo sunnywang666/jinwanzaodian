@@ -174,7 +174,7 @@ export function clearStore() {
 
 // ── Validation ──
 
-function validateAndRepair(store: AppStore): AppStore {
+export function validateAndRepair(store: AppStore): AppStore {
   // Ensure spirit has required defaults
   if (!store.spirit) {
     store.spirit = createDefaultStore().spirit

@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.20
+
+Add a test harness and unit tests for the bug-prone pure logic.
+
+Included in this version:
+- Added vitest (`npm test` → `vitest run`); `vite.config.ts` gains a `test` block (node env, `src/**/*.test.ts`).
+- `guestProgression.test.ts`: familiarity thresholds (0/3/6/10), `recordDailyVisits` increment + consistency + no-mutation.
+- `dishProgression.test.ts`: default unlock, milestone (youtiao @ 3 good nights), guest unlock (fox @ familiarity 3), no re-unlock, no-mutation.
+- `timeScene.test.ts`: scene-by-time windows + evening boundary + closed/night, driven via the time simulator.
+- `dataStore.test.ts`: `validateAndRepair` backfills (homeGuestKeys, eveningPrepare, reminders, tourDone-from-profile) and array/spirit-form repair. Exported `validateAndRepair` for testing.
+- 22 tests passing across 4 files.
+- Updated `package.json` version metadata to `6.20.0`.
+
 ## v6.19
 
 Persist today's guests so they survive a mid-day reload.
