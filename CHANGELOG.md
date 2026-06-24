@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.27
+
+The evening spirit now offers a concrete, per-persona method — not just company.
+
+Included in this version:
+- `EveningPrepare`'s spirit line is now `evening.method.{revenge|inertia|anxiety|work|owl|unsure}` (zh/en) instead of one generic reply. Each is a warm, evidence-informed one-liner adapted from the project's own earlier intervention work: anxiety → brain-dump into the worry box; work → "does it really have to be tonight? jot a morning list"; revenge → 15 min of something you truly enjoy instead of scrolling; inertia → "three more then stop"; owl → a steady lights-off rather than forced-early.
+- Lands in the evening window (when the user is rational), per v5's deliberate "no 1am intervention" stance. No chat engine, no crisis detection.
+- Updated `package.json` version metadata to `6.27.0`.
+
 ## v6.26
 
 Give the logbook's spirit commentary a by-weekday observation.
