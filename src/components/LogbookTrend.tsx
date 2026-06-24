@@ -91,12 +91,29 @@ function getCommentary(
       : `${spiritName}：最近关灯稍晚了一点——不急，慢慢来。`
   }
 
-  // Check if a specific day is consistently late
-  const dayMinutes: Record<string, number[]> = {}
+  // 按周几找"总比别的天晚"的规律（需 realCloseTimestamp 才能知道是周几）
+  const byWeekday: Record<number, number[]> = {}
   for (const entry of validEntries.slice(0, 14)) {
-    const day = entry.date.replace(/\d+月/, '')
-    if (!dayMinutes[day]) dayMinutes[day] = []
-    dayMinutes[day].push(parseCloseMinutes(entry.closeTime)!)
+    if (!entry.realCloseTimestamp) continue
+    const mins = parseCloseMinutes(entry.closeTime)
+    if (mins === null) continue
+    const wd = new Date(entry.realCloseTimestamp).getDay()
+    ;(byWeekday[wd] ??= []).push(mins)
+  }
+  let latestWd = -1
+  let latestWdAvg = -Infinity
+  for (const [wd, arr] of Object.entries(byWeekday)) {
+    if (arr.length < 2) continue
+    const a = arr.reduce((x, y) => x + y, 0) / arr.length
+    if (a > latestWdAvg) { latestWdAvg = a; latestWd = Number(wd) }
+  }
+  // 只有当某个周几明显（>35 分钟）晚于整体均值时才提，避免噪声
+  if (latestWd >= 0 && latestWdAvg - avg > 35) {
+    const zhDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+    const enDays = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays']
+    return lang === 'en'
+      ? `${spiritName}: You tend to close later on ${enDays[latestWd]} — anything regular happening then?`
+      : `${spiritName}：你${zhDays[latestWd]}总比别的天晚一些，是不是那天有什么固定的事？`
   }
 
   if (avgHour >= 24) {

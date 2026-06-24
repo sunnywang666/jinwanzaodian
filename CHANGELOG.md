@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.26
+
+Give the logbook's spirit commentary a by-weekday observation.
+
+Included in this version:
+- `LogbookTrend.getCommentary` replaces a dead day-grouping block (which used the "月日" string and had no weekday info) with real weekday analysis derived from `realCloseTimestamp`. When one weekday is consistently >35min later than the overall average (≥2 samples), the spirit gently asks "you tend to close later on Wednesdays — anything regular happening then?" — the warm shopkeeper read v5 described.
+- No store schema change (reuses existing `realCloseTimestamp`).
+- Updated `package.json` version metadata to `6.26.0`.
+
 ## v6.25
 
 Polish the home shop scene (ShopGuests).
