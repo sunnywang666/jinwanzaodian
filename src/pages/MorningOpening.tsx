@@ -14,7 +14,8 @@
 
 import { useState } from 'react'
 import { spiritAssets, sceneAssets, animalAssets } from '../lib/assets'
-import { middayTransitionCopy, guests as allGuests } from '../lib/demoData'
+import { middayTransitionCopy } from '../lib/demoData'
+import { guestReferences as allGuests } from '../lib/guestReferences'
 import { AssetImage } from '../components/AssetImage'
 import { SoftButton } from '../components/SoftButton'
 import { useT } from '../lib/i18n'

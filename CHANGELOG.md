@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.17
+
+Split guest data into permanent identity vs demo-only progress — root-fixes the recurring fake-data leak.
+
+Included in this version:
+- Added `src/lib/guestReferences.ts`: `GuestReference` (key/name/image/description/favoriteFood) + `guestReferences` — pure identity, true for every user.
+- Added `src/lib/demoSeed.ts`: `injectDemoGuestSeeds(progress)` writes demo visit counts into `guestProgress` only when `isDemoMode()`; real builds stay empty (new guests = 0 visits / 新客).
+- Removed `GuestEntry` and the `guests` array (with `visitCount`/`familiarity`/`status`/`story`) from `src/lib/demoData.ts`; the progress fields can no longer leak to real users.
+- Updated live consumers (`App.tsx`, `ShopGuests.tsx`, `GuestBookOpenView.tsx`, `MessageBoardOverlay.tsx`, `MorningOpening.tsx`) to read identity from `guestReferences` and progress from `guestProgress`. `App` seeds demo progress on init.
+- Deduped `FAMILIARITY_LABELS`: `ShopGuests` now uses the single source `getFamiliarityLabel()` in `guestProgression.ts`.
+- Deleted dead, unreachable components that displayed raw demo values: `GuestBookOverlay`, `GuestDetailOverlay`, `GuestDetail`, `GuestBook`.
+- Updated `package.json` version metadata to `6.17.0`.
+
 ## v6.16
 
 Near-lossless image compression — shrinks the asset payload by ~75%.

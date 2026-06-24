@@ -11,7 +11,7 @@
 import { useEffect, useState } from 'react'
 import { AssetImage } from '../components/AssetImage'
 import { bookAssets, sceneAssets } from '../lib/assets'
-import { guests } from '../lib/demoData'
+import { guestReferences as guests } from '../lib/guestReferences'
 import {
   getFamiliarityLabel,
   type GuestProgressMap,

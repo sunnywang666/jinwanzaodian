@@ -6,7 +6,7 @@
 import { GameOverlay } from '../components/GameOverlay'
 import type { LogEntry } from '../lib/storage'
 import type { GuestProgressMap } from '../lib/guestProgression'
-import { guests } from '../lib/demoData'
+import { guestReferences as guests } from '../lib/guestReferences'
 import { useT } from '../lib/i18n'
 
 interface MessageBoardOverlayProps {

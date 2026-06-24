@@ -14,14 +14,14 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
-import { guests as allGuests, dishes as allDishes } from '../lib/demoData'
+import { dishes as allDishes } from '../lib/demoData'
+import { guestReferences as allGuests } from '../lib/guestReferences'
+import { getFamiliarityLabel, type FamiliarityLevel } from '../lib/guestProgression'
 import { spiritAssets } from '../lib/assets'
-
-const FAMILIARITY_LABELS = ['新客', '渐熟', '常来', '熟客']
 
 interface GuestProgressLite {
   totalVisits: number
-  familiarityLevel: number
+  familiarityLevel: FamiliarityLevel
 }
 
 interface ShopGuestsProps {
@@ -117,8 +117,8 @@ export function ShopGuests({
   const serving = phase === 'serving' || phase === 'settled'
   const sel = selected ? allGuests.find((g) => g.key === selected) : null
   const selProg = sel ? guestProgress?.[sel.key] : undefined
-  const selVisits = selProg?.totalVisits ?? sel?.visitCount ?? 0
-  const selStatus = selProg ? FAMILIARITY_LABELS[selProg.familiarityLevel] ?? sel?.status : sel?.status
+  const selVisits = selProg?.totalVisits ?? 0
+  const selStatus = selProg ? getFamiliarityLabel(selProg.familiarityLevel) : '新客'
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[8]">

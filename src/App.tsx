@@ -17,7 +17,9 @@ import { EveningPrepare } from './pages/EveningPrepare'
 import { NightClosing } from './pages/NightClosing'
 import { MorningOpening, MiddayTransition } from './pages/MorningOpening'
 import { Settings } from './pages/Settings'
-import { createDefaultLogEntries, getGuestCountByMood, guests, dishes } from './lib/demoData'
+import { createDefaultLogEntries, getGuestCountByMood, dishes } from './lib/demoData'
+import { guestReferences as guests } from './lib/guestReferences'
+import { injectDemoGuestSeeds } from './lib/demoSeed'
 import {
   createCloseLogEntry,
   stampOpenTime,
@@ -113,7 +115,9 @@ export default function App() {
   // 首页在场的客人 + 是否该播出餐迎客动画
   const [homeGuestKeys, setHomeGuestKeys] = useState<string[]>([])
   const [arrivalPending, setArrivalPending] = useState(false)
-  const [guestProgress, setGuestProgress] = useState<GuestProgressMap>(initialStore.guests)
+  const [guestProgress, setGuestProgress] = useState<GuestProgressMap>(() =>
+    Object.keys(initialStore.guests).length > 0 ? initialStore.guests : injectDemoGuestSeeds({}),
+  )
   const [dishProgress, setDishProgress] = useState<DishProgressMap>(initialStore.dishes)
   const [spiritProgress, setSpiritProgress] = useState<SpiritProgressState>(initialStore.spirit.progress)
   const [lastOpenDate, setLastOpenDate] = useState<string | null>(initialStore.today.date)

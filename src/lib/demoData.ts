@@ -1,4 +1,4 @@
-import { animalAssets, foodAssets, spiritAssets } from './assets'
+import { foodAssets, spiritAssets } from './assets'
 import type { AssetSource } from './assets'
 import type { DemoScene, LogEntry, NightType, ShopMood, SpiritBody, SpiritForm } from './storage'
 
@@ -20,18 +20,6 @@ export interface Dish {
   description: string
   lovedBy: string
   origin: string
-}
-
-export interface GuestEntry {
-  key: keyof typeof animalAssets
-  name: string
-  image: AssetSource
-  description: string
-  favoriteFood: string
-  visitCount: number
-  familiarity: string
-  status: string
-  story: string
 }
 
 export interface SpiritOption {
@@ -193,86 +181,6 @@ export const dishes: Dish[] = [
     description: '温柔一点的早晨限定。',
     lovedBy: '小狐狸桂花',
     origin: '熟客带来的家乡做法。',
-  },
-]
-
-export const guests: GuestEntry[] = [
-  {
-    key: 'cat',
-    name: '橘猫阿橘',
-    image: animalAssets.cat,
-    description: '总是第一个来，但只轻轻点头。',
-    favoriteFood: '油条',
-    visitCount: 9,
-    familiarity: '已经会坐在窗边等开门',
-    status: '熟客',
-    story: '它今天还是没说很多话，但把豆浆喝得很干净。',
-  },
-  {
-    key: 'rabbit',
-    name: '白兔小团',
-    image: animalAssets.rabbit,
-    description: '喜欢慢慢喝完一整碗热粥。',
-    favoriteFood: '粥',
-    visitCount: 6,
-    familiarity: '见面会主动问你昨晚睡得如何',
-    status: '常来',
-    story: '它把耳朵搭在碗边，等粥不烫了才开始喝。',
-  },
-  {
-    key: 'raccoon',
-    name: '小浣熊灰灰',
-    image: animalAssets.raccoon,
-    description: '手里总想拿点什么，停下来时反而很乖。',
-    favoriteFood: '豆浆',
-    visitCount: 5,
-    familiarity: '会把杯子整齐放回柜台',
-    status: '渐熟',
-    story: '它今天没有东张西望，只是安静喝完了豆浆。',
-  },
-  {
-    key: 'bear',
-    name: '小熊栗子',
-    image: animalAssets.bear,
-    description: '抱着热包子时最安心。',
-    favoriteFood: '包子',
-    visitCount: 4,
-    familiarity: '已经记得自己的小凳子',
-    status: '常来',
-    story: '它把包子捧在手里很久，好像不急着吃。',
-  },
-  {
-    key: 'fox',
-    name: '小狐狸桂花',
-    image: animalAssets.fox,
-    description: '看起来很精神，其实也会困。',
-    favoriteFood: '银耳枸杞粥',
-    visitCount: 3,
-    familiarity: '开始愿意在门口多坐一会儿',
-    status: '新熟',
-    story: '它今天来得很早，只说想喝一点暖的。',
-  },
-  {
-    key: 'sparrow',
-    name: '小麻雀啾啾',
-    image: animalAssets.sparrow,
-    description: '小小一只，但很认真地记得路。',
-    favoriteFood: '茶叶蛋',
-    visitCount: 2,
-    familiarity: '还在熟悉铺子的味道',
-    status: '新客',
-    story: '它站在窗边看了很久，最后还是飞进来了。',
-  },
-  {
-    key: 'bird',
-    name: '小鸟阿音',
-    image: animalAssets.bird,
-    description: '为这一屋子的安静而来。',
-    favoriteFood: '豆浆',
-    visitCount: 2,
-    familiarity: '会在收音机旁边停一会儿',
-    status: '新客',
-    story: '今天收音机声音很轻，它好像很喜欢。',
   },
 ]
 
