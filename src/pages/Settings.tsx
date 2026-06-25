@@ -260,7 +260,7 @@ export function Settings({
         <div>
           <h3 className="text-base font-semibold text-ink">{t('settings.about.title')}</h3>
           <div className="mt-3 space-y-2 text-sm leading-6 text-ink/60">
-            <p>{t('settings.about.version')}</p>
+            <p>{t('settings.about.version', { v: __APP_VERSION__ })}</p>
             <p>{t('settings.about.line1')}</p>
             <p>{t('settings.about.line2')}</p>
             <p>{t('settings.about.line3')}</p>

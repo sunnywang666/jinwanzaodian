@@ -7,8 +7,11 @@ android {
         applicationId "com.jinwanzaodian.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // 版本号跟随 package.json 自动递增，这样新包能直接覆盖更新、不用先卸载
+        def pkgVersion = new groovy.json.JsonSlurper().parseText(file('../../package.json').text).version
+        def vParts = pkgVersion.tokenize('.')
+        versionCode vParts[0].toInteger() * 10000 + vParts[1].toInteger() * 100 + (vParts.size() > 2 ? vParts[2].toInteger() : 0)
+        versionName pkgVersion
         // 路演版（-Pdemo）显示不同应用名；包名后缀见 buildTypes.debug，两版可共存
         manifestPlaceholders = [appLabel: project.hasProperty("demo") ? "今晚早点·演示" : "今晚早点"]
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

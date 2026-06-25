@@ -143,7 +143,7 @@ export const en = {
     },
     about: {
       title: 'About',
-      version: '"Tonight, Sleep Early" v6.7',
+      version: '"Tonight, Sleep Early" v{v}',
       line1: 'A breakfast shop that lives in your phone.',
       line2: 'Not an alarm. Not a tracker. Not a white noise machine.',
       line3: 'The shop won\'t tell you to sleep — it just quietly keeps you company when you put your phone down.',

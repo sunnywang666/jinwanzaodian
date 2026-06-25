@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.32
+
+In-place app updates (no uninstall) + the in-app version stays in sync.
+
+Included in this version:
+- `android/app/build.gradle`: `versionCode`/`versionName` now derive from `package.json` (e.g. 6.32.0 → versionCode 63200) instead of a fixed `1`. So a new APK installs as an update over the old one — no need to uninstall first (same signing key required, which all local builds share).
+- The Settings "About" version is no longer hardcoded (was stuck at v6.7). `vite.config.ts` injects the real `package.json` version as `__APP_VERSION__`; `Settings` renders it (`settings.about.version` → `「今晚早点」v{v}`), so it always shows the current version.
+- Updated `package.json` version metadata to `6.32.0`.
+
 ## v6.31
 
 App icon: the dough spirit, replacing the default Capacitor logo.
