@@ -7,7 +7,7 @@ Spirit chat calls its own backend, not the test project's.
 Included in this version:
 - `getChatApiUrl()` no longer hardcodes the test deployment (`jinwanzaodian-test.vercel.app/api/chat`). It now: (1) honors a user-set custom URL, (2) on a real web origin (e.g. the project's own Vercel deployment) calls **same-origin `/api/chat`** so it hits this project's own `api/chat.js` backend, (3) falls back to `OWN_BACKEND` for the APK / GitHub Pages (no same-origin backend).
 - Removes the dependency on the separate test deployment for live AI chat.
-- Note: `OWN_BACKEND` is set to `https://jinwanzaodian.vercel.app/api/chat` as a best guess — adjust to the real main Vercel domain if different (only affects the APK / GitHub Pages fallback; the Vercel web demo uses same-origin and is unaffected).
+- `OWN_BACKEND` is the project's real Vercel deployment (`jinwanzaodian-mk8xhm66e-sunny-happy-projects.vercel.app`, recovered from the v6.0.1 commit). The hardcoded `*-test.vercel.app` was a regression an earlier full-file patch overwrote in; this restores the project's own backend.
 - Updated `package.json` version metadata to `6.30.0`.
 
 ## v6.29

@@ -39,8 +39,8 @@ const systemPrompts: Record<NightType, string> = {
 
 /* ── API ── */
 
-/** 兜底后端：安卓 APK / GitHub Pages 静态页没有同源后端时用。改成本项目自己的 Vercel 域名。 */
-const OWN_BACKEND = 'https://jinwanzaodian.vercel.app/api/chat'
+/** 兜底后端：安卓 APK / GitHub Pages 静态页没有同源后端时用。本项目自己的 Vercel（见 v6.0.1 提交）。 */
+const OWN_BACKEND = 'https://jinwanzaodian-mk8xhm66e-sunny-happy-projects.vercel.app/api/chat'
 
 function getChatApiUrl(): string {
   // 1. 用户在设置里自定义的地址优先
