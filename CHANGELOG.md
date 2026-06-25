@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.30
+
+Spirit chat calls its own backend, not the test project's.
+
+Included in this version:
+- `getChatApiUrl()` no longer hardcodes the test deployment (`jinwanzaodian-test.vercel.app/api/chat`). It now: (1) honors a user-set custom URL, (2) on a real web origin (e.g. the project's own Vercel deployment) calls **same-origin `/api/chat`** so it hits this project's own `api/chat.js` backend, (3) falls back to `OWN_BACKEND` for the APK / GitHub Pages (no same-origin backend).
+- Removes the dependency on the separate test deployment for live AI chat.
+- Note: `OWN_BACKEND` is set to `https://jinwanzaodian.vercel.app/api/chat` as a best guess — adjust to the real main Vercel domain if different (only affects the APK / GitHub Pages fallback; the Vercel web demo uses same-origin and is unaffected).
+- Updated `package.json` version metadata to `6.30.0`.
+
 ## v6.29
 
 Android home-screen widget (MVP) — the spirit + tonight's lights-off, on your home screen.

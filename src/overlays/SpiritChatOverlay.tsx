@@ -39,12 +39,29 @@ const systemPrompts: Record<NightType, string> = {
 
 /* ── API ── */
 
+/** 兜底后端：安卓 APK / GitHub Pages 静态页没有同源后端时用。改成本项目自己的 Vercel 域名。 */
+const OWN_BACKEND = 'https://jinwanzaodian.vercel.app/api/chat'
+
 function getChatApiUrl(): string {
+  // 1. 用户在设置里自定义的地址优先
   try {
     const custom = localStorage.getItem('jinwanzaodian:chat_api_url')
     if (custom && custom.trim()) return custom.trim()
   } catch { /* ignore */ }
-  return 'https://jinwanzaodian-test.vercel.app/api/chat'
+  // 2. 部署在自己的 Web 后端上（如 Vercel）→ 走同源 /api/chat，自动命中本项目自己的后端，不依赖别的部署
+  try {
+    const { origin, protocol, hostname } = window.location
+    if (
+      protocol.startsWith('http') &&
+      !hostname.endsWith('github.io') &&
+      hostname !== 'localhost' &&
+      hostname !== '127.0.0.1'
+    ) {
+      return `${origin}/api/chat`
+    }
+  } catch { /* ignore */ }
+  // 3. 兜底（APK / GitHub Pages 无同源后端）
+  return OWN_BACKEND
 }
 
 function getUserApiKey(): string | null {
