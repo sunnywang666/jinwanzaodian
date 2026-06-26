@@ -117,8 +117,11 @@ function generateGuestNotes(guestProgress: GuestProgressMap, lang: string): Boar
       return { guest, progress }
     })
     .filter((r): r is { guest: typeof guests[number]; progress: GuestProgressMap[string] } => r !== null)
-    // 熟客排前面，最多展示 7 条，避免一墙
-    .sort((a, b) => b.progress.familiarityLevel - a.progress.familiarityLevel || b.progress.totalVisits - a.progress.totalVisits)
+    // 按留言时间倒序：最新在上、越往下越旧（同一天再按熟络度），最多 7 条避免一墙
+    .sort((a, b) =>
+      (b.progress.lastVisitDate || '').localeCompare(a.progress.lastVisitDate || '')
+      || b.progress.familiarityLevel - a.progress.familiarityLevel,
+    )
     .slice(0, 7)
 
   return rows.map(({ guest, progress }, i) => ({
@@ -178,7 +181,11 @@ export function MessageBoardOverlay({ guestProgress, logEntries, onClose }: Mess
                     src={note.image.src}
                     alt=""
                     className="h-12 w-12 shrink-0 object-contain"
-                    style={{ filter: 'drop-shadow(0 2px 4px rgba(54,38,26,0.18))' }}
+                    // 拼贴风：沿剪影描一圈白边（多向白色 drop-shadow 叠出轮廓），不发光
+                    style={{
+                      filter:
+                        'drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(1.5px 1.5px 0 #fff) drop-shadow(-1.5px 1.5px 0 #fff) drop-shadow(1.5px -1.5px 0 #fff) drop-shadow(-1.5px -1.5px 0 #fff)',
+                    }}
                     onError={(e) => { if (note.image?.fallbackSrc) (e.target as HTMLImageElement).src = note.image.fallbackSrc }}
                   />
                   <div className="min-w-0 flex-1">

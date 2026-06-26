@@ -99,11 +99,13 @@ export const spiritFaceAssets = {
 export type SpiritBodyKey = keyof typeof spiritBodyAssets
 export type SpiritFaceKey = keyof typeof spiritFaceAssets
 
+// 用裁剪版（去掉 1024 画布的透明边），让精灵客人像动物客人一样"占满画框"，
+// 否则精灵主体小小一只缩在大片空白里，和动物比一个天一个地、还看不清。
 export const guestSpiritAssets = {
-  spirit1: asset('guest-spirit-1.png'),
-  spirit2: asset('guest-spirit-2.png'),
-  spirit3: asset('guest-spirit-3.png'),
-  spiritFamily1: asset('guest-spirit-family-1.png'),
+  spirit1: trimmedAsset('guest-spirit-1.png'),
+  spirit2: trimmedAsset('guest-spirit-2.png'),
+  spirit3: trimmedAsset('guest-spirit-3.png'),
+  spiritFamily1: trimmedAsset('guest-spirit-family-1.png'),
 } as const
 
 export const animalAssets = {
