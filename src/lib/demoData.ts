@@ -294,6 +294,8 @@ export function createDefaultLogEntries(): LogEntry[] {
       screenOffTimestamp: screenOff.toISOString(),
       realOpenTimestamp: realOpen.toISOString(),
       nightWakes: nightWakes[index] ?? 0,
+      // 让演示版这 7 晚算作"熄屏早睡"，使累计早睡/成就/皮肤进度在路演时是活的
+      isRealData: true,
     }
   })
 }

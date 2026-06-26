@@ -300,8 +300,13 @@ export const zh = {
     tabSkins: '换装',
     tabAchievements: '成就',
     lockedHint: '再早睡 {count} 晚',
+    skinSectionTitle: '点心形态',
     skinNote: '点心形态靠累计早睡的夜晚慢慢解锁——只累计、断了不清零、越往后越珍贵。',
     achUnlocked: '已点亮',
+    achOverall: '点亮进度',
+    achGroupSleep: '早睡之路',
+    achGroupCollect: '铺子收集',
+    achGroupRest: '安睡',
     skins: {
       base: '白面团', xiaolongbao: '小笼包', bagel: '贝果', croissant: '可颂',
       donut: '甜甜圈', baozi: '包子', waffle: '华夫饼', mochi: '麻糬',

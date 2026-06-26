@@ -8,7 +8,7 @@
  * - Migration from old scattered keys happens automatically on first load
  */
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AppShell } from './components/AppShell'
 import { DemoNotice } from './components/DemoNotice'
 import { Home } from './pages/Home'
@@ -89,9 +89,12 @@ export default function App() {
   const [spiritForm, setSpiritForm] = useState<SpiritForm>(initialStore.spirit.currentForm)
   const [demoScene, setDemoScene] = useState(initialStore.today.scene)
   const [tonightClosed, setTonightClosed] = useState(initialStore.today.tonightClosed)
-  const [logEntries, setLogEntries] = useState<LogEntry[]>(() =>
-    initialStore.days.length > 0 ? initialStore.days : (isDemoMode() ? createDefaultLogEntries() : []),
+  // 只算一次：演示版无存档时用示例 7 晚，否则用存档（空数组）。
+  const initialLogEntries = useMemo(
+    () => (initialStore.days.length > 0 ? initialStore.days : (isDemoMode() ? createDefaultLogEntries() : [])),
+    [initialStore],
   )
+  const [logEntries, setLogEntries] = useState<LogEntry[]>(initialLogEntries)
   const [eveningPrepare, setEveningPrepare] = useState<EveningPrepareState>(initialStore.today.eveningPrepare)
   const [todayMood, setTodayMood] = useState(initialStore.today.mood)
   const [middayDone, setMiddayDone] = useState(initialStore.today.middayDone)
@@ -106,7 +109,13 @@ export default function App() {
     Object.keys(initialStore.guests).length > 0 ? initialStore.guests : injectDemoGuestSeeds({}),
   )
   const [dishProgress, setDishProgress] = useState<DishProgressMap>(initialStore.dishes)
-  const [spiritProgress, setSpiritProgress] = useState<SpiritProgressState>(initialStore.spirit.progress)
+  const [spiritProgress, setSpiritProgress] = useState<SpiritProgressState>(() =>
+    // 演示版（且无真实进度时）从演示的 7 晚推导累计早睡，让成就/皮肤进度一开始就活的；
+    // 与日后 morning/closing 的重算口径一致（都走 countGoodNights）。
+    isDemoMode() && initialStore.spirit.progress.totalGoodNights === 0
+      ? evaluateSpiritUnlocks(initialStore.spirit.progress, initialLogEntries).updated
+      : initialStore.spirit.progress,
+  )
   const [lastOpenDate, setLastOpenDate] = useState<string | null>(initialStore.today.date)
 
   // ── Ephemeral state (outside store) ──

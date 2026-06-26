@@ -25,6 +25,7 @@ import {
 import { AssetImage } from '../components/AssetImage'
 import { SoftButton } from '../components/SoftButton'
 import { useT, type Lang } from '../lib/i18n'
+import { isDemoMode } from '../lib/devMode'
 
 interface OnboardingProps {
   onComplete: (profile: OnboardingProfile) => void
@@ -49,7 +50,8 @@ function LangToggle() {
 
 /* ── Shared frame ── */
 
-function OnboardingFrame({ children, onReset }: { children: ReactNode; onReset: () => void }) {
+function OnboardingFrame({ children, onReset, onSkip }: { children: ReactNode; onReset: () => void; onSkip?: () => void }) {
+  const { lang } = useT()
   return (
     <div className="mx-auto flex min-h-screen max-w-[430px] flex-col bg-[#f5ead8]">
       <div className="absolute right-4 top-4 z-20 flex gap-2">
@@ -61,6 +63,16 @@ function OnboardingFrame({ children, onReset }: { children: ReactNode; onReset: 
         >
           ↻
         </button>
+        {/* 仅演示版：一键跳过开场，直接进店（真实用户走完整人格化流程） */}
+        {isDemoMode() && onSkip ? (
+          <button
+            type="button"
+            className="rounded-full bg-ink/15 px-3 py-1.5 text-xs text-ink/60 backdrop-blur-sm transition hover:bg-ink/25"
+            onClick={onSkip}
+          >
+            {lang === 'en' ? 'Skip' : '跳过'}
+          </button>
+        ) : null}
       </div>
       <main className="relative flex min-h-screen flex-1 flex-col">
         {children}
@@ -170,6 +182,18 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const setStep = (step: number) => setDraft((c) => updateDraft({ step }, c))
   const result: NightType = draft.nightType ?? resolvePersona(draft.personaAnswers)
 
+  // 仅演示版：用当前草稿（缺则填默认）直接完成 onboarding，跳过开场
+  const skip = () => {
+    clearOnboardingDraft()
+    onComplete({
+      nightType: draft.nightType ?? resolvePersona(draft.personaAnswers),
+      personaAnswers: draft.personaAnswers,
+      spiritAppearance: draft.spiritAppearance || 'base',
+      spiritName: draft.spiritName.trim() || t('onboarding.namingPlaceholder'),
+      defaultLightsOffTime: draft.defaultLightsOffTime || '23:00',
+    })
+  }
+
   /* ── Step 0: Story with integrated narrative ── */
   if (draft.step === 0) {
     const storyBeats = [
@@ -183,7 +207,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     const isLastBeat = beat === storyBeats.length - 1
 
     return (
-      <OnboardingFrame onReset={reset}>
+      <OnboardingFrame onReset={reset} onSkip={skip}>
         <section className="flex flex-1 flex-col">
           <div className="flex w-full flex-shrink-0 items-center justify-center px-6 pt-10">
             <img src={getCoverTransparent()} alt="" className="h-auto w-[92%] max-w-[360px] object-contain drop-shadow-[0_12px_32px_rgba(138,97,74,0.12)]" />
@@ -233,7 +257,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     }
 
     return (
-      <OnboardingFrame onReset={reset}>
+      <OnboardingFrame onReset={reset} onSkip={skip}>
         <section className="flex flex-1 flex-col px-5 py-5">
           {/* Spirit header */}
           <div className="flex items-center gap-3 pb-3">
@@ -298,7 +322,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   if (draft.step === 2) {
     const spirit = getSpiritAsset('base')
     return (
-      <OnboardingFrame onReset={reset}>
+      <OnboardingFrame onReset={reset} onSkip={skip}>
         <section className="flex flex-1 flex-col justify-center px-5 py-5 text-center">
           <div className="relative mx-auto flex h-48 w-48 items-center justify-center">
             <AssetImage src={spirit.src} fallbackSrc={spirit.fallbackSrc} alt="" variant="character" className="h-36 drop-shadow-[0_8px_24px_rgba(138,97,74,0.2)]" />
@@ -318,7 +342,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   /* ── Step 3: Carousel ── */
   if (draft.step === 3) {
     return (
-      <OnboardingFrame onReset={reset}>
+      <OnboardingFrame onReset={reset} onSkip={skip}>
         <section className="flex min-h-0 flex-1 flex-col justify-center px-5 py-5">
           <h1 className="text-center text-2xl font-semibold text-ink">{t('onboarding.skinSelect.title')}</h1>
           <p className="mt-2 text-center text-sm text-ink/50">{t('onboarding.skinSelect.subtitle')}</p>
@@ -337,7 +361,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   if (draft.step === 4) {
     const currentSkin = onboardingSkins.find((s) => s.form === draft.spiritAppearance) ?? onboardingSkins[0]
     return (
-      <OnboardingFrame onReset={reset}>
+      <OnboardingFrame onReset={reset} onSkip={skip}>
         <section className="flex flex-1 flex-col justify-center px-5 py-5 text-center">
           <div className="mx-auto flex h-36 w-36 items-center justify-center">
             <AssetImage src={currentSkin.image.src} fallbackSrc={currentSkin.image.fallbackSrc} alt={currentSkin.name} variant="character" className="h-28 drop-shadow-[0_6px_18px_rgba(138,97,74,0.18)]" />
@@ -361,7 +385,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   /* ── Step 5: Lights-off time ── */
   return (
-    <OnboardingFrame onReset={reset}>
+    <OnboardingFrame onReset={reset} onSkip={skip}>
       <section className="flex flex-1 flex-col justify-center px-5 py-5">
         <h1 className="text-2xl font-semibold text-ink">{t('onboarding.lightsOff.title')}</h1>
         <p className="mt-3 text-sm leading-6 text-ink/55">{t('onboarding.lightsOff.subtitle')}</p>

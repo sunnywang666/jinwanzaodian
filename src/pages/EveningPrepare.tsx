@@ -72,7 +72,7 @@ export function EveningPrepare({ initialValue, spiritName, nightType, onSave, on
             {timeOptions.map((option) => (
               <button key={option} type="button"
                 className={`rounded-full py-3 text-base font-semibold transition ${plannedLightsOffTime === option ? 'bg-butter/70 text-ink shadow-[0_2px_8px_rgba(212,165,116,0.35)]' : 'bg-white/35 text-ink/55'}`}
-                onClick={() => setPlannedLightsOffTime(option)}>
+                onClick={() => { setPlannedLightsOffTime(option); setJustSaved(false) }}>
                 {option}
               </button>
             ))}
@@ -84,7 +84,7 @@ export function EveningPrepare({ initialValue, spiritName, nightType, onSave, on
             <p className="text-xs text-ink/40">{t('evening.worryLabel')}</p>
             <p className="text-[11px] tabular-nums text-ink/30">{worry.length}/{WORRY_MAX}</p>
           </div>
-          <textarea value={worry} maxLength={WORRY_MAX} onChange={(e) => setWorry(e.target.value)}
+          <textarea value={worry} maxLength={WORRY_MAX} onChange={(e) => { setWorry(e.target.value); setJustSaved(false) }}
             className="mt-3 min-h-[100px] flex-1 resize-none rounded-[20px] bg-white/30 px-4 py-3 text-sm leading-6 text-ink outline-none transition placeholder:text-ink/25 focus:bg-white/45"
             placeholder={t('evening.worryPlaceholder')} />
           <p className="mt-3 text-sm leading-6 text-ink/55">{t(`evening.method.${typeKey}`, { name: spiritName })}</p>

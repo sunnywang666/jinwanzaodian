@@ -285,8 +285,13 @@ export const en = {
     tabSkins: 'Looks',
     tabAchievements: 'Milestones',
     lockedHint: '{count} more nights',
+    skinSectionTitle: 'Pastry forms',
     skinNote: 'Pastry forms unlock slowly with cumulative good nights — they only add up, never reset, and grow rarer the further you go.',
     achUnlocked: 'Done',
+    achOverall: 'Progress',
+    achGroupSleep: 'The road to early nights',
+    achGroupCollect: 'Shop collection',
+    achGroupRest: 'Restful sleep',
     skins: {
       base: 'White Dough', xiaolongbao: 'Soup Dumpling', bagel: 'Bagel', croissant: 'Croissant',
       donut: 'Donut', baozi: 'Bun', waffle: 'Waffle', mochi: 'Mochi',

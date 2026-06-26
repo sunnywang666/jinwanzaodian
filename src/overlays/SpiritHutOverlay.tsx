@@ -31,6 +31,13 @@ import { guestReferences } from '../lib/guestReferences'
 import { dishes } from '../lib/demoData'
 import { useT } from '../lib/i18n'
 
+// 成就分组（展示用）
+const ACH_GROUPS: Array<{ titleKey: string; keys: string[] }> = [
+  { titleKey: 'spiritHut.achGroupSleep', keys: ['firstNight', 'weekEarly', 'monthEarly', 'hundredNights'] },
+  { titleKey: 'spiritHut.achGroupCollect', keys: ['firstGuest', 'allGuests', 'firstDish', 'fullMenu', 'collector'] },
+  { titleKey: 'spiritHut.achGroupRest', keys: ['soundSleep', 'earlyDown'] },
+]
+
 interface SpiritHutOverlayProps {
   spiritName: string
   currentForm: SpiritForm
@@ -81,6 +88,9 @@ export function SpiritHutOverlay({
               className="h-28 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]" />
           </div>
           <h1 className="mt-3 text-xl font-semibold text-ink">{spiritName}</h1>
+          {SKIN_ORDER.includes(currentForm) ? (
+            <p className="mt-0.5 text-xs text-ink/50">{t(`spiritHut.skins.${currentForm}`)}</p>
+          ) : null}
           <p className="mt-1 text-xs text-ink/40">{t('spiritHut.goodNights', { count: String(spiritProgress.totalGoodNights) })}</p>
         </div>
 
@@ -100,7 +110,8 @@ export function SpiritHutOverlay({
 
         {tab === 'skins' ? (
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="grid grid-cols-3 gap-3">
+            <p className="mb-2 px-1 text-xs font-medium text-ink/45">{t('spiritHut.skinSectionTitle')}</p>
+            <div className="grid grid-cols-3 gap-3 rounded-[18px] bg-[#e7d3b3]/25 p-3">
               {SKIN_ORDER.map((form) => {
                 const unlocked = isFormUnlocked(spiritProgress, form)
                 const isActive = currentForm === form
@@ -109,8 +120,8 @@ export function SpiritHutOverlay({
                 const remaining = Math.max(0, need - spiritProgress.totalGoodNights)
                 return (
                   <button key={form} type="button" disabled={!unlocked}
-                    className={`relative flex flex-col items-center rounded-[18px] px-2 py-3 transition-all duration-200 ${
-                      isActive ? 'bg-butter/40 ring-2 ring-[#d4a574]/50' : unlocked ? 'bg-white/35 hover:bg-white/55' : 'bg-white/20'
+                    className={`relative flex flex-col items-center rounded-[16px] px-2 py-3 shadow-[0_3px_0_rgba(184,138,92,0.25)] transition-all duration-200 ${
+                      isActive ? 'bg-butter/45 ring-2 ring-[#d4a574]/50' : unlocked ? 'bg-paper/70 hover:bg-paper/85' : 'bg-paper/35'
                     }`}
                     onClick={() => { if (unlocked) onSelectForm(form) }}>
                     <div className="relative flex h-16 items-center justify-center">
@@ -136,10 +147,29 @@ export function SpiritHutOverlay({
             <p className="mt-4 px-1 text-[10px] leading-5 text-ink/30">{t('spiritHut.skinNote')}</p>
           </div>
         ) : (
-          <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto">
-            {achievements.map((a) => (
-              <AchievementCard key={a.key} a={a} t={t} />
-            ))}
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
+            {/* 总进度 */}
+            <div className="rounded-[16px] bg-white/25 px-4 py-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-ink/50">{t('spiritHut.achOverall')}</span>
+                <span className="text-xs text-ink/45">{achProgress.unlocked} / {achProgress.total}</span>
+              </div>
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-ink/8">
+                <div className="h-full rounded-full bg-[#5a8a52]/45"
+                  style={{ width: `${achProgress.total > 0 ? Math.round((achProgress.unlocked / achProgress.total) * 100) : 0}%` }} />
+              </div>
+            </div>
+            {/* 分组 */}
+            {ACH_GROUPS.map((group) => {
+              const items = achievements.filter((a) => group.keys.includes(a.key))
+              if (items.length === 0) return null
+              return (
+                <div key={group.titleKey} className="space-y-2.5">
+                  <p className="px-1 text-xs font-medium text-ink/45">{t(group.titleKey)}</p>
+                  {items.map((a) => <AchievementCard key={a.key} a={a} t={t} />)}
+                </div>
+              )
+            })}
           </div>
         )}
       </section>
