@@ -24,6 +24,7 @@ import type { WorryStatus, NightType } from '../lib/storage'
 import type { TrendResult } from '../lib/trendCalculation'
 import type { SpiritProgressState } from '../lib/spiritProgression'
 import { formatClock, formatDuration, type NightSleep, type SleepWarning } from '../lib/sleepAnalysis'
+import { EARNED_SKINS } from '../lib/spiritProgression'
 
 /** 清晨"昨晚铺子小剧场"——按日变化的过夜小惊喜，制造每天打开的可变奖励（纯氛围、不影响机制） */
 const OVERNIGHT_VIGNETTES: Array<{ zh: string; en: string }> = [
@@ -107,7 +108,21 @@ function getRewardContent(
     }
   }
 
-  // 皮肤（身体）现在都可自由选择，不再靠早睡解锁，所以清晨回报只给作息好评。
+  // 起手四个身体可自由选；这里只为"靠累计早睡解锁的新形态"庆祝/预告。
+  const current = spiritProgress.totalGoodNights
+  for (const m of EARNED_SKINS) {
+    if (spiritProgress.unlockedForms.includes(m.form)) continue
+    const remaining = m.need - current
+    const skin = t(`spiritHut.skins.${m.form}`)
+    if (remaining <= 0) {
+      return { hasReward: true, text: t('morning.rewardNewSkin', { skin }), subtext: t('morning.rewardNewSkinSub') }
+    }
+    if (remaining <= 3) {
+      return { hasReward: true, text: t('morning.rewardClose', { skin, count: String(remaining) }), subtext: t('morning.rewardCloseSub') }
+    }
+    break
+  }
+
   // 普通好评
   if (trend.score > 0.5) {
     return {

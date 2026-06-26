@@ -27,14 +27,26 @@ interface SkinMilestone {
   congratsText: string
 }
 
-// 四个身体都是可自由选择的外观，默认全解锁，不再靠早睡解锁。
+// 四个起手身体：可自由选择的外观，默认全解锁，不靠早睡。
 const ALL_BODIES: SpiritForm[] = ['base', 'xiaolongbao', 'bagel', 'croissant']
 
-const MILESTONES: SkinMilestone[] = ALL_BODIES.map((form) => ({
-  form,
-  goodNightsRequired: 0,
-  congratsText: '',
-}))
+// 靠"累计熄屏早睡"解锁的新形态（文档铁律：只累计不连续、断了不清零、长而稀有）。
+// congratsText 仅作兜底，正式文案走 i18n（morning.* / spiritHut.*）。
+const MILESTONES: SkinMilestone[] = [
+  ...ALL_BODIES.map((form) => ({ form, goodNightsRequired: 0, congratsText: '' })),
+  { form: 'donut', goodNightsRequired: 10, congratsText: '甜甜圈' },
+  { form: 'baozi', goodNightsRequired: 25, congratsText: '包子' },
+  { form: 'waffle', goodNightsRequired: 60, congratsText: '华夫饼' },
+  { form: 'mochi', goodNightsRequired: 120, congratsText: '麻糬' },
+]
+
+/** 解锁皮肤的展示顺序（成长线）：起手身体 + 里程碑形态 */
+export const SKIN_ORDER: SpiritForm[] = [...ALL_BODIES, 'donut', 'baozi', 'waffle', 'mochi']
+
+/** 靠累计早睡解锁的形态（need>0），供清晨庆祝/陈列复用，避免阈值多处写漂移 */
+export const EARNED_SKINS: Array<{ form: SpiritForm; need: number }> = MILESTONES
+  .filter((m) => m.goodNightsRequired > 0)
+  .map((m) => ({ form: m.form, need: m.goodNightsRequired }))
 
 // ── Evaluation ──
 
@@ -78,6 +90,11 @@ export function evaluateSpiritUnlocks(
 /** Check if a specific form is unlocked */
 export function isFormUnlocked(state: SpiritProgressState, form: SpiritForm): boolean {
   return state.unlockedForms.includes(form)
+}
+
+/** 某形态需要累计多少个早睡夜晚解锁（0 = 起手免费） */
+export function getSkinGoodNightsRequired(form: SpiritForm): number {
+  return MILESTONES.find((m) => m.form === form)?.goodNightsRequired ?? 0
 }
 
 /** Get milestone info for a locked form */

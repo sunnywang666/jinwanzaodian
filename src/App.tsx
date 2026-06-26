@@ -564,6 +564,9 @@ export default function App() {
           spiritName={profile.spiritName}
           currentForm={spiritForm}
           spiritProgress={spiritProgress}
+          guestProgress={guestProgress}
+          dishProgress={dishProgress}
+          logEntries={logEntries}
           onSelectForm={setSpiritForm}
           onClose={() => setView('home')}
         />

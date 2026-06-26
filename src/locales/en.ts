@@ -282,6 +282,29 @@ export const en = {
     title: 'Spirit\'s Hut',
     desc: 'It\'s just a floating little dough ball — no hands, no feet, but it can knead dough from a distance.',
     goodNights: '{count} good nights so far',
+    tabSkins: 'Looks',
+    tabAchievements: 'Milestones',
+    lockedHint: '{count} more nights',
+    skinNote: 'Pastry forms unlock slowly with cumulative good nights — they only add up, never reset, and grow rarer the further you go.',
+    achUnlocked: 'Done',
+    skins: {
+      base: 'White Dough', xiaolongbao: 'Soup Dumpling', bagel: 'Bagel', croissant: 'Croissant',
+      donut: 'Donut', baozi: 'Bun', waffle: 'Waffle', mochi: 'Mochi',
+    },
+  },
+
+  achievements: {
+    firstNight: { title: 'First Good Night', desc: 'Your first screen-off early night' },
+    weekEarly: { title: 'A Whole Week', desc: '7 good nights in total' },
+    monthEarly: { title: 'A Whole Month', desc: '30 good nights in total' },
+    hundredNights: { title: 'A Hundred Nights', desc: '100 good nights in total' },
+    firstGuest: { title: 'First Guest', desc: 'Meet the shop\'s first guest' },
+    allGuests: { title: 'Full House', desc: 'Meet every guest' },
+    firstDish: { title: 'First Recipe', desc: 'Make your first breakfast dish' },
+    fullMenu: { title: 'Full Menu', desc: 'Learn every dish in the shop' },
+    collector: { title: 'Collector', desc: 'Unlock every pastry form' },
+    soundSleep: { title: 'Sound Sleep', desc: 'Rest a full 8 hours in one night' },
+    earlyDown: { title: 'Early to Bed', desc: 'Put your phone down before 23:00' },
   },
 
   radio: {

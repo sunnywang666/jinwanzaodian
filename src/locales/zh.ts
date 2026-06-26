@@ -297,6 +297,30 @@ export const zh = {
     title: '精灵小屋',
     desc: '它只是一个漂浮的小圆面团，可以隔空揉面，没有手脚。',
     goodNights: '累计早睡 {count} 晚',
+    tabSkins: '换装',
+    tabAchievements: '成就',
+    lockedHint: '再早睡 {count} 晚',
+    skinNote: '点心形态靠累计早睡的夜晚慢慢解锁——只累计、断了不清零、越往后越珍贵。',
+    achUnlocked: '已点亮',
+    skins: {
+      base: '白面团', xiaolongbao: '小笼包', bagel: '贝果', croissant: '可颂',
+      donut: '甜甜圈', baozi: '包子', waffle: '华夫饼', mochi: '麻糬',
+    },
+  },
+
+  // ── 成就 ──
+  achievements: {
+    firstNight: { title: '第一个好觉', desc: '第一次熄屏早睡' },
+    weekEarly: { title: '攒够一周', desc: '累计早睡 7 个夜晚' },
+    monthEarly: { title: '攒够一月', desc: '累计早睡 30 个夜晚' },
+    hundredNights: { title: '百夜安眠', desc: '累计早睡 100 个夜晚' },
+    firstGuest: { title: '第一位客人', desc: '认识铺子的第一位客人' },
+    allGuests: { title: '高朋满座', desc: '认识所有的客人' },
+    firstDish: { title: '第一道手艺', desc: '做出第一道早点' },
+    fullMenu: { title: '菜单写满', desc: '学会铺子所有早点' },
+    collector: { title: '集齐形态', desc: '解锁所有点心形态' },
+    soundSleep: { title: '睡得真香', desc: '一觉睡满 8 小时' },
+    earlyDown: { title: '早早收摊', desc: '在 23:00 前放下手机' },
   },
 
   // ── 收音机 ──

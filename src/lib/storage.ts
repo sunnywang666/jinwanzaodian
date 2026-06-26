@@ -20,7 +20,10 @@ export type AppPage = 'home' | 'eveningPrepare' | 'nightClosing' | 'demoMode' | 
 
 export type NightType = '报复型' | '惯性型' | '焦虑型' | '工作型' | '猫头鹰型' | '说不清'
 
-export type SpiritForm = 'base' | 'whiteDough' | 'xiaolongbao' | 'bagel' | 'confusedBagel' | 'croissant' | 'donut' | 'sleep'
+export type SpiritForm =
+  | 'base' | 'whiteDough' | 'xiaolongbao' | 'bagel' | 'confusedBagel' | 'croissant'
+  | 'donut' | 'baozi' | 'waffle' | 'mochi' // 靠累计早睡解锁的新形态（待补图）
+  | 'sleep'
 
 export type SpiritBody = 'base' | 'xiaolongbao' | 'bagel' | 'croissant'
 

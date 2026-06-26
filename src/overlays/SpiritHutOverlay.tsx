@@ -1,63 +1,174 @@
 /**
- * SpiritHutOverlay.tsx — v6.4
- * Added i18n via useT()
+ * SpiritHutOverlay.tsx — v6.35
+ *
+ * 精灵小屋重做：两个 tab
+ *  - 换装/陈列：成长线上的所有形态，已解锁可切换、未解锁显示剪影 + "再早睡 X 晚"
+ *  - 成就：从已有数据算出的温柔里程碑，已点亮高亮、未点亮显示进度
+ *
+ * 守产品口吻：皮肤靠累计熄屏早睡解锁（长而稀有），成就是回看而非 KPI。
  */
 
-import type { SpiritForm } from '../lib/storage'
+import { useState } from 'react'
+import type { LogEntry, SpiritForm } from '../lib/storage'
 import { spiritAssets } from '../lib/assets'
-import { spiritOptions } from '../lib/demoData'
 import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
-import { isFormUnlocked, getFormMilestoneHint, type SpiritProgressState } from '../lib/spiritProgression'
+import {
+  isFormUnlocked,
+  getSkinGoodNightsRequired,
+  SKIN_ORDER,
+  type SpiritProgressState,
+} from '../lib/spiritProgression'
+import {
+  computeAchievements,
+  achievementProgress,
+  sleepRecords,
+  type Achievement,
+} from '../lib/achievements'
+import type { GuestProgressMap } from '../lib/guestProgression'
+import type { DishProgressMap } from '../lib/dishProgression'
+import { guestReferences } from '../lib/guestReferences'
+import { dishes } from '../lib/demoData'
 import { useT } from '../lib/i18n'
 
 interface SpiritHutOverlayProps {
   spiritName: string
   currentForm: SpiritForm
   spiritProgress: SpiritProgressState
+  guestProgress: GuestProgressMap
+  dishProgress: DishProgressMap
+  logEntries: LogEntry[]
   onSelectForm: (form: SpiritForm) => void
   onClose: () => void
 }
 
-export function SpiritHutOverlay({ spiritName, currentForm, spiritProgress, onSelectForm, onClose }: SpiritHutOverlayProps) {
+export function SpiritHutOverlay({
+  spiritName,
+  currentForm,
+  spiritProgress,
+  guestProgress,
+  dishProgress,
+  logEntries,
+  onSelectForm,
+  onClose,
+}: SpiritHutOverlayProps) {
   const { t } = useT()
+  const [tab, setTab] = useState<'skins' | 'achievements'>('skins')
   const currentAsset = spiritAssets[currentForm]
+
+  const skinsUnlocked = SKIN_ORDER.filter((f) => isFormUnlocked(spiritProgress, f)).length
+  const records = sleepRecords(logEntries)
+  const achievements = computeAchievements({
+    goodNights: spiritProgress.totalGoodNights,
+    skinsUnlocked,
+    totalSkins: SKIN_ORDER.length,
+    guestsMet: Object.values(guestProgress).filter((g) => g.totalVisits > 0).length,
+    totalGuests: guestReferences.length,
+    dishesMade: Object.values(dishProgress).filter((d) => d.unlocked).length,
+    totalDishes: dishes.length,
+    longestRestMinutes: records.longestRestMinutes,
+    earliestPutDownScale: records.earliestPutDownScale,
+  })
+  const achProgress = achievementProgress(achievements)
 
   return (
     <GameOverlay title={t('spiritHut.title')} onClose={onClose}>
       <section className="flex h-full flex-col bg-[#f5ead8] px-4 pb-5 pt-[11dvh]">
-        <div className="flex flex-col items-center px-4 py-5 text-center">
-          <div className="mx-auto flex h-44 w-44 items-center justify-center">
+        {/* 头部：当前形态大图 + 名字 + 累计 */}
+        <div className="flex flex-col items-center px-4 pb-4 text-center">
+          <div className="flex h-32 w-32 items-center justify-center">
             <AssetImage src={currentAsset.src} fallbackSrc={currentAsset.fallbackSrc} alt={spiritName} variant="character"
-              className="h-36 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]" />
+              className="h-28 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]" />
           </div>
-          <h1 className="mt-4 text-2xl font-semibold text-ink">{spiritName}</h1>
-          <p className="mt-2 text-sm leading-6 text-ink/60">{t('spiritHut.desc')}</p>
-          <p className="mt-1 text-xs text-ink/35">{t('spiritHut.goodNights', { count: String(spiritProgress.totalGoodNights) })}</p>
+          <h1 className="mt-3 text-xl font-semibold text-ink">{spiritName}</h1>
+          <p className="mt-1 text-xs text-ink/40">{t('spiritHut.goodNights', { count: String(spiritProgress.totalGoodNights) })}</p>
         </div>
 
-        <div className="mt-2 flex gap-3 overflow-x-auto px-1 pb-3">
-          {spiritOptions.map((option) => {
-            const unlocked = isFormUnlocked(spiritProgress, option.form)
-            const isActive = currentForm === option.form
-            return (
-              <button key={option.form} type="button" disabled={!unlocked}
-                className={`relative flex shrink-0 flex-col items-center px-4 py-3 transition-all duration-200 ${
-                  isActive ? 'scale-105 opacity-100 drop-shadow-[0_0_16px_rgba(240,221,179,0.8)]' : unlocked ? 'opacity-55 hover:opacity-75' : 'opacity-30'
-                }`}
-                onClick={() => { if (unlocked) onSelectForm(option.form) }}>
-                <div className="relative">
-                  <AssetImage src={option.image.src} fallbackSrc={option.image.fallbackSrc} alt={option.name} variant="character"
-                    className={`h-20 ${!unlocked ? 'grayscale' : ''}`} />
-                  {!unlocked ? <div className="absolute inset-0 flex items-center justify-center"><span className="text-2xl">🔒</span></div> : null}
-                </div>
-                <p className={`mt-2 text-sm font-semibold ${isActive ? 'text-ink' : 'text-ink/60'}`}>{option.name}</p>
-                {!unlocked ? <p className="mt-0.5 text-[10px] leading-tight text-ink/35">{getFormMilestoneHint(option.form, spiritProgress.totalGoodNights)}</p> : null}
-              </button>
-            )
-          })}
+        {/* Tab 切换 */}
+        <div className="mb-3 flex gap-2">
+          <button type="button"
+            className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${tab === 'skins' ? 'bg-butter/70 text-ink' : 'bg-white/30 text-ink/40'}`}
+            onClick={() => setTab('skins')}>
+            {t('spiritHut.tabSkins')}
+          </button>
+          <button type="button"
+            className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${tab === 'achievements' ? 'bg-butter/70 text-ink' : 'bg-white/30 text-ink/40'}`}
+            onClick={() => setTab('achievements')}>
+            {t('spiritHut.tabAchievements')} · {achProgress.unlocked}/{achProgress.total}
+          </button>
         </div>
+
+        {tab === 'skins' ? (
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="grid grid-cols-3 gap-3">
+              {SKIN_ORDER.map((form) => {
+                const unlocked = isFormUnlocked(spiritProgress, form)
+                const isActive = currentForm === form
+                const asset = spiritAssets[form]
+                const need = getSkinGoodNightsRequired(form)
+                const remaining = Math.max(0, need - spiritProgress.totalGoodNights)
+                return (
+                  <button key={form} type="button" disabled={!unlocked}
+                    className={`relative flex flex-col items-center rounded-[18px] px-2 py-3 transition-all duration-200 ${
+                      isActive ? 'bg-butter/40 ring-2 ring-[#d4a574]/50' : unlocked ? 'bg-white/35 hover:bg-white/55' : 'bg-white/20'
+                    }`}
+                    onClick={() => { if (unlocked) onSelectForm(form) }}>
+                    <div className="relative flex h-16 items-center justify-center">
+                      {unlocked ? (
+                        <AssetImage src={asset.src} fallbackSrc={asset.fallbackSrc} alt={t(`spiritHut.skins.${form}`)} variant="character" className="h-16" />
+                      ) : (
+                        // 未解锁：剪影（不加载真图，纯色块占位）
+                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-ink/15">
+                          <span className="text-lg text-ink/30">🔒</span>
+                        </div>
+                      )}
+                    </div>
+                    <p className={`mt-1.5 text-xs font-semibold ${isActive ? 'text-ink' : unlocked ? 'text-ink/65' : 'text-ink/35'}`}>
+                      {unlocked ? t(`spiritHut.skins.${form}`) : '？？？'}
+                    </p>
+                    {!unlocked ? (
+                      <p className="mt-0.5 text-[10px] leading-tight text-ink/35">{t('spiritHut.lockedHint', { count: String(remaining) })}</p>
+                    ) : null}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="mt-4 px-1 text-[10px] leading-5 text-ink/30">{t('spiritHut.skinNote')}</p>
+          </div>
+        ) : (
+          <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto">
+            {achievements.map((a) => (
+              <AchievementCard key={a.key} a={a} t={t} />
+            ))}
+          </div>
+        )}
       </section>
     </GameOverlay>
+  )
+}
+
+function AchievementCard({ a, t }: { a: Achievement; t: (key: string, vars?: Record<string, string>) => string }) {
+  const pct = a.goal > 0 ? Math.min(100, Math.round((Math.min(a.current, a.goal) / a.goal) * 100)) : 0
+  return (
+    <div className={`rounded-[16px] px-4 py-3 transition ${a.unlocked ? 'bg-butter/35' : 'bg-white/25'}`}>
+      <div className="flex items-center justify-between gap-2">
+        <p className={`text-sm font-semibold ${a.unlocked ? 'text-ink' : 'text-ink/55'}`}>
+          {t(`achievements.${a.key}.title`)}
+        </p>
+        {a.unlocked ? (
+          <span className="shrink-0 rounded-full bg-[#5a8a52]/15 px-2 py-0.5 text-[10px] font-medium text-[#5a8a52]">{t('spiritHut.achUnlocked')}</span>
+        ) : !a.boolean ? (
+          <span className="shrink-0 text-[10px] text-ink/35">{Math.min(a.current, a.goal)} / {a.goal}</span>
+        ) : null}
+      </div>
+      <p className={`mt-1 text-xs leading-5 ${a.unlocked ? 'text-ink/55' : 'text-ink/40'}`}>
+        {t(`achievements.${a.key}.desc`)}
+      </p>
+      {!a.unlocked && !a.boolean ? (
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-ink/8">
+          <div className="h-full rounded-full bg-[#d4a574]/55" style={{ width: `${pct}%` }} />
+        </div>
+      ) : null}
+    </div>
   )
 }

@@ -43,6 +43,7 @@
 - 精灵对话接**真实 LLM**：用户在设置里填自己的 API key（支持 Anthropic 及 OpenAI 兼容端点，如 DeepSeek），key 存在本地，App 直接 fetch 该端点。见 `src/overlays/SpiritChatOverlay.tsx`、`src/pages/Settings.tsx`。
 - 本地提醒：傍晚预承诺 + 夜晚打烊。Web 用前台调度兜底；打包成原生后走 OS 级定时通知（app 关掉也能弹），见 `src/lib/notifications.ts`、`src/lib/nativeNotifications.ts`。
 - 睡眠洞察：`src/lib/sleepAnalysis.ts`（纯函数）用「真正放下手机的时间（`screenOffTimestamp`）+ 早上开门 + 夜里回前台次数（`countNightReturns`）」算出休息时长、入睡时间、规律性、近期趋势，并据此给温柔预警；清晨开门与账本「趋势」tab 展示，设置里 `sleepInsights` 可整体开关（默认开）。只用系统的前台/后台信号估算，**不做睡眠监测、不惩罚**——状态变差只温柔提醒；铺子心情/场景的核心评分仍用关灯时间未变。
+- 精灵形态与成就：起手四个身体（白面团/小笼包/贝果/可颂）免费可选；更多点心形态（甜甜圈/包子/华夫饼/麻糬）靠**累计熄屏早睡**解锁（`spiritProgression.ts` 的 `MILESTONES`/`EARNED_SKINS`，只累计不连续、长而稀有）。精灵小屋（`SpiritHutOverlay`）两个 tab：换装陈列（未解锁剪影）+ 成就（`achievements.ts` 纯计算，复用睡眠/客人/菜品数据）。新形态图待补：按 `dough-spirit-{donut|baozi|waffle|mochi}.png` 丢进 `public/assets/` 即自动点亮。
 - 原生壳用 **Capacitor**（`android/` 已生成，可打 APK；iOS 需 Mac + Xcode，尚未打包）。
 - 演示数据与真实数据分离：客人身份在 `src/lib/guestReferences.ts`，演示进度种子在 `src/lib/demoSeed.ts`，仅 `isDemoMode()`（`src/lib/devMode.ts`）时注入。
 

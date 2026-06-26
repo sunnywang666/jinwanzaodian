@@ -72,7 +72,11 @@ export const spiritAssets = {
   bagel: trimmedAsset('dough-spirit-confused-bagel.png'),    // 贝果（暂用迷糊脸版，待替换为正常脸贝果图）
   confusedBagel: trimmedAsset('dough-spirit-confused-bagel.png'), // 贝果·迷糊脸
   sleep: trimmedAsset('dough-spirit-confused-bagel.png'),    // 睡（迷糊贝果）
-  donut: trimmedAsset('dough-spirit-confused-bagel.png'),    // 旧称，等同贝果
+  // ↓ 靠累计早睡解锁的新形态，图待补（未解锁时显示剪影，不会加载这些文件）
+  donut: trimmedAsset('dough-spirit-donut.png'),             // 甜甜圈（待补图）
+  baozi: trimmedAsset('dough-spirit-baozi.png'),             // 包子（待补图）
+  waffle: trimmedAsset('dough-spirit-waffle.png'),           // 华夫饼（待补图）
+  mochi: trimmedAsset('dough-spirit-mochi.png'),             // 麻糬（待补图）
 } satisfies Record<SpiritForm | 'normal' | 'confusedAwake', AssetSource>
 
 export const animalAssets = {
