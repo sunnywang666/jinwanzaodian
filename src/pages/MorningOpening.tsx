@@ -20,7 +20,7 @@ import { AssetImage } from '../components/AssetImage'
 import { SoftButton } from '../components/SoftButton'
 import { useT } from '../lib/i18n'
 import { getNow } from '../lib/timeSimulator'
-import type { WorryStatus, NightType } from '../lib/storage'
+import type { WorryStatus, NightType, SpiritForm } from '../lib/storage'
 import type { TrendResult } from '../lib/trendCalculation'
 import type { SpiritProgressState } from '../lib/spiritProgression'
 import { formatClock, formatDuration, type NightSleep, type SleepWarning } from '../lib/sleepAnalysis'
@@ -49,6 +49,7 @@ export interface DishUnlockReveal {
 
 interface MorningOpeningProps {
   spiritName: string
+  spiritForm?: SpiritForm
   nightType: NightType
   lastNightClosed: boolean
   lastCloseTime: string | null
@@ -180,6 +181,7 @@ const animStyles = `
 
 export function MorningOpening({
   spiritName,
+  spiritForm = 'base',
   nightType,
   lastNightClosed,
   lastCloseTime,
@@ -196,6 +198,7 @@ export function MorningOpening({
 }: MorningOpeningProps) {
   const [beat, setBeat] = useState(0)
   const { t, lang } = useT()
+  const spiritImg = spiritAssets[spiritForm]
 
   const hasWorry = lastNightWorry !== null && lastNightWorry.trim() !== ''
   const greeting = getSpiritGreeting(t, spiritName, nightType, lastNightClosed, lastCloseTime)
@@ -260,8 +263,8 @@ export function MorningOpening({
             {/* 困困的精灵 */}
             <div className="spirit-breathe opacity-60" style={{ filter: 'brightness(0.7) saturate(0.6)' }}>
               <AssetImage
-                src={spiritAssets.base.src}
-                fallbackSrc={spiritAssets.base.fallbackSrc}
+                src={spiritImg.src}
+                fallbackSrc={spiritImg.fallbackSrc}
                 alt={spiritName}
                 variant="character"
                 className="h-32 drop-shadow-[0_6px_20px_rgba(138,97,74,0.1)]"
@@ -300,8 +303,8 @@ export function MorningOpening({
             {/* 精灵醒来 */}
             <div className="morning-scale">
               <AssetImage
-                src={spiritAssets.base.src}
-                fallbackSrc={spiritAssets.base.fallbackSrc}
+                src={spiritImg.src}
+                fallbackSrc={spiritImg.fallbackSrc}
                 alt={spiritName}
                 variant="character"
                 className="h-36 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]"
@@ -373,8 +376,8 @@ export function MorningOpening({
             ) : (
               <>
                 <AssetImage
-                  src={spiritAssets.base.src}
-                  fallbackSrc={spiritAssets.base.fallbackSrc}
+                  src={spiritImg.src}
+                  fallbackSrc={spiritImg.fallbackSrc}
                   alt={spiritName}
                   variant="character"
                   className="morning-scale h-28"
@@ -406,8 +409,8 @@ export function MorningOpening({
         <section className="relative flex flex-1 flex-col items-center justify-center bg-[#f5ead8] px-6 text-center">
           <div className="relative z-10 flex flex-col items-center">
             <AssetImage
-              src={spiritAssets.base.src}
-              fallbackSrc={spiritAssets.base.fallbackSrc}
+              src={spiritImg.src}
+              fallbackSrc={spiritImg.fallbackSrc}
               alt={spiritName}
               variant="character"
               className="morning-scale h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]"
@@ -474,8 +477,8 @@ export function MorningOpening({
         <section className="flex flex-1 flex-col items-center justify-center bg-[#f5ead8] px-6 text-center">
           <div className="relative z-10 flex flex-col items-center">
             <AssetImage
-              src={spiritAssets.base.src}
-              fallbackSrc={spiritAssets.base.fallbackSrc}
+              src={spiritImg.src}
+              fallbackSrc={spiritImg.fallbackSrc}
               alt={spiritName}
               variant="character"
               className="morning-scale h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]"
@@ -552,6 +555,7 @@ export function MorningOpening({
 
 interface MiddayTransitionProps {
   spiritName: string
+  spiritForm?: SpiritForm
   guestCount: number
   shopMood: 'busy' | 'normal' | 'quiet'
   /** 今早来过的客人 key（用于显示头像排）；空时只显示人数 */
@@ -559,8 +563,9 @@ interface MiddayTransitionProps {
   onContinue: () => void
 }
 
-export function MiddayTransition({ spiritName, guestCount, shopMood, guestKeys = [], onContinue }: MiddayTransitionProps) {
+export function MiddayTransition({ spiritName, spiritForm = 'base', guestCount, shopMood, guestKeys = [], onContinue }: MiddayTransitionProps) {
   const { t } = useT()
+  const spiritImg = spiritAssets[spiritForm]
   const middayCopy = middayTransitionCopy[shopMood]
   const todayGuests = guestKeys
     .map((key) => allGuests.find((g) => g.key === key))
@@ -572,8 +577,8 @@ export function MiddayTransition({ spiritName, guestCount, shopMood, guestKeys =
       <style>{`@keyframes guestAppear{from{opacity:0;transform:translateY(6px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}.guest-appear{animation:guestAppear 400ms ease-out both}`}</style>
       <section className="flex max-w-[380px] flex-col items-center px-6 text-center">
         <AssetImage
-          src={spiritAssets.base.src}
-          fallbackSrc={spiritAssets.base.fallbackSrc}
+          src={spiritImg.src}
+          fallbackSrc={spiritImg.fallbackSrc}
           alt={spiritName}
           variant="character"
           className="h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]"

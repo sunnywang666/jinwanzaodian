@@ -8,7 +8,7 @@
 import { ShopSceneInteractive } from '../components/ShopSceneInteractive'
 import { TimeSimPanel } from '../components/TimeSimPanel'
 import type { SceneItemTarget } from '../lib/sceneItems'
-import type { DemoScene } from '../lib/storage'
+import type { DemoScene, SpiritForm } from '../lib/storage'
 import type { TimeSceneOptions } from '../lib/timeScene'
 import type { GuestProgressMap } from '../lib/guestProgression'
 import { useT } from '../lib/i18n'
@@ -31,6 +31,8 @@ interface HomeProps {
   playArrival?: boolean
   onArrivalComplete?: () => void
   spiritName?: string
+  /** 当前选择的精灵形态（皮肤）→ 让主场景精灵反映换装 */
+  spiritForm?: SpiritForm
   onOpenSpiritChat?: () => void
   /** 真实来访次数/熟络度，传给客人资料卡 */
   guestProgress?: GuestProgressMap
@@ -40,7 +42,7 @@ export function Home({
   scene, debugHotspots, onToggleDebugHotspots,
   onOpenHotspot, onSceneChange, onOpenSettings,
   sceneOptions, onTimeSimChange,
-  guestKeys = [], playArrival = false, onArrivalComplete, spiritName, onOpenSpiritChat, guestProgress,
+  guestKeys = [], playArrival = false, onArrivalComplete, spiritName, spiritForm = 'base', onOpenSpiritChat, guestProgress,
 }: HomeProps) {
   const { t } = useT()
   const sceneText = t(`scene.${scene}.body`)
@@ -57,6 +59,7 @@ export function Home({
         playArrival={playArrival}
         onArrivalComplete={onArrivalComplete}
         spiritName={spiritName}
+        spiritForm={spiritForm}
         onSpiritTap={onOpenSpiritChat}
         guestProgress={guestProgress}
       />

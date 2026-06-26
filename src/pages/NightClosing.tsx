@@ -9,7 +9,7 @@
  */
 
 import { useState } from 'react'
-import type { LogEntry } from '../lib/storage'
+import type { LogEntry, SpiritForm } from '../lib/storage'
 import { spiritAssets, sceneAssets } from '../lib/assets'
 import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
@@ -18,6 +18,7 @@ import { useT } from '../lib/i18n'
 
 interface NightClosingProps {
   spiritName: string
+  spiritForm?: SpiritForm
   tonightClosed: boolean
   tonightWorry: string
   onComplete: () => void
@@ -66,9 +67,10 @@ const closingAnimStyles = `
 }
 `
 
-export function NightClosing({ spiritName, tonightClosed, tonightWorry, onComplete, onClose, latestLog }: NightClosingProps) {
+export function NightClosing({ spiritName, spiritForm = 'base', tonightClosed, tonightWorry, onComplete, onClose, latestLog }: NightClosingProps) {
   const [step, setStep] = useState(0)
   const { t } = useT()
+  const spiritImg = spiritAssets[spiritForm]
   const hasWorry = tonightWorry.trim().length > 0
 
   // 背景明度根据步骤递减
@@ -119,8 +121,8 @@ export function NightClosing({ spiritName, tonightClosed, tonightWorry, onComple
                 style={{ opacity: step >= 2 ? 0.6 : 0.85, filter: step >= 2 ? 'brightness(0.7)' : 'none' }}
               >
                 <AssetImage
-                  src={spiritAssets.base.src}
-                  fallbackSrc={spiritAssets.base.fallbackSrc}
+                  src={spiritImg.src}
+                  fallbackSrc={spiritImg.fallbackSrc}
                   alt={spiritName}
                   variant="character"
                   className="h-24 transition-opacity duration-500 drop-shadow-[0_4px_16px_rgba(138,97,74,0.1)]"

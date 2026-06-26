@@ -1,5 +1,16 @@
 # Changelog
 
+## v6.36
+
+换装真正生效：选的皮肤会显示在主场景（不再永远是白面团）。
+
+Included in this version:
+- 之前在小屋换皮肤后，首页/清晨/打烊/对话/静态精灵热点里精灵仍写死显示白面团（base），换装看不出来。现把当前形态 `spiritForm` 一路传下去：
+  - `ShopGuests`（首页活精灵）、`ShopSceneInteractive`（静态精灵热点）、`MorningOpening`/`MiddayTransition`（清晨/午间仪式）、`NightClosing`（打烊）、`SpiritChatOverlay`（对话头像）全部改用 `spiritAssets[spiritForm]`。
+- 只用现有 4 张身体图（白面团/小笼包/贝果/可颂），无需新图；锁定的新形态选不了，不会出现缺图。
+- 时段表情（迎客/打盹/睡）仍待新图——到位后在此基础上叠加"身体 × 表情"。
+- 更新 `package.json` 版本号为 `6.36.0`。
+
 ## v6.35
 
 精灵小屋重做 + 成就系统 + 靠早睡解锁的新皮肤（框架，待补图）。

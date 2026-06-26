@@ -18,6 +18,7 @@ import { dishes as allDishes } from '../lib/demoData'
 import { guestReferences as allGuests } from '../lib/guestReferences'
 import { getFamiliarityLabel, type FamiliarityLevel } from '../lib/guestProgression'
 import { spiritAssets } from '../lib/assets'
+import type { SpiritForm } from '../lib/storage'
 
 interface GuestProgressLite {
   totalVisits: number
@@ -29,6 +30,8 @@ interface ShopGuestsProps {
   playArrival?: boolean
   onArrivalComplete?: () => void
   spiritName?: string
+  /** 当前选择的精灵形态（皮肤） */
+  spiritForm?: SpiritForm
   onSpiritTap?: () => void
   guestProgress?: Record<string, GuestProgressLite>
 }
@@ -81,9 +84,11 @@ export function ShopGuests({
   playArrival = false,
   onArrivalComplete,
   spiritName = '阿团',
+  spiritForm = 'base',
   onSpiritTap,
   guestProgress,
 }: ShopGuestsProps) {
+  const spiritImg = spiritAssets[spiritForm]
   const present = guestKeys
     .map((key) => allGuests.find((g) => g.key === key))
     .filter((g): g is (typeof allGuests)[number] => Boolean(g))
@@ -158,8 +163,8 @@ export function ShopGuests({
         onClick={() => onSpiritTap?.()}
         aria-label={spiritName}
       >
-        <img src={spiritAssets.base.src} alt={spiritName} style={{ width: '100%', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(138,97,74,0.2))' }}
-          onError={(e) => { if (spiritAssets.base.fallbackSrc) (e.target as HTMLImageElement).src = spiritAssets.base.fallbackSrc }} />
+        <img src={spiritImg.src} alt={spiritName} style={{ width: '100%', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(138,97,74,0.2))' }}
+          onError={(e) => { if (spiritImg.fallbackSrc) (e.target as HTMLImageElement).src = spiritImg.fallbackSrc }} />
         {serving ? (
           <div className="absolute left-1/2 top-[-8px] flex -translate-x-1/2 gap-[3px]">
             {[0, 0.35, 0.7].map((d, k) => (

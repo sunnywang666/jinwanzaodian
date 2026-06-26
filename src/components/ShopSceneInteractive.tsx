@@ -1,5 +1,5 @@
-import { sceneAssets, sceneByDemo } from '../lib/assets'
-import type { DemoScene } from '../lib/storage'
+import { sceneAssets, sceneByDemo, spiritAssets } from '../lib/assets'
+import type { DemoScene, SpiritForm } from '../lib/storage'
 import type { GuestProgressMap } from '../lib/guestProgression'
 import { sceneItems, type SceneItemTarget } from '../lib/sceneItems'
 import { AssetImage } from './AssetImage'
@@ -17,6 +17,8 @@ interface ShopSceneInteractiveProps {
   playArrival?: boolean
   onArrivalComplete?: () => void
   spiritName?: string
+  /** 当前选择的精灵形态（皮肤） */
+  spiritForm?: SpiritForm
   onSpiritTap?: () => void
   /** 真实来访次数/熟络度，传给客人资料卡（否则回退图鉴默认值） */
   guestProgress?: GuestProgressMap
@@ -24,7 +26,7 @@ interface ShopSceneInteractiveProps {
 
 export function ShopSceneInteractive({
   scene, debug = false, onItemOpen,
-  guestKeys = [], playArrival = false, onArrivalComplete, spiritName, onSpiritTap, guestProgress,
+  guestKeys = [], playArrival = false, onArrivalComplete, spiritName, spiritForm = 'base', onSpiritTap, guestProgress,
 }: ShopSceneInteractiveProps) {
   const background = scene === 'cover' ? sceneAssets.mainBackground : sceneByDemo[scene]
   // 只在清晨热闹场景显示客人；白天/傍晚/夜晚铺子自然冷清
@@ -53,6 +55,12 @@ export function ShopSceneInteractive({
           {sceneItems
             // 有活精灵时隐藏原静态「面点精灵」热点，避免两个精灵重复
             .filter((item) => !(hasLiveGuests && item.id === 'spirit'))
+            // 静态精灵热点反映当前选择的皮肤
+            .map((item) =>
+              item.id === 'spirit'
+                ? { ...item, src: spiritAssets[spiritForm].src, fallbackSrc: spiritAssets[spiritForm].fallbackSrc }
+                : item,
+            )
             .map((item) => (
               <SceneItemButton key={item.id} item={item} debug={debug} onOpen={onItemOpen} />
             ))}
@@ -64,6 +72,7 @@ export function ShopSceneInteractive({
             playArrival={playArrival}
             onArrivalComplete={onArrivalComplete}
             spiritName={spiritName}
+            spiritForm={spiritForm}
             onSpiritTap={onSpiritTap}
             guestProgress={guestProgress}
           />

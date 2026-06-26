@@ -382,6 +382,7 @@ export default function App() {
     return (
       <MorningOpening
         spiritName={profile.spiritName}
+        spiritForm={spiritForm}
         nightType={profile.nightType}
         lastNightClosed={tonightClosed}
         lastCloseTime={logEntries[0]?.closeTime ?? null}
@@ -488,6 +489,7 @@ export default function App() {
         playArrival={arrivalPending}
         onArrivalComplete={() => setArrivalPending(false)}
         spiritName={profile.spiritName}
+        spiritForm={spiritForm}
         onOpenSpiritChat={() => setView('spiritChat')}
         onToggleDebugHotspots={() => setDebugHotspots((c) => !c)}
         onOpenHotspot={(target) => {
@@ -551,6 +553,7 @@ export default function App() {
       {view === 'spiritChat' ? (
         <SpiritChatOverlay
           spiritName={profile.spiritName}
+          spiritForm={spiritForm}
           nightType={profile.nightType}
           currentScene={demoScene}
           tonightWorry={eveningPrepare.worry}
@@ -593,6 +596,7 @@ export default function App() {
       {view === 'nightClosing' ? (
         <NightClosing
           spiritName={profile.spiritName}
+          spiritForm={spiritForm}
           tonightClosed={tonightClosed}
           tonightWorry={eveningPrepare.worry}
           latestLog={logEntries[0]}
@@ -620,6 +624,7 @@ export default function App() {
       {view === 'middayTransition' ? (
         <MiddayTransition
           spiritName={profile.spiritName}
+          spiritForm={spiritForm}
           guestCount={getGuestCountByMood(todayMood)}
           shopMood={todayMood}
           guestKeys={homeGuestKeys}
