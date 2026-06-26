@@ -184,6 +184,7 @@ export const dishes: Dish[] = [
   },
 ]
 
+// 小屋里可切换的四个身体，与 onboarding 一致，都可自由选择（不再靠早睡解锁）。
 export const spiritOptions: SpiritOption[] = [
   {
     form: 'base',
@@ -197,10 +198,19 @@ export const spiritOptions: SpiritOption[] = [
   {
     form: 'xiaolongbao',
     name: '小笼包',
-    note: '第一层点心外表。',
+    note: '圆乎乎的小笼包。',
     image: spiritAssets.xiaolongbao,
     src: spiritAssets.xiaolongbao.src,
     fallbackSrc: spiritAssets.xiaolongbao.fallbackSrc,
+    unlocked: true,
+  },
+  {
+    form: 'bagel',
+    name: '贝果',
+    note: '圆圆一圈的贝果。',
+    image: spiritAssets.bagel,
+    src: spiritAssets.bagel.src,
+    fallbackSrc: spiritAssets.bagel.fallbackSrc,
     unlocked: true,
   },
   {
@@ -210,25 +220,7 @@ export const spiritOptions: SpiritOption[] = [
     image: spiritAssets.croissant,
     src: spiritAssets.croissant.src,
     fallbackSrc: spiritAssets.croissant.fallbackSrc,
-    unlocked: false,
-  },
-  {
-    form: 'donut',
-    name: '贝果',
-    note: '圆圆一圈，还是那双豆豆眼。',
-    image: spiritAssets.bagel,
-    src: spiritAssets.bagel.src,
-    fallbackSrc: spiritAssets.bagel.fallbackSrc,
-    unlocked: false,
-  },
-  {
-    form: 'sleep',
-    name: '迷糊贝果',
-    note: '有点刚睡醒的样子。',
-    image: spiritAssets.confusedBagel,
-    src: spiritAssets.confusedBagel.src,
-    fallbackSrc: spiritAssets.confusedBagel.fallbackSrc,
-    unlocked: false,
+    unlocked: true,
   },
 ]
 

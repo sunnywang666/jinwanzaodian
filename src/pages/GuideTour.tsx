@@ -103,10 +103,10 @@ export function GuideTour({ spiritName, onGoToEveningPrepare, onFinishToHome }: 
         style={{ background: 'radial-gradient(circle at 50% 38%, rgba(245,234,216,0.28) 0%, rgba(42,37,32,0.62) 70%)' }}
       />
 
-      {/* 跳过 */}
+      {/* 跳过（z-30：必须高于下方居中内容容器的 z-10，否则手机宽屏下被透明容器盖住点不到） */}
       <button
         type="button"
-        className="absolute right-4 top-[7dvh] z-10 rounded-full bg-white/12 px-4 py-1.5 text-xs text-paper/80 backdrop-blur-sm transition hover:bg-white/20"
+        className="absolute right-4 top-[7dvh] z-30 rounded-full bg-white/12 px-4 py-1.5 text-xs text-paper/80 backdrop-blur-sm transition hover:bg-white/20"
         onClick={onFinishToHome}
       >
         {zh ? '跳过' : 'Skip'}

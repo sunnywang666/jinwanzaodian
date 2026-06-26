@@ -1,8 +1,13 @@
 /**
- * spiritProgression.ts — v5.4
+ * spiritProgression.ts — v6.33
  *
- * Tracks cumulative "good nights" (screen-off after closing)
- * and unlocks spirit skins at milestones.
+ * Tracks cumulative "good nights" (screen-off after closing).
+ *
+ * v6.33: the four pastry BODIES (白面团/小笼包/贝果/可颂) are free choices the
+ * user picks at onboarding and can switch anytime — they are NOT earned. So they
+ * are all unlocked by default and the skin-milestone gating is removed (it used
+ * to lock 可颂/贝果 behind 5/10/15 good nights, which contradicted onboarding
+ * offering them as choices). 累计早睡 still tracked for the hut + ceremony copy.
  */
 
 import type { LogEntry, SpiritForm } from './storage'
@@ -22,13 +27,14 @@ interface SkinMilestone {
   congratsText: string
 }
 
-const MILESTONES: SkinMilestone[] = [
-  { form: 'base', goodNightsRequired: 0, congratsText: '' },
-  { form: 'xiaolongbao', goodNightsRequired: 0, congratsText: '' },
-  { form: 'croissant', goodNightsRequired: 5, congratsText: '连续好好关灯，精灵学会了可颂的样子！' },
-  { form: 'donut', goodNightsRequired: 10, congratsText: '铺子越来越稳了，精灵变成了圆圆的贝果！' },
-  { form: 'sleep', goodNightsRequired: 15, congratsText: '你的陪伴让精灵也安心多了——迷糊贝果解锁！' },
-]
+// 四个身体都是可自由选择的外观，默认全解锁，不再靠早睡解锁。
+const ALL_BODIES: SpiritForm[] = ['base', 'xiaolongbao', 'bagel', 'croissant']
+
+const MILESTONES: SkinMilestone[] = ALL_BODIES.map((form) => ({
+  form,
+  goodNightsRequired: 0,
+  congratsText: '',
+}))
 
 // ── Evaluation ──
 
@@ -89,20 +95,21 @@ const STORAGE_KEY = 'jinwanzaodian:spirit-progress'
 
 const DEFAULT_STATE: SpiritProgressState = {
   totalGoodNights: 0,
-  unlockedForms: ['base', 'xiaolongbao'],
+  unlockedForms: [...ALL_BODIES],
 }
 
 export function loadSpiritProgress(): SpiritProgressState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return DEFAULT_STATE
+    if (!raw) return { totalGoodNights: 0, unlockedForms: [...ALL_BODIES] }
     const parsed = JSON.parse(raw) as SpiritProgressState
-    // Ensure default forms are always present
-    if (!parsed.unlockedForms.includes('base')) parsed.unlockedForms.push('base')
-    if (!parsed.unlockedForms.includes('xiaolongbao')) parsed.unlockedForms.push('xiaolongbao')
+    // Ensure all four bodies are always present (also backfills old saves)
+    for (const form of ALL_BODIES) {
+      if (!parsed.unlockedForms.includes(form)) parsed.unlockedForms.push(form)
+    }
     return parsed
   } catch {
-    return DEFAULT_STATE
+    return { totalGoodNights: 0, unlockedForms: [...ALL_BODIES] }
   }
 }
 

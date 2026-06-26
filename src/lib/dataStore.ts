@@ -96,7 +96,8 @@ export function createDefaultStore(): AppStore {
       currentForm: 'base',
       progress: {
         totalGoodNights: 0,
-        unlockedForms: ['base', 'xiaolongbao'],
+        // 四个身体都是可自由选择的外观，默认全解锁（白面团/小笼包/贝果/可颂）
+        unlockedForms: ['base', 'xiaolongbao', 'bagel', 'croissant'],
       },
     },
     today: {
@@ -183,10 +184,15 @@ export function validateAndRepair(store: AppStore): AppStore {
     store.spirit = createDefaultStore().spirit
   }
   if (!store.spirit.progress) {
-    store.spirit.progress = { totalGoodNights: 0, unlockedForms: ['base', 'xiaolongbao'] }
+    store.spirit.progress = { totalGoodNights: 0, unlockedForms: ['base', 'xiaolongbao', 'bagel', 'croissant'] }
   }
-  if (!store.spirit.progress.unlockedForms.includes('base')) {
-    store.spirit.progress.unlockedForms.push('base')
+  // 四个可选身体始终解锁（也给老存档回填 bagel/croissant，根治"贝果可颂被锁"）
+  if (Array.isArray(store.spirit.progress.unlockedForms)) {
+    for (const form of ['base', 'xiaolongbao', 'bagel', 'croissant'] as const) {
+      if (!store.spirit.progress.unlockedForms.includes(form)) {
+        store.spirit.progress.unlockedForms.push(form)
+      }
+    }
   }
 
   // Ensure today exists
@@ -232,7 +238,7 @@ export function validateAndRepair(store: AppStore): AppStore {
   if (!store.guests || typeof store.guests !== 'object') store.guests = {}
   if (!store.dishes || typeof store.dishes !== 'object') store.dishes = {}
   if (!Array.isArray(store.spirit.progress.unlockedForms)) {
-    store.spirit.progress.unlockedForms = ['base', 'xiaolongbao']
+    store.spirit.progress.unlockedForms = ['base', 'xiaolongbao', 'bagel', 'croissant']
   }
   if (typeof store.spirit.progress.totalGoodNights !== 'number') {
     store.spirit.progress.totalGoodNights = 0
@@ -282,8 +288,8 @@ function migrateFromScatteredKeys(): AppStore | null {
   const oldSpiritForm = (readOldKey<string>(OLD_KEYS.spiritForm) ?? 'base') as SpiritForm
   const oldSpiritProgress = readOldKey<{ totalGoodNights: number; unlockedForms: SpiritForm[] }>(OLD_KEYS.spiritProgress)
 
-  // Carry over forms as-is (body/expression split happens in v5.6)
-  const unlockedForms = new Set<SpiritForm>(['base', 'xiaolongbao'])
+  // 四个可选身体默认全解锁
+  const unlockedForms = new Set<SpiritForm>(['base', 'xiaolongbao', 'bagel', 'croissant'])
   if (oldSpiritProgress?.unlockedForms) {
     for (const form of oldSpiritProgress.unlockedForms) {
       unlockedForms.add(form)

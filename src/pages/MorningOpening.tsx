@@ -107,35 +107,7 @@ function getRewardContent(
     }
   }
 
-  // 检查皮肤进度
-  const nextMilestones = [
-    { form: 'croissant', need: 5, name: '可颂' },
-    { form: 'donut', need: 10, name: '贝果' },
-    { form: 'sleep', need: 15, name: '迷糊贝果' },
-  ]
-
-  const current = spiritProgress.totalGoodNights
-  for (const m of nextMilestones) {
-    if (spiritProgress.unlockedForms.includes(m.form as any)) continue
-    const remaining = m.need - current
-    if (remaining <= 0) {
-      // 刚好解锁！
-      return {
-        hasReward: true,
-        text: t('morning.rewardNewSkin', { skin: m.name }),
-        subtext: t('morning.rewardNewSkinSub'),
-      }
-    }
-    if (remaining <= 3) {
-      return {
-        hasReward: true,
-        text: t('morning.rewardClose', { skin: m.name, count: String(remaining) }),
-        subtext: t('morning.rewardCloseSub'),
-      }
-    }
-    break
-  }
-
+  // 皮肤（身体）现在都可自由选择，不再靠早睡解锁，所以清晨回报只给作息好评。
   // 普通好评
   if (trend.score > 0.5) {
     return {

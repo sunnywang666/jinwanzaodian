@@ -56,17 +56,23 @@ export const foodAssets = {
   youtiao: trimmedAsset('food-youtiao.png'),
 } as const
 
+// ⚠️ 文件命名历史遗留坑（图本身没错，是文件名贴反了）：
+//   dough-spirit-bagel.png         画的其实是【可颂 🥐】
+//   dough-spirit-confused-bagel.png 才是真正的【贝果 🥯】（带迷糊脸）
+//   dough-spirit-normal.png        是【单独的表情/脸】（无身体），表情系统用
+//   dough-spirit-white-dough.png   是【无脸的白面团身体】，表情系统用
+// 下面按"语义正确"映射，不改文件名以免影响外部引用。等用户补正常脸的贝果图后再替换 bagel。
 export const spiritAssets = {
-  base: trimmedAsset('dough-spirit-base.png'),
-  whiteDough: trimmedAsset('dough-spirit-white-dough.png'),
-  xiaolongbao: trimmedAsset('dough-spirit-xiaolongbao.png'),
-  normal: trimmedAsset('dough-spirit-normal.png'),
-  confusedAwake: trimmedAsset('dough-spirit-confused-awake.png'),
-  bagel: trimmedAsset('dough-spirit-bagel.png'),
-  confusedBagel: trimmedAsset('dough-spirit-confused-bagel.png'),
-  sleep: trimmedAsset('dough-spirit-confused-bagel.png'),
-  croissant: trimmedAsset('dough-spirit-bagel.png'),
-  donut: trimmedAsset('dough-spirit-bagel.png'),
+  base: trimmedAsset('dough-spirit-base.png'),               // 白面团（带脸）
+  whiteDough: trimmedAsset('dough-spirit-white-dough.png'),  // 白面团身体（无脸）
+  xiaolongbao: trimmedAsset('dough-spirit-xiaolongbao.png'), // 小笼包
+  normal: trimmedAsset('dough-spirit-normal.png'),           // 表情：普通脸
+  confusedAwake: trimmedAsset('dough-spirit-confused-awake.png'), // 表情：迷糊
+  croissant: trimmedAsset('dough-spirit-bagel.png'),         // 可颂（这张文件名虽叫 bagel，画的是可颂）
+  bagel: trimmedAsset('dough-spirit-confused-bagel.png'),    // 贝果（暂用迷糊脸版，待替换为正常脸贝果图）
+  confusedBagel: trimmedAsset('dough-spirit-confused-bagel.png'), // 贝果·迷糊脸
+  sleep: trimmedAsset('dough-spirit-confused-bagel.png'),    // 睡（迷糊贝果）
+  donut: trimmedAsset('dough-spirit-confused-bagel.png'),    // 旧称，等同贝果
 } satisfies Record<SpiritForm | 'normal' | 'confusedAwake', AssetSource>
 
 export const animalAssets = {
