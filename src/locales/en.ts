@@ -130,6 +130,10 @@ export const en = {
     title: 'Settings',
     lightsOffTime: 'Default lights-off time',
     lightsOffDesc: 'Used as the default during evening preparation.',
+    sleepInsights: {
+      title: 'Sleep insights',
+      desc: 'In the morning and the logbook, gently shows when you put your phone down, how long you rested, and recent trends — with a soft heads-up when things slip. Turn it off anytime.',
+    },
     language: 'Language',
     languageDesc: 'Switch interface language.',
     api: {
@@ -304,6 +308,33 @@ export const en = {
     worryReleased: 'Let go',
     worryCarrying: 'Still here',
     worryPending: 'Not reviewed',
+  },
+
+  sleep: {
+    morningSummary: 'You put your phone down at {time} last night, and rested about {dur}.',
+    settleNote: 'It took about {min} more min after closing to really set it down — that\'s okay.',
+    nightWakeNote: 'You came back {count} time(s) in the night, then drifted back to sleep — nice.',
+    insightTitle: 'Sleep insights',
+    avgPutDown: 'Avg phone down',
+    avgRest: 'Avg rest',
+    consistency: 'Consistency',
+    consistencyValue: '±{min} min',
+    nightWakesLabel: 'Night pickups',
+    nightWakesValue: '{count}',
+    trendMoreRest: 'Lately you\'re resting ~{min} min more than before',
+    trendLessRest: 'Lately you\'re resting ~{min} min less than before',
+    trendLater: 'You\'ve been putting your phone down a little later lately',
+    trendEarlier: 'You\'ve been putting your phone down earlier lately',
+    trendSteady: 'Your rhythm has been steady',
+    basedOnNote: 'Estimated only from app foreground/background — never sleep tracking.',
+    needMore: 'A few more nights and these insights get sharper.',
+    warnTitle: 'The shop would like a gentle word',
+    warn: {
+      restShort: '{name}: these nights you\'ve rested only {dur} on average. The shop worries a little — shall we put the phone down a bit earlier tonight?',
+      gettingLater: '{name}: you\'ve been setting your phone down a little later lately. No pressure — I just wanted you to know I noticed.',
+      restless: '{name}: you seem to wake and check your phone a few times at night. Maybe try keeping it out of reach?',
+      settleSlow: '{name}: after closing, you keep scrolling a while before really setting it down. That little evening note might help you let go sooner.',
+    },
   },
 
   messageBoard: {

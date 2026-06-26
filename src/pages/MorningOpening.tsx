@@ -23,6 +23,7 @@ import { getNow } from '../lib/timeSimulator'
 import type { WorryStatus, NightType } from '../lib/storage'
 import type { TrendResult } from '../lib/trendCalculation'
 import type { SpiritProgressState } from '../lib/spiritProgression'
+import { formatClock, formatDuration, type NightSleep, type SleepWarning } from '../lib/sleepAnalysis'
 
 /** 清晨"昨晚铺子小剧场"——按日变化的过夜小惊喜，制造每天打开的可变奖励（纯氛围、不影响机制） */
 const OVERNIGHT_VIGNETTES: Array<{ zh: string; en: string }> = [
@@ -57,6 +58,12 @@ interface MorningOpeningProps {
   todayGuestKeys: string[]
   /** 今早新解锁的菜品（熟客教菜 / 里程碑研发） */
   newDishUnlocks: DishUnlockReveal[]
+  /** 睡眠洞察开关 */
+  sleepInsightsEnabled: boolean
+  /** 昨晚睡眠分析（无数据时为 null，不显示） */
+  lastNightSleep: NightSleep | null
+  /** 最优先的温柔预警（无则 null，不出现预警画面） */
+  sleepWarning: SleepWarning | null
   onWorryReviewed: (status: WorryStatus) => void
   onComplete: () => void
 }
@@ -194,6 +201,9 @@ export function MorningOpening({
   spiritProgress,
   todayGuestKeys,
   newDishUnlocks,
+  sleepInsightsEnabled,
+  lastNightSleep,
+  sleepWarning,
   onWorryReviewed,
   onComplete,
 }: MorningOpeningProps) {
@@ -223,9 +233,13 @@ export function MorningOpening({
         : (lang === 'en' ? 'A new recipe, prepped into being bit by bit.' : '白天备菜时一点点研出来的新菜谱。'))
     : ''
 
-  // 节奏管线：迮接 → (回报) → (新菜谱) → (心事) → 开门
+  const showSleep = sleepInsightsEnabled && lastNightSleep !== null
+  const showWarning = sleepInsightsEnabled && sleepWarning !== null
+
+  // 节奏管线：迎接 → (回报) → (温柔预警) → (新菜谱) → (心事) → 开门
   const pipeline: number[] = [1]
   if (lastNightClosed || reward.hasReward) pipeline.push(2)
+  if (showWarning) pipeline.push(6)
   if (newDishUnlocks.length > 0) pipeline.push(5)
   if (hasWorry) pipeline.push(3)
   pipeline.push(4)
@@ -324,10 +338,26 @@ export function MorningOpening({
               {lang === 'en' ? vignette.en : vignette.zh}
             </p>
 
+            {/* 睡眠小结：真正放下手机的时间 + 休息时长（只在有数据且开启时显示） */}
+            {showSleep && lastNightSleep ? (
+              <p className="morning-fade mt-3 w-full rounded-[16px] bg-[#fae49c]/25 px-4 py-2.5 text-xs leading-6 text-ink/60" style={{ animationDelay: '850ms' }}>
+                {t('sleep.morningSummary', {
+                  time: formatClock(lastNightSleep.putDownAt),
+                  dur: formatDuration(lastNightSleep.restMinutes, lang),
+                })}
+                {lastNightSleep.settleDelayMinutes !== null && lastNightSleep.settleDelayMinutes > 20
+                  ? ' ' + t('sleep.settleNote', { min: String(lastNightSleep.settleDelayMinutes) })
+                  : ''}
+                {lastNightSleep.nightWakes > 0
+                  ? ' ' + t('sleep.nightWakeNote', { count: String(lastNightSleep.nightWakes) })
+                  : ''}
+              </p>
+            ) : null}
+
             <button
               type="button"
               className="morning-fade mt-8 flex w-full items-center justify-between rounded-[22px] bg-white/40 px-5 py-3 text-sm text-ink/55 transition hover:bg-white/60"
-              style={{ animationDelay: '950ms' }}
+              style={{ animationDelay: '1050ms' }}
               onClick={() => setBeat(goNext(1))}
             >
               <span>{t('common.continue')}</span>
@@ -376,6 +406,38 @@ export function MorningOpening({
               className="morning-fade mt-10 flex w-full items-center justify-between rounded-[22px] bg-white/40 px-5 py-3 text-sm text-ink/55 transition hover:bg-white/60"
               style={{ animationDelay: '600ms' }}
               onClick={() => setBeat(goNext(2))}
+            >
+              <span>{t('common.continue')}</span>
+              <span className="text-ink/30">→</span>
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {/* ── Beat 6: 温柔预警（铺子轻声关心，绝不指责） ── */}
+      {beat === 6 && sleepWarning ? (
+        <section className="relative flex flex-1 flex-col items-center justify-center bg-[#f5ead8] px-6 text-center">
+          <div className="relative z-10 flex flex-col items-center">
+            <AssetImage
+              src={spiritAssets.base.src}
+              fallbackSrc={spiritAssets.base.fallbackSrc}
+              alt={spiritName}
+              variant="character"
+              className="morning-scale h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]"
+            />
+            <p className="morning-fade mt-6 text-sm text-ink/45" style={{ animationDelay: '200ms' }}>
+              {t('sleep.warnTitle')}
+            </p>
+            <div className="morning-fade mt-4 w-full rounded-[20px] bg-white/40 px-5 py-4" style={{ animationDelay: '400ms' }}>
+              <p className="text-sm leading-7 text-ink/70">
+                {t(`sleep.warn.${sleepWarning.kind}`, { name: spiritName, ...sleepWarning.data })}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="morning-fade mt-8 flex w-full items-center justify-between rounded-[22px] bg-white/40 px-5 py-3 text-sm text-ink/55 transition hover:bg-white/60"
+              style={{ animationDelay: '700ms' }}
+              onClick={() => setBeat(goNext(6))}
             >
               <span>{t('common.continue')}</span>
               <span className="text-ink/30">→</span>

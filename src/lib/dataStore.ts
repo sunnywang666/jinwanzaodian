@@ -81,6 +81,8 @@ export interface AppStore {
     reminders: StoredReminderSettings
     /** 新手店铺导览是否已看过 */
     tourDone: boolean
+    /** 睡眠洞察：清晨/账本里展示放下手机时间、休息时长、趋势与温柔预警；可关 */
+    sleepInsights: boolean
   }
 }
 
@@ -117,6 +119,7 @@ export function createDefaultStore(): AppStore {
       autoSceneEnabled: true,
       reminders: { ...defaultStoredReminders },
       tourDone: false,
+      sleepInsights: true,
     },
   }
 }
@@ -200,10 +203,14 @@ export function validateAndRepair(store: AppStore): AppStore {
 
   // Ensure settings exists
   if (!store.settings) {
-    store.settings = { autoSceneEnabled: true, reminders: { ...defaultStoredReminders }, tourDone: store.profile != null }
+    store.settings = { autoSceneEnabled: true, reminders: { ...defaultStoredReminders }, tourDone: store.profile != null, sleepInsights: true }
   }
   if (typeof store.settings.autoSceneEnabled !== 'boolean') {
     store.settings.autoSceneEnabled = true
+  }
+  // Backfill sleepInsights for stores saved before this field existed (default on)
+  if (typeof store.settings.sleepInsights !== 'boolean') {
+    store.settings.sleepInsights = true
   }
   // Backfill reminders for stores saved before this field existed
   if (!store.settings.reminders || typeof store.settings.reminders !== 'object') {
@@ -327,6 +334,7 @@ function migrateFromScatteredKeys(): AppStore | null {
       autoSceneEnabled: oldAutoScene,
       reminders: { ...defaultStoredReminders },
       tourDone: oldProfile != null,
+      sleepInsights: true,
     },
   }
 }

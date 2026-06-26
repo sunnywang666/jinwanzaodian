@@ -37,8 +37,9 @@ import { startReminderScheduler, type StoredReminderSettings } from './lib/notif
 import { isNativePlatform, syncNativeReminders, registerNativeTapHandler } from './lib/nativeNotifications'
 import { isDemoMode } from './lib/devMode'
 import { getSceneForCurrentTime } from './lib/timeScene'
-import { clearLastScreenOffTime, clearVisibilityData, getLastScreenOffTime, startVisibilityTracking } from './lib/visibility'
+import { clearLastScreenOffTime, clearVisibilityData, countNightReturns, getLastScreenOffTime, startVisibilityTracking } from './lib/visibility'
 import { calculateTrend } from './lib/trendCalculation'
+import { analyzeNight, summarizeNights, detectWarnings } from './lib/sleepAnalysis'
 import {
   rollTodayGuests, recordDailyVisits, type GuestProgressMap,
 } from './lib/guestProgression'
@@ -97,6 +98,7 @@ export default function App() {
   const [autoSceneEnabled, setAutoSceneEnabled] = useState(initialStore.settings.autoSceneEnabled)
   const [reminders, setReminders] = useState<StoredReminderSettings>(initialStore.settings.reminders)
   const [tourDone, setTourDone] = useState(initialStore.settings.tourDone)
+  const [sleepInsights, setSleepInsights] = useState(initialStore.settings.sleepInsights)
   // 首页在场的客人 + 是否该播出餐迎客动画
   const [homeGuestKeys, setHomeGuestKeys] = useState<string[]>(initialStore.today.homeGuestKeys)
   const [arrivalPending, setArrivalPending] = useState(false)
@@ -149,6 +151,7 @@ export default function App() {
     profile, spiritForm, spiritProgress, demoScene, todayMood,
     middayDone, tonightClosed, eveningPrepare, lastOpenDate, homeGuestKeys,
     guestProgress, dishProgress, logEntries, autoSceneEnabled, reminders, tourDone,
+    sleepInsights,
   })
 
   // ── Reminder scheduling (local notifications) ──
@@ -282,6 +285,7 @@ export default function App() {
     setAutoSceneEnabled(true)
     setReminders(defaults.settings.reminders)
     setTourDone(false)
+    setSleepInsights(defaults.settings.sleepInsights)
     setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
     setLogEntries(isDemoMode() ? createDefaultLogEntries() : [])
     setGuestProgress({})
@@ -360,6 +364,21 @@ export default function App() {
       })
       .filter((d): d is NonNullable<typeof d> => d !== null)
 
+    // 昨晚睡眠分析：把还没折进 logEntries[0] 的实时 screenOff / 夜醒次数先并进去算
+    const prevEntry = logEntries[0]
+    const nowIso = new Date().toISOString()
+    const mergedPrev = prevEntry
+      ? {
+          ...prevEntry,
+          screenOffTimestamp: prevEntry.screenOffTimestamp ?? getLastScreenOffTime() ?? undefined,
+          realOpenTimestamp: prevEntry.realOpenTimestamp ?? nowIso,
+          nightWakes: prevEntry.nightWakes ?? countNightReturns(prevEntry.realCloseTimestamp, nowIso),
+        }
+      : null
+    const lastNightSleep = sleepInsights ? analyzeNight(mergedPrev) : null
+    const sleepSummary = summarizeNights(mergedPrev ? [mergedPrev, ...logEntries.slice(1)] : logEntries)
+    const sleepWarning = sleepInsights ? (detectWarnings(sleepSummary, lang)[0] ?? null) : null
+
     return (
       <MorningOpening
         spiritName={profile.spiritName}
@@ -371,6 +390,9 @@ export default function App() {
         spiritProgress={spiritProgress}
         todayGuestKeys={todayGuestKeys}
         newDishUnlocks={newDishUnlocks}
+        sleepInsightsEnabled={sleepInsights}
+        lastNightSleep={lastNightSleep}
+        sleepWarning={sleepWarning}
         onWorryReviewed={(status: WorryStatus) => {
           setLogEntries((current) => {
             if (current.length === 0) return current
@@ -383,13 +405,18 @@ export default function App() {
           setLastOpenDate(todayStr)
 
           let stampedEntries = stampOpenTime(logEntries)
-          const screenOffTimestamp = getLastScreenOffTime()
-          if (screenOffTimestamp && stampedEntries[0]) {
-            stampedEntries = [
-              { ...stampedEntries[0], screenOffTimestamp },
-              ...stampedEntries.slice(1),
-            ]
-            clearLastScreenOffTime()
+          if (stampedEntries[0]) {
+            const head = { ...stampedEntries[0] }
+            const screenOffTimestamp = getLastScreenOffTime()
+            if (screenOffTimestamp && !head.screenOffTimestamp) {
+              head.screenOffTimestamp = screenOffTimestamp
+              clearLastScreenOffTime()
+            }
+            // 记下夜里又拿起手机的次数（用于睡眠洞察与温柔预警）
+            if (head.nightWakes === undefined) {
+              head.nightWakes = countNightReturns(head.realCloseTimestamp, head.realOpenTimestamp ?? nowIso)
+            }
+            stampedEntries = [head, ...stampedEntries.slice(1)]
           }
           setLogEntries(stampedEntries)
           setTodayMood(trend.sceneMood)
@@ -542,7 +569,7 @@ export default function App() {
         />
       ) : null}
       {view === 'radio' ? <RadioOverlay audio={ambientAudio} onClose={() => setView('home')} /> : null}
-      {view === 'logbook' ? <LogbookOverlay entries={logEntries} spiritName={profile.spiritName} onClose={() => setView('home')} /> : null}
+      {view === 'logbook' ? <LogbookOverlay entries={logEntries} spiritName={profile.spiritName} showSleep={sleepInsights} onClose={() => setView('home')} /> : null}
       {view === 'messageBoard' ? (
         <MessageBoardOverlay
           guestProgress={guestProgress}
@@ -611,6 +638,8 @@ export default function App() {
             setProfile((prev) => prev ? { ...prev, defaultLightsOffTime: time } : prev)
             setEveningPrepare((prev) => ({ ...prev, plannedLightsOffTime: time }))
           }}
+          sleepInsights={sleepInsights}
+          onUpdateSleepInsights={setSleepInsights}
           onResetAll={resetAll}
           onClose={() => setView('home')}
         />

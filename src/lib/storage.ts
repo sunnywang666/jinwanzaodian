@@ -1,5 +1,9 @@
 /**
- * storage.ts — v6.4
+ * storage.ts — v6.33
+ *
+ * v6.33: LogEntry gains `nightWakes` — how many times the app came back to the
+ * foreground after closing and before next morning (a gentle "picked the phone
+ * back up at night" signal). Folded in at morning opening; used by sleepAnalysis.
  *
  * Fix: defaultOnboardingDraft.spiritName changed from '阿团' to ''
  * so that Onboarding uses t('onboarding.namingPlaceholder') as fallback,
@@ -58,6 +62,8 @@ export interface LogEntry {
   realCloseTimestamp?: string
   realOpenTimestamp?: string
   screenOffTimestamp?: string
+  /** 打烊后到次日开门间，App 被重新唤到前台的次数（夜里又拿起手机的近似信号） */
+  nightWakes?: number
   isRealData?: boolean
   worry?: string
   worryStatus?: WorryStatus

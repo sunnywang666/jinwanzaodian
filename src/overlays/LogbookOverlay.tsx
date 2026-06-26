@@ -13,10 +13,11 @@ import { useT } from '../lib/i18n'
 interface LogbookOverlayProps {
   entries: LogEntry[]
   spiritName: string
+  showSleep?: boolean
   onClose: () => void
 }
 
-export function LogbookOverlay({ entries, spiritName, onClose }: LogbookOverlayProps) {
+export function LogbookOverlay({ entries, spiritName, showSleep = true, onClose }: LogbookOverlayProps) {
   const [page, setPage] = useState(0)
   const [tab, setTab] = useState<'entries' | 'trend'>('entries')
   const { t, lang } = useT()
@@ -101,7 +102,7 @@ export function LogbookOverlay({ entries, spiritName, onClose }: LogbookOverlayP
           )
         ) : (
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <LogbookTrend entries={entries} spiritName={spiritName} />
+            <LogbookTrend entries={entries} spiritName={spiritName} showSleep={showSleep} />
           </div>
         )}
       </section>

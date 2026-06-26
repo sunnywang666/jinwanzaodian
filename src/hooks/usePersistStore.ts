@@ -26,6 +26,7 @@ export interface PersistSnapshot {
   autoSceneEnabled: boolean
   reminders: AppStore['settings']['reminders']
   tourDone: boolean
+  sleepInsights: boolean
 }
 
 export function usePersistStore(s: PersistSnapshot) {
@@ -46,12 +47,12 @@ export function usePersistStore(s: PersistSnapshot) {
       guests: s.guestProgress,
       dishes: s.dishProgress,
       days: s.logEntries,
-      settings: { autoSceneEnabled: s.autoSceneEnabled, reminders: s.reminders, tourDone: s.tourDone },
+      settings: { autoSceneEnabled: s.autoSceneEnabled, reminders: s.reminders, tourDone: s.tourDone, sleepInsights: s.sleepInsights },
     })
   }, [
     s.profile, s.spiritForm, s.spiritProgress, s.demoScene, s.todayMood,
     s.middayDone, s.tonightClosed, s.eveningPrepare, s.lastOpenDate, s.homeGuestKeys,
     s.guestProgress, s.dishProgress, s.logEntries, s.autoSceneEnabled,
-    s.reminders, s.tourDone,
+    s.reminders, s.tourDone, s.sleepInsights,
   ])
 }

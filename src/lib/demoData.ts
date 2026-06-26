@@ -254,6 +254,12 @@ function formatDate(date: Date) {
   return `${date.getMonth() + 1}月${date.getDate()}日`
 }
 
+/** 把某天 + "HH:MM" 组成一个本地时刻 */
+function atTime(base: Date, hhmm: string): Date {
+  const [h, m] = hhmm.split(':').map(Number)
+  return new Date(base.getFullYear(), base.getMonth(), base.getDate(), h ?? 0, m ?? 0, 0, 0)
+}
+
 export function resolvePersona(answers: string[]): NightType {
   const counts = answers.reduce<Record<string, number>>((result, answer) => {
     result[answer] = (result[answer] ?? 0) + 1
@@ -271,18 +277,31 @@ export function createDefaultLogEntries(): LogEntry[] {
   const opens = ['07:20', '06:55', '07:10', '07:45', '07:18', '06:50', '07:05']
   const guestCounts = [6, 8, 7, 4, 6, 9, 7]
   const notes = ['按时打烊', '熄灯后很快安静下来', '写了纸条再去睡', '稍微晚了些，但还是关了灯', '陪到打烊', '早早就把灯关掉了', '平稳收摊']
+  // 打烊后磨蹭多久才真放下手机（分钟）+ 夜里又拿起手机的次数 → 让睡眠分析有料可演示
+  const settleDelays = [6, 4, 18, 50, 8, 3, 22]
+  const nightWakes = [0, 0, 1, 2, 0, 0, 1]
 
   return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date()
-    date.setDate(date.getDate() - index)
+    const closeDate = new Date()
+    closeDate.setDate(closeDate.getDate() - index)
+    const nextMorning = new Date(closeDate)
+    nextMorning.setDate(nextMorning.getDate() + 1)
+
+    const realClose = atTime(closeDate, closes[index] ?? '23:10')
+    const screenOff = new Date(realClose.getTime() + (settleDelays[index] ?? 5) * 60000)
+    const realOpen = atTime(nextMorning, opens[index] ?? '07:12')
 
     return {
-      date: formatDate(date),
+      date: formatDate(closeDate),
       openTime: opens[index] ?? '07:12',
       closeTime: closes[index] ?? '23:10',
       shopMood: moods[index] ?? normalMood,
       guestCount: guestCounts[index] ?? 6,
       closingNote: notes[index] ?? '平稳收摊',
+      realCloseTimestamp: realClose.toISOString(),
+      screenOffTimestamp: screenOff.toISOString(),
+      realOpenTimestamp: realOpen.toISOString(),
+      nightWakes: nightWakes[index] ?? 0,
     }
   })
 }

@@ -136,6 +136,10 @@ export const zh = {
     title: '设置',
     lightsOffTime: '默认关灯时间',
     lightsOffDesc: '每天傍晚准备时会用这个时间作为默认值。',
+    sleepInsights: {
+      title: '睡眠洞察',
+      desc: '在清晨和账本里，温柔地告诉你几点放下手机、休息了多久、最近的趋势，并在状态变差时轻声提醒。不想看可以随时关掉。',
+    },
     language: '语言',
     languageDesc: '切换界面语言。',
     api: {
@@ -321,6 +325,37 @@ export const zh = {
     worryReleased: '已放下',
     worryCarrying: '还在',
     worryPending: '未回看',
+  },
+
+  // ── 睡眠洞察 ──
+  sleep: {
+    // 清晨开门里的小结
+    morningSummary: '昨晚你 {time} 放下手机，休息了约 {dur}。',
+    settleNote: '打烊后又过了约 {min} 分钟才真的放下，没关系，慢慢来。',
+    nightWakeNote: '夜里你回来看了 {count} 次，又睡回去了，挺好。',
+    // 账本里的洞察卡
+    insightTitle: '睡眠洞察',
+    avgPutDown: '平均放下手机',
+    avgRest: '平均休息',
+    consistency: '入睡规律',
+    consistencyValue: '±{min} 分',
+    nightWakesLabel: '夜里拿手机',
+    nightWakesValue: '{count} 次',
+    trendMoreRest: '最近比之前多休息约 {min} 分钟',
+    trendLessRest: '最近比之前少休息约 {min} 分钟',
+    trendLater: '放下手机的时间，最近一点点变晚了',
+    trendEarlier: '放下手机的时间，最近越来越早了',
+    trendSteady: '节奏挺稳的',
+    basedOnNote: '只用"App 在不在前台"估算，不监测你的睡眠。',
+    needMore: '再记录几晚，睡眠洞察会更准。',
+    // 预警（精灵口吻，温柔不指责）
+    warnTitle: '铺子想轻轻跟你说句话',
+    warn: {
+      restShort: '{name}：这几晚你平均只休息了 {dur}，铺子有点心疼。今晚要不要早一点放下手机？',
+      gettingLater: '{name}：最近放下手机的时间一点点变晚了。我不催你，只是想让你知道我看见了。',
+      restless: '{name}：你夜里好像总会醒来看几次手机。要不要试试把它放到够不着的地方？',
+      settleSlow: '{name}：打烊之后，你还要再刷好一会儿才真的放下。傍晚那张小纸条，也许能帮你早点松手。',
+    },
   },
 
   // ── 留言板 ──

@@ -1,5 +1,20 @@
 # Changelog
 
+## v6.33
+
+睡眠检测与分析升级：真正用上"放下手机的时间"，而不只是"点打烊的时间"。
+
+Included in this version:
+- 新增 `src/lib/sleepAnalysis.ts`（纯函数 + 单测）：从已经在记的 `screenOffTimestamp`（打烊后真正放下手机的时刻）、`realOpenTimestamp`（早上开门）与新增的 `nightWakes`（夜里又把 App 唤到前台的次数）算出——真正放下手机的时间、休息时长、打烊后磨蹭多久才放下、入睡规律性、休息/入睡的近期趋势，以及据此的温柔预警。
+- `src/lib/visibility.ts` 新增 `countNightReturns()`：从可见性日志数"打烊后到次日开门间，App 回前台几次"。诚实局限：只能抓到"重新打开本 App"，抓不到"切去刷别的 App"——是诚实的近似，不是睡眠监测。
+- 清晨开门（`MorningOpening`）Beat 1 加一行"昨晚你 X 点放下手机，休息了约 Y"（磨蹭久/夜里醒了会温柔补一句）；状态变差时新增一屏精灵口吻的温柔预警（休息太短/越睡越晚/夜里总醒/打烊后还刷很久），绝不指责。
+- 账本"趋势" tab（`LogbookTrend`）加详细"睡眠洞察"卡：平均放下手机、平均休息、入睡规律 ±X 分、夜里拿手机次数 + 近期趋势 + "只用前台信号估算，不监测睡眠"的声明。
+- 设置加"睡眠洞察"总开关（`settings.sleepInsights`，默认开）。关掉就回到只看关灯时间——本身契合"不监工"，焦虑型用户可关。
+- 铺子心情/场景的核心评分（`trendCalculation`）仍用关灯时间，未改动核心机制。
+- 演示数据 `createDefaultLogEntries()` 补了 realClose/screenOff/realOpen 时间戳与 nightWakes，路演版才看得到睡眠分析。
+- `LogEntry` 新增 `nightWakes` 字段；`dataStore` 设置新增 `sleepInsights`（含向后兼容回填，默认开）。
+- 更新 `package.json` 版本号为 `6.33.0`。
+
 ## v6.32
 
 In-place app updates (no uninstall) + the in-app version stays in sync.

@@ -1,16 +1,104 @@
 /**
- * LogbookTrend.tsx — v6.7
+ * LogbookTrend.tsx — v6.33
  *
  * Hand-drawn style SVG trend chart for the logbook.
  * Shows recent close times as a wobbly line chart with spirit commentary.
+ * v6.33: adds a detailed sleep-insight card (real put-down time, rest duration,
+ * consistency, night pickups, trend) + gentle warnings, gated by showSleep.
  */
 
 import type { LogEntry } from '../lib/storage'
-import { useT } from '../lib/i18n'
+import { useT, type Lang } from '../lib/i18n'
+import { summarizeNights, detectWarnings, scaleToClock, formatDuration } from '../lib/sleepAnalysis'
 
 interface LogbookTrendProps {
   entries: LogEntry[]
   spiritName: string
+  /** 是否展示睡眠洞察卡（设置里的开关） */
+  showSleep?: boolean
+}
+
+/* ── 睡眠洞察卡：把放下手机时间/休息时长/规律/趋势/夜醒拢成一块 ── */
+function SleepInsightCard({
+  entries,
+  spiritName,
+  t,
+  lang,
+}: {
+  entries: LogEntry[]
+  spiritName: string
+  t: (key: string, vars?: Record<string, string>) => string
+  lang: Lang
+}) {
+  const summary = summarizeNights(entries)
+
+  if (summary.nights === 0) {
+    return (
+      <div className="rounded-[18px] bg-white/20 px-4 py-3">
+        <p className="text-xs leading-6 text-ink/40">{t('sleep.needMore')}</p>
+      </div>
+    )
+  }
+
+  const warnings = detectWarnings(summary, lang)
+
+  let trendText = t('sleep.trendSteady')
+  if (summary.restTrendMinutes !== null && Math.abs(summary.restTrendMinutes) >= 20) {
+    trendText =
+      summary.restTrendMinutes > 0
+        ? t('sleep.trendMoreRest', { min: String(Math.abs(summary.restTrendMinutes)) })
+        : t('sleep.trendLessRest', { min: String(Math.abs(summary.restTrendMinutes)) })
+  } else if (summary.putDownTrendMinutes !== null && Math.abs(summary.putDownTrendMinutes) >= 20) {
+    trendText = summary.putDownTrendMinutes > 0 ? t('sleep.trendLater') : t('sleep.trendEarlier')
+  }
+
+  const stats: Array<{ label: string; value: string }> = [
+    {
+      label: t('sleep.avgPutDown'),
+      value: summary.avgPutDownScale !== null ? scaleToClock(summary.avgPutDownScale) : '—',
+    },
+    {
+      label: t('sleep.avgRest'),
+      value: summary.avgRestMinutes !== null ? formatDuration(summary.avgRestMinutes, lang) : '—',
+    },
+    {
+      label: t('sleep.consistency'),
+      value:
+        summary.consistencyMinutes !== null
+          ? t('sleep.consistencyValue', { min: String(summary.consistencyMinutes) })
+          : '—',
+    },
+    {
+      label: t('sleep.nightWakesLabel'),
+      value: t('sleep.nightWakesValue', { count: String(summary.totalNightWakes) }),
+    },
+  ]
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="rounded-[18px] bg-white/25 px-4 py-4">
+        <p className="mb-3 px-1 text-xs font-medium text-ink/45">{t('sleep.insightTitle')}</p>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-3">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-[14px] bg-white/30 px-3 py-2.5">
+              <p className="text-[11px] leading-4 text-ink/40">{s.label}</p>
+              <p className="mt-1 text-base font-semibold text-ink/75">{s.value}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 px-1 text-xs leading-6 text-ink/50">{trendText}</p>
+        <p className="mt-2 px-1 text-[10px] leading-5 text-ink/30">{t('sleep.basedOnNote')}</p>
+      </div>
+
+      {warnings.map((w) => (
+        <div key={w.kind} className="rounded-[18px] bg-[#d4a574]/14 px-4 py-3">
+          <p className="text-sm leading-6 text-[#8a614a]">
+            {t(`sleep.warn.${w.kind}`, { name: spiritName, ...w.data })}
+          </p>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 /* ── Parse "HH:MM" to minutes since 20:00 (for chart Y-axis) ── */
@@ -129,8 +217,12 @@ function getCommentary(
 
 /* ── Chart component ── */
 
-export function LogbookTrend({ entries, spiritName }: LogbookTrendProps) {
+export function LogbookTrend({ entries, spiritName, showSleep = true }: LogbookTrendProps) {
   const { t, lang } = useT()
+
+  const sleepCard = showSleep ? (
+    <SleepInsightCard entries={entries} spiritName={spiritName} t={t} lang={lang} />
+  ) : null
 
   const validEntries = entries
     .filter(e => e.closeTime && parseCloseMinutes(e.closeTime) !== null)
@@ -139,12 +231,15 @@ export function LogbookTrend({ entries, spiritName }: LogbookTrendProps) {
 
   if (validEntries.length < 2) {
     return (
-      <div className="rounded-[18px] bg-white/25 px-4 py-5 text-center">
-        <p className="text-sm text-ink/40">
-          {lang === 'en'
-            ? 'Close the shop a few more nights to see the trend chart.'
-            : '再多关几天灯，趋势图就出来了。'}
-        </p>
+      <div className="flex flex-col gap-3">
+        {sleepCard}
+        <div className="rounded-[18px] bg-white/25 px-4 py-5 text-center">
+          <p className="text-sm text-ink/40">
+            {lang === 'en'
+              ? 'Close the shop a few more nights to see the trend chart.'
+              : '再多关几天灯，趋势图就出来了。'}
+          </p>
+        </div>
       </div>
     )
   }
@@ -186,6 +281,7 @@ export function LogbookTrend({ entries, spiritName }: LogbookTrendProps) {
 
   return (
     <div className="flex flex-col gap-3">
+      {sleepCard}
       {/* Chart */}
       <div className="rounded-[18px] bg-white/25 px-3 py-4">
         <p className="mb-2 px-1 text-xs font-medium text-ink/45">

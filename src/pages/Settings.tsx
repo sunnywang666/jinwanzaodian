@@ -24,6 +24,8 @@ interface SettingsProps {
   reminders: StoredReminderSettings
   onUpdateReminders: (next: StoredReminderSettings) => void
   onUpdateLightsOffTime: (time: string) => void
+  sleepInsights: boolean
+  onUpdateSleepInsights: (next: boolean) => void
   onResetAll: () => void
   onClose: () => void
 }
@@ -48,7 +50,9 @@ const LANG_OPTIONS: { value: Lang; label: string }[] = [
 export function Settings({
   spiritName, defaultLightsOffTime, nightType,
   reminders, onUpdateReminders,
-  onUpdateLightsOffTime, onResetAll, onClose,
+  onUpdateLightsOffTime,
+  sleepInsights, onUpdateSleepInsights,
+  onResetAll, onClose,
 }: SettingsProps) {
   const { t, lang, setLang } = useT()
   const [selectedTime, setSelectedTime] = useState(defaultLightsOffTime)
@@ -222,6 +226,23 @@ export function Settings({
               <p className="mt-1 text-xs leading-5 text-ink/45">{rx.closingHint}</p>
             </div>
           </div>
+        </div>
+
+        <div className="my-6 h-px bg-ink/8" />
+
+        {/* Sleep insights */}
+        <div>
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-base font-semibold text-ink">{t('settings.sleepInsights.title')}</h3>
+            <button
+              type="button"
+              className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${sleepInsights ? 'bg-butter/70 text-ink' : 'bg-white/35 text-ink/45'}`}
+              onClick={() => onUpdateSleepInsights(!sleepInsights)}
+            >
+              {sleepInsights ? rx.on : rx.off}
+            </button>
+          </div>
+          <p className="mt-1 text-sm leading-6 text-ink/50">{t('settings.sleepInsights.desc')}</p>
         </div>
 
         <div className="my-6 h-px bg-ink/8" />
