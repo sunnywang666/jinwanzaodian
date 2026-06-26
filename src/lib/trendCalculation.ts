@@ -6,11 +6,7 @@ function parseCloseMinutes(timeStr: string) {
   return hours * 60 + (m ?? 0)
 }
 
-function scoreNight(closeTime: string, targetTime: string, closedProperly: boolean) {
-  if (!closedProperly) {
-    return -0.8
-  }
-
+function scoreNight(closeTime: string, targetTime: string) {
   const closeMin = parseCloseMinutes(closeTime)
   const targetMin = parseCloseMinutes(targetTime)
   const diff = closeMin - targetMin
@@ -51,8 +47,7 @@ export function calculateTrend(input: TrendInput): TrendResult {
   for (let i = 0; i < Math.min(recentEntries.length, 7); i += 1) {
     const entry = recentEntries[i]!
     const weight = weights[i] ?? 0.2
-    const closedProperly = entry.closingNote !== '未打烊'
-    const nightScore = scoreNight(entry.closeTime, targetLightsOffTime, closedProperly)
+    const nightScore = scoreNight(entry.closeTime, targetLightsOffTime)
 
     weightedSum += nightScore * weight
     totalWeight += weight

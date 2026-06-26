@@ -82,7 +82,7 @@ export function Settings({
   const rx = {
     title: zhCN ? '提醒' : 'Reminders',
     desc: zhCN
-      ? '在对的时间轻轻提醒你。不催、不造成压力——只是把“该歇了”焦进你的一天。'
+      ? '在对的时间轻轻提醒你。不催、不造成压力——只是把“该歇了”嵌进你的一天。'
       : 'A gentle nudge at the right time. No nagging, no pressure.',
     enableBtn: zhCN ? '开启通知' : 'Enable notifications',
     permDenied: zhCN

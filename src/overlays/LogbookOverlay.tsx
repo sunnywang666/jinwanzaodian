@@ -5,6 +5,7 @@
 
 import { useState } from 'react'
 import type { LogEntry } from '../lib/storage'
+import { formatEntryDate } from '../lib/storage'
 import { GameOverlay } from '../components/GameOverlay'
 import { PageTurnButton } from '../components/PageTurnButton'
 import { LogbookTrend } from '../components/LogbookTrend'
@@ -32,6 +33,10 @@ export function LogbookOverlay({ entries, spiritName, showSleep = true, onClose 
 
   const tabEntries = lang === 'en' ? 'Records' : '流水'
   const tabTrend = lang === 'en' ? 'Trend' : '趋势'
+
+  const moodLabel: Record<string, string> = {
+    '热闹': t('logbook.moodBusy'), '平常': t('logbook.moodNormal'), '安静': t('logbook.moodQuiet'),
+  }
 
   return (
     <GameOverlay title={t('logbook.title')} onClose={onClose}>
@@ -70,11 +75,11 @@ export function LogbookOverlay({ entries, spiritName, showSleep = true, onClose 
                     background: 'repeating-linear-gradient(transparent, transparent 27px, rgba(212,179,147,0.25) 27px, rgba(212,179,147,0.25) 28px)',
                     borderBottom: '1px solid rgba(212,179,147,0.3)',
                   }}>
-                  <p className="text-lg font-semibold text-ink">{entry.date}</p>
+                  <p className="text-lg font-semibold text-ink">{formatEntryDate(entry, lang)}</p>
                   <div className="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-sm leading-7 text-ink/70">
                     <p>{t('logbook.openTime')}：{entry.openTime || '—'}</p>
                     <p>{t('logbook.closeTime')}：{entry.closeTime}</p>
-                    <p>{t('logbook.status')}：{entry.shopMood}</p>
+                    <p>{t('logbook.status')}：{moodLabel[entry.shopMood] ?? entry.shopMood}</p>
                     <p>{t('logbook.guestCount')}：{entry.guestCount} {t('logbook.guestUnit')}</p>
                   </div>
                   {entry.worry ? (

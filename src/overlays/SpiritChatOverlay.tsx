@@ -38,6 +38,15 @@ const systemPrompts: Record<NightType, string> = {
   '说不清': '你是「今晚早点」的面点精灵，名字由店长起。你陪着一个今晚说不清是什么感觉的店长。你只是在，不追问，不定义，铺子的灯还亮着，你还在。说话极简，2句以内，说中文。',
 }
 
+const systemPromptsEn: Record<NightType, string> = {
+  '报复型': "You are the dough spirit of 'Tonight, Sleep Early', named by the shopkeeper. You keep a revenge-bedtime-procrastinator company — not sleepless, just trying to reclaim a little time that's theirs. You understand night is their only time for themselves. Don't rush, don't lecture — just stay gently, warm and loose like an old friend. Reply in English, 2-3 short sentences, don't start with 'Sure'.",
+  '惯性型': "You are the dough spirit of 'Tonight, Sleep Early', named by the shopkeeper. You keep an inertia-type night owl company — they know it's time to stop but their hands won't. Use the shop's little things to gently shift their attention so putting the phone down feels natural. Warm, short, no nagging. Reply in English, 2-3 sentences.",
+  '焦虑型': "You are the dough spirit of 'Tonight, Sleep Early', named by the shopkeeper. You keep an anxious night owl company — their mind won't quiet down. Help them leave tomorrow's things for tomorrow; speak slow and steady so tonight needs no worry. Don't give advice, just stay with them. Reply in English, 2-3 sentences.",
+  '工作型': "You are the dough spirit of 'Tonight, Sleep Early', named by the shopkeeper. You keep a workaholic company — they always want to finish before resting. Help them set the to-dos down for tomorrow, and turn an early night into 'so the shop can open early tomorrow'. Warm and practical. Reply in English, 2-3 sentences.",
+  '猫头鹰型': "You are the dough spirit of 'Tonight, Sleep Early', named by the shopkeeper. You keep a naturally late-rhythm shopkeeper company. Don't judge their schedule — just stay gently and make sleeping early feel possible, not a task. Reply in English, 2-3 sentences.",
+  '说不清': "You are the dough spirit of 'Tonight, Sleep Early', named by the shopkeeper. You keep company with a shopkeeper who can't name tonight's feeling. Just be there — don't pry, don't define. The shop's light is on, and so are you. Very brief, at most 2 sentences. Reply in English.",
+}
+
 /* ── API ── */
 
 /** 兜底后端：安卓 APK / GitHub Pages 静态页没有同源后端时用。本项目自己的 Vercel（见 v6.0.1 提交）。 */
@@ -74,11 +83,18 @@ async function callChat(
   nightType: NightType,
   spiritName: string,
   worry: string,
+  lang: 'zh' | 'en',
 ): Promise<string> {
-  let systemPrompt = `${systemPrompts[nightType]}\n\n你的名字是${spiritName}。`
+  let systemPrompt =
+    lang === 'en'
+      ? `${systemPromptsEn[nightType]}\n\nYour name is ${spiritName}.`
+      : `${systemPrompts[nightType]}\n\n你的名字是${spiritName}。`
 
   if (worry.trim()) {
-    systemPrompt += `\n\n店长今晚写下了一件放不下的事："${worry.trim()}"。如果店长聊到相关话题，你可以温柔地回应，但不要主动提起，等店长自己说。`
+    systemPrompt +=
+      lang === 'en'
+        ? `\n\nTonight the shopkeeper wrote down something on their mind: "${worry.trim()}". If they bring up something related, respond gently — but don't raise it yourself; wait for them.`
+        : `\n\n店长今晚写下了一件放不下的事："${worry.trim()}"。如果店长聊到相关话题，你可以温柔地回应，但不要主动提起，等店长自己说。`
   }
 
   const apiMessages = [
@@ -119,10 +135,20 @@ const offlineFallbacks = [
   '我就在柜台后面，你想说什么都行。',
 ]
 
+const offlineFallbacksEn = [
+  "…it's warm in here. You don't have to say anything yet.",
+  "Mm, I'm listening.",
+  "The shop's light is still on. No rush.",
+  "You don't have to figure everything out today.",
+  "It's okay. Take your time.",
+  "I'm right here behind the counter — say whatever you like.",
+]
+
 let fallbackIndex = 0
 
-function getOfflineFallback(): string {
-  const text = offlineFallbacks[fallbackIndex % offlineFallbacks.length]
+function getOfflineFallback(lang: 'zh' | 'en'): string {
+  const pool = lang === 'en' ? offlineFallbacksEn : offlineFallbacks
+  const text = pool[fallbackIndex % pool.length]
   fallbackIndex++
   return text
 }
@@ -136,58 +162,60 @@ interface QuickReply {
   fallback?: string
 }
 
-function getQuickReplies(scene: DemoScene): QuickReply[] {
+function getQuickReplies(scene: DemoScene, lang: 'zh' | 'en'): QuickReply[] {
+  const en = lang === 'en'
   if (scene === 'evening' || scene === 'night') {
     return [
-      { label: '今天有点累', action: 'chat', fallback: '那今天就少做一点，铺子也可以慢慢来。' },
-      { label: '写下今晚的心事', action: 'navigate', target: 'eveningPrepare' },
-      { label: '该打烊了', action: 'navigate', target: 'nightClosing' },
+      { label: en ? 'A bit tired today' : '今天有点累', action: 'chat', fallback: en ? 'Then do less today; the shop can go slow too.' : '那今天就少做一点，铺子也可以慢慢来。' },
+      { label: en ? "Write tonight's worry" : '写下今晚的心事', action: 'navigate', target: 'eveningPrepare' },
+      { label: en ? 'Time to close up' : '该打烊了', action: 'navigate', target: 'nightClosing' },
     ]
   }
 
   if (scene === 'lightsOff') {
     return [
-      { label: '睡不着', action: 'chat', fallback: '没关系，铺子的灯虽然关了，我还在。' },
-      { label: '今晚辛苦了', action: 'chat', fallback: '你也辛苦了，明天铺子还会开门的。' },
+      { label: en ? "Can't sleep" : '睡不着', action: 'chat', fallback: en ? "It's okay — the lights are off, but I'm still here." : '没关系，铺子的灯虽然关了，我还在。' },
+      { label: en ? 'Tough night — thank you' : '今晚辛苦了', action: 'chat', fallback: en ? 'You worked hard too. The shop opens again tomorrow.' : '你也辛苦了，明天铺子还会开门的。' },
     ]
   }
 
   return [
-    { label: '今天有点累', action: 'chat', fallback: '那今天就少做一点，铺子也可以慢慢来。' },
-    { label: '聊聊天', action: 'chat', fallback: '好呀，想说什么都行。' },
-    { label: '昨晚又晚了', action: 'chat', fallback: '没关系，铺子今天只是安静一点。' },
+    { label: en ? 'A bit tired today' : '今天有点累', action: 'chat', fallback: en ? 'Then do less today; the shop can go slow too.' : '那今天就少做一点，铺子也可以慢慢来。' },
+    { label: en ? "Let's chat" : '聊聊天', action: 'chat', fallback: en ? 'Sure — say whatever you like.' : '好呀，想说什么都行。' },
+    { label: en ? 'Stayed up late again' : '昨晚又晚了', action: 'chat', fallback: en ? "It's okay — the shop's just a little quiet today." : '没关系，铺子今天只是安静一点。' },
   ]
 }
 
 /* ── Time-based initial messages ── */
 
-function getInitialMessages(spiritName: string, scene: DemoScene): ChatMessage[] {
+function getInitialMessages(spiritName: string, scene: DemoScene, lang: 'zh' | 'en'): ChatMessage[] {
   const hour = new Date().getHours()
+  const en = lang === 'en'
 
   if (scene === 'lightsOff') {
     return [
-      { id: 'init-1', speaker: 'spirit', text: '铺子已经关灯了，我在小屋里陪你。' },
-      { id: 'init-2', speaker: 'spirit', text: '睡不着的话，就在这里待一会儿也好。' },
+      { id: 'init-1', speaker: 'spirit', text: en ? "The shop's lights are off — I'm with you in the hut." : '铺子已经关灯了，我在小屋里陪你。' },
+      { id: 'init-2', speaker: 'spirit', text: en ? "If you can't sleep, it's fine to just stay here a while." : '睡不着的话，就在这里待一会儿也好。' },
     ]
   }
 
   if (scene === 'evening' || scene === 'night' || hour >= 20) {
     return [
-      { id: 'init-1', speaker: 'spirit', text: '店长，今天铺子开着。我在柜台后面，先陪你待一会儿。' },
-      { id: 'init-2', speaker: 'spirit', text: '如果有什么放不下的事，可以先写在纸条上。' },
+      { id: 'init-1', speaker: 'spirit', text: en ? "Shopkeeper, the shop's open. I'm behind the counter — let me keep you company." : '店长，今天铺子开着。我在柜台后面，先陪你待一会儿。' },
+      { id: 'init-2', speaker: 'spirit', text: en ? "If something's on your mind, you can jot it on a note first." : '如果有什么放不下的事，可以先写在纸条上。' },
     ]
   }
 
   if (hour < 12) {
     return [
-      { id: 'init-1', speaker: 'spirit', text: '早上好呀，今天铺子的豆浆已经热好了。' },
-      { id: 'init-2', speaker: 'spirit', text: '有什么想聊的，随时说。' },
+      { id: 'init-1', speaker: 'spirit', text: en ? "Good morning — the soy milk's already warm." : '早上好呀，今天铺子的豆浆已经热好了。' },
+      { id: 'init-2', speaker: 'spirit', text: en ? 'Say anything you’d like, anytime.' : '有什么想聊的，随时说。' },
     ]
   }
 
   return [
-    { id: 'init-1', speaker: 'spirit', text: '下午了，铺子安静下来了。' },
-    { id: 'init-2', speaker: 'spirit', text: '想聊聊天，还是安静待一会儿？' },
+    { id: 'init-1', speaker: 'spirit', text: en ? "Afternoon — the shop's quieted down." : '下午了，铺子安静下来了。' },
+    { id: 'init-2', speaker: 'spirit', text: en ? 'Want to chat, or just sit quietly a while?' : '想聊聊天，还是安静待一会儿？' },
   ]
 }
 
@@ -204,16 +232,16 @@ export function SpiritChatOverlay({
   onClose,
 }: SpiritChatOverlayProps) {
   const spiritImg = spiritAssets[spiritForm]
+  const { t, lang } = useT()
   const [messages, setMessages] = useState<ChatMessage[]>(() =>
-    getInitialMessages(spiritName, currentScene),
+    getInitialMessages(spiritName, currentScene, lang),
   )
   const [isThinking, setIsThinking] = useState(false)
   const [inputText, setInputText] = useState('')
   const [apiError, setApiError] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const { t } = useT()
 
-  const quickReplies = getQuickReplies(currentScene)
+  const quickReplies = getQuickReplies(currentScene, lang)
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -239,7 +267,7 @@ export function SpiritChatOverlay({
     setIsThinking(true)
 
     try {
-      const reply = await callChat(nextMessages, nightType, spiritName, tonightWorry)
+      const reply = await callChat(nextMessages, nightType, spiritName, tonightWorry, lang)
       setMessages((current) => [
         ...current,
         { id: `spirit-${stamp}`, speaker: 'spirit', text: reply },
@@ -247,7 +275,7 @@ export function SpiritChatOverlay({
     } catch {
       setApiError(true)
       const qr = quickReplies.find((r) => r.label === userText)
-      const fallback = qr?.fallback ?? getOfflineFallback()
+      const fallback = qr?.fallback ?? getOfflineFallback(lang)
       setMessages((current) => [
         ...current,
         { id: `spirit-${stamp}`, speaker: 'spirit', text: fallback },

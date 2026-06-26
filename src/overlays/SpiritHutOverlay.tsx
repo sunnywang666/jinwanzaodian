@@ -16,6 +16,7 @@ import { GameOverlay } from '../components/GameOverlay'
 import {
   isFormUnlocked,
   getSkinGoodNightsRequired,
+  isSkinComingSoon,
   SKIN_ORDER,
   type SpiritProgressState,
 } from '../lib/spiritProgression'
@@ -138,7 +139,11 @@ export function SpiritHutOverlay({
                       {unlocked ? t(`spiritHut.skins.${form}`) : '？？？'}
                     </p>
                     {!unlocked ? (
-                      <p className="mt-0.5 text-[10px] leading-tight text-ink/35">{t('spiritHut.lockedHint', { count: String(remaining) })}</p>
+                      <p className="mt-0.5 text-[10px] leading-tight text-ink/35">
+                        {isSkinComingSoon(form)
+                          ? t('spiritHut.lockedSoon', { count: String(need) })
+                          : t('spiritHut.lockedHint', { count: String(remaining) })}
+                      </p>
                     ) : null}
                   </button>
                 )

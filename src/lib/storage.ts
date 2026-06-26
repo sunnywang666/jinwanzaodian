@@ -136,6 +136,17 @@ export function createCloseLogEntry(
   return entry
 }
 
+/** 账本/趋势显示日期：有 ISO 时间戳就按语言格式化，否则回退已存的中文日期串 */
+export function formatEntryDate(entry: { date: string; realCloseTimestamp?: string }, lang: 'zh' | 'en'): string {
+  if (entry.realCloseTimestamp) {
+    const d = new Date(entry.realCloseTimestamp)
+    if (!Number.isNaN(d.getTime())) {
+      return lang === 'en' ? `${d.getMonth() + 1}/${d.getDate()}` : `${d.getMonth() + 1}月${d.getDate()}日`
+    }
+  }
+  return entry.date
+}
+
 export function stampOpenTime(entries: LogEntry[]): LogEntry[] {
   if (entries.length === 0) return entries
   const now = new Date()

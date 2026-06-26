@@ -42,9 +42,8 @@ const UNLOCK_RULES: DishUnlockRule[] = [
 // ── Evaluation ──
 
 function countGoodNights(logEntries: LogEntry[]): number {
-  return logEntries.filter((e) =>
-    e.isRealData && e.screenOffTimestamp && e.closingNote !== '未打烊',
-  ).length
+  // 好觉 = 真实数据 + 打烊后真正熄屏。只为已打烊的夜建记录，无需再判 closingNote。
+  return logEntries.filter((e) => e.isRealData && e.screenOffTimestamp).length
 }
 
 /**

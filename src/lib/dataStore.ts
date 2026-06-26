@@ -10,7 +10,7 @@
  * - jinwanzaodian:onboarding-draft  (temporary, deleted after onboarding)
  * - jinwanzaodian:visibility-*      (high-frequency, managed by visibility.ts)
  * - jinwanzaodian:last-screen-off   (managed by visibility.ts)
- * - jinwanzaodian:anthropic_key     (sensitive, managed by SpiritChatOverlay)
+ * - jinwanzaodian:aiping_key        (sensitive, managed by SpiritChatOverlay)
  * - jinwanzaodian:return-message    (ephemeral, auto-clears)
  */
 
@@ -27,6 +27,7 @@ import type { GuestProgressMap } from './guestProgression'
 import type { DishProgressMap } from './dishProgression'
 import type { StoredReminderSettings } from './notifications'
 import { defaultStoredReminders } from './notifications'
+import { isDemoMode } from './devMode'
 
 // ── Schema ──
 
@@ -127,13 +128,16 @@ export function createDefaultStore(): AppStore {
 
 // ── Storage key ──
 
-const STORE_KEY = 'jinwanzaodian:store'
+// 演示态与真实态用不同的存储键，避免同一浏览器 demo→正式 切换时演示数据被当真实数据继承。
+function storeKey(): string {
+  return isDemoMode() ? 'jinwanzaodian:store-demo' : 'jinwanzaodian:store'
+}
 
 // ── Read / Write ──
 
 export function loadStore(): AppStore {
   try {
-    const raw = localStorage.getItem(STORE_KEY)
+    const raw = localStorage.getItem(storeKey())
     if (raw) {
       const parsed = JSON.parse(raw) as AppStore
       if (parsed.schemaVersion === 1) {
@@ -159,21 +163,21 @@ export function loadStore(): AppStore {
 
 export function saveStore(store: AppStore) {
   try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(store))
+    localStorage.setItem(storeKey(), JSON.stringify(store))
   } catch {
     // Storage full or unavailable — fail silently
   }
 }
 
 export function clearStore() {
-  localStorage.removeItem(STORE_KEY)
+  localStorage.removeItem(storeKey())
   // Also clear keys that live outside the store
   localStorage.removeItem('jinwanzaodian:onboarding-draft')
   localStorage.removeItem('jinwanzaodian:visibility-log')
   localStorage.removeItem('jinwanzaodian:visibility-session')
   localStorage.removeItem('jinwanzaodian:last-screen-off')
   localStorage.removeItem('jinwanzaodian:return-message')
-  // Note: anthropic_key is intentionally NOT cleared (user's API key)
+  // Note: 用户的对话 API key（jinwanzaodian:aiping_key）有意保留，不清除
 }
 
 // ── Validation ──
@@ -205,6 +209,15 @@ export function validateAndRepair(store: AppStore): AppStore {
   // Backfill homeGuestKeys for stores saved before this field existed
   if (!Array.isArray(store.today.homeGuestKeys)) {
     store.today.homeGuestKeys = []
+  }
+  // 兜底极旧存档可能缺的 today 字段（否则 scene=undefined 会让 getSceneAsset 取图报错）
+  {
+    const td = createDefaultStore().today
+    if (!store.today.scene) store.today.scene = td.scene
+    if (!store.today.mood) store.today.mood = td.mood
+    if (typeof store.today.middayDone !== 'boolean') store.today.middayDone = td.middayDone
+    if (typeof store.today.tonightClosed !== 'boolean') store.today.tonightClosed = td.tonightClosed
+    if (store.today.date === undefined) store.today.date = td.date
   }
 
   // Ensure settings exists

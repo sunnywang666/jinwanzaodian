@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useT } from '../lib/i18n'
 
 interface GameOverlayProps {
   title?: string
@@ -7,6 +8,7 @@ interface GameOverlayProps {
 }
 
 export function GameOverlay({ title, onClose, children }: GameOverlayProps) {
+  const { t } = useT()
   useEffect(() => {
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -24,7 +26,7 @@ export function GameOverlay({ title, onClose, children }: GameOverlayProps) {
           className="pointer-events-auto rounded-full bg-ink/20 px-4 py-2 text-sm text-paper backdrop-blur-sm transition hover:bg-ink/30"
           onClick={onClose}
         >
-          返回铺子
+          {t('common.backToShop')}
         </button>
         {title ? (
           <span className="rounded-full bg-ink/15 px-3 py-2 text-xs tracking-[0.08em] text-paper backdrop-blur-sm">

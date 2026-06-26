@@ -11,6 +11,7 @@ import { toolAssets } from '../lib/assets'
 import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
 import { CHANNELS, TIMER_OPTIONS, type AmbientAudioControls } from '../lib/ambientAudio'
+import { useT } from '../lib/i18n'
 
 interface RadioOverlayProps {
   audio: AmbientAudioControls
@@ -20,6 +21,7 @@ interface RadioOverlayProps {
 /* ── Breathing guide ── */
 
 function BreathingGuide({ active }: { active: boolean }) {
+  const { t } = useT()
   const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale')
   const [progress, setProgress] = useState(0)
 
@@ -54,7 +56,7 @@ function BreathingGuide({ active }: { active: boolean }) {
     : phase === 'hold' ? 1.0
     : 1.0 - progress * 0.4
 
-  const labels = { inhale: '吸气', hold: '屏住', exhale: '呼气' }
+  const labels = { inhale: t('radio.inhale'), hold: t('radio.hold'), exhale: t('radio.exhale') }
 
   return (
     <div className="flex flex-col items-center py-3">
@@ -69,7 +71,7 @@ function BreathingGuide({ active }: { active: boolean }) {
       >
         <span className="text-sm font-semibold text-ink/50">{labels[phase]}</span>
       </div>
-      <p className="mt-2 text-[11px] text-ink/25">4 秒吸 · 4 秒屏 · 6 秒呼</p>
+      <p className="mt-2 text-[11px] text-ink/25">{t('radio.breathingCycle')}</p>
     </div>
   )
 }
@@ -77,9 +79,13 @@ function BreathingGuide({ active }: { active: boolean }) {
 /* ── Main ── */
 
 export function RadioOverlay({ audio, onClose }: RadioOverlayProps) {
+  const { t } = useT()
   const [timerMinutes, setTimerMinutes] = useState(0)
   const [breathingActive, setBreathingActive] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const chName = (id: string) => t(`radio.ch.${id}.name`)
+  const chDesc = (id: string) => t(`radio.ch.${id}.desc`)
+  const timerLabel = (m: number) => (m === 0 ? t('radio.timerNone') : t('radio.minutes', { n: String(m) }))
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
@@ -92,22 +98,22 @@ export function RadioOverlay({ audio, onClose }: RadioOverlayProps) {
   const activeChannel = CHANNELS.find(c => c.id === audio.currentChannel)!
 
   return (
-    <GameOverlay title="收音机" onClose={onClose}>
+    <GameOverlay title={t('radio.title')} onClose={onClose}>
       <section className="flex h-full flex-col bg-[#f5ead8] px-5 pb-6 pt-[5dvh] overflow-y-auto">
 
         <div className="mx-auto w-full max-w-[130px]">
           <AssetImage
             src={toolAssets.radio.src}
             fallbackSrc={toolAssets.radio.fallbackSrc}
-            alt="收音机"
+            alt={t('radio.title')}
             variant="item"
             className="h-auto w-full drop-shadow-[0_6px_18px_rgba(138,97,74,0.15)]"
           />
         </div>
 
         <div className="mt-4 text-center">
-          <p className="text-lg font-semibold text-ink">{activeChannel.name}</p>
-          <p className="mt-1 text-sm text-ink/40">{activeChannel.desc}</p>
+          <p className="text-lg font-semibold text-ink">{chName(activeChannel.id)}</p>
+          <p className="mt-1 text-sm text-ink/40">{chDesc(activeChannel.id)}</p>
         </div>
 
         <div className="mt-5 flex justify-center gap-3">
@@ -128,10 +134,10 @@ export function RadioOverlay({ audio, onClose }: RadioOverlayProps) {
                     boxShadow: isActive ? `0 4px 20px ${ch.color}35` : 'none',
                   }}
                 >
-                  {ch.name.charAt(0)}
+                  {chName(ch.id).charAt(0)}
                 </span>
                 <span className={`text-[11px] transition-all ${isActive ? 'text-ink font-semibold' : 'text-ink/35'}`}>
-                  {ch.name}
+                  {chName(ch.id)}
                 </span>
               </button>
             )
@@ -182,7 +188,7 @@ export function RadioOverlay({ audio, onClose }: RadioOverlayProps) {
         </div>
 
         <div className="mt-6">
-          <p className="text-xs text-ink/30">定时关闭</p>
+          <p className="text-xs text-ink/30">{t('radio.timerLabel')}</p>
           <div className="mt-2 flex gap-2">
             {TIMER_OPTIONS.map((opt) => (
               <button
@@ -195,7 +201,7 @@ export function RadioOverlay({ audio, onClose }: RadioOverlayProps) {
                 }`}
                 onClick={() => setTimerMinutes(opt.minutes)}
               >
-                {opt.label}
+                {timerLabel(opt.minutes)}
               </button>
             ))}
           </div>
@@ -207,9 +213,9 @@ export function RadioOverlay({ audio, onClose }: RadioOverlayProps) {
             className="flex w-full items-center justify-between rounded-[16px] bg-white/20 px-4 py-3 transition hover:bg-white/28"
             onClick={() => setBreathingActive(!breathingActive)}
           >
-            <span className="text-sm text-ink/55">呼吸引导</span>
+            <span className="text-sm text-ink/55">{t('radio.breathingTitle')}</span>
             <span className={`text-xs ${breathingActive ? 'text-[#5a8a52] font-semibold' : 'text-ink/25'}`}>
-              {breathingActive ? '进行中' : '点击开启'}
+              {breathingActive ? t('radio.breathingActive') : t('radio.breathingInactive')}
             </span>
           </button>
           <BreathingGuide active={breathingActive} />

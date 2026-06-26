@@ -14,7 +14,6 @@
 
 import { useState } from 'react'
 import { spiritAssets, sceneAssets, animalAssets } from '../lib/assets'
-import { middayTransitionCopy } from '../lib/demoData'
 import { guestReferences as allGuests } from '../lib/guestReferences'
 import { AssetImage } from '../components/AssetImage'
 import { SoftButton } from '../components/SoftButton'
@@ -566,7 +565,6 @@ interface MiddayTransitionProps {
 export function MiddayTransition({ spiritName, spiritForm = 'base', guestCount, shopMood, guestKeys = [], onContinue }: MiddayTransitionProps) {
   const { t } = useT()
   const spiritImg = spiritAssets[spiritForm]
-  const middayCopy = middayTransitionCopy[shopMood]
   const todayGuests = guestKeys
     .map((key) => allGuests.find((g) => g.key === key))
     .filter((g): g is (typeof allGuests)[number] => Boolean(g))
@@ -583,7 +581,7 @@ export function MiddayTransition({ spiritName, spiritForm = 'base', guestCount, 
           variant="character"
           className="h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]"
         />
-        <h2 className="mt-6 text-xl font-semibold text-ink">{middayCopy.title}</h2>
+        <h2 className="mt-6 text-xl font-semibold text-ink">{t(`morning.midday.${shopMood}.title`)}</h2>
         <p className="mt-3 text-base leading-7 text-ink/60">
           {t('morning.middayGuests', { count: String(guestCount) })}
         </p>
@@ -608,7 +606,7 @@ export function MiddayTransition({ spiritName, spiritForm = 'base', guestCount, 
           </div>
         ) : null}
 
-        <p className="mt-2 text-sm leading-6 text-ink/50">{middayCopy.body(spiritName)}</p>
+        <p className="mt-2 text-sm leading-6 text-ink/50">{t(`morning.midday.${shopMood}.body`, { name: spiritName })}</p>
         <SoftButton className="mt-8" type="button" variant="primary" block onClick={onContinue}>
           {t('morning.middayStart')}
         </SoftButton>

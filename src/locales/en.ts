@@ -208,6 +208,11 @@ export const en = {
     rewardNoCloseSub: 'No reward, no punishment \u2014 just company.',
     middayGuests: '{count} guests came this morning.',
     middayStart: 'Start prepping',
+    midday: {
+      busy: { title: 'Almost sold out!', body: '{name}: What a lively morning! Let\'s prep together this afternoon and try a new recipe.' },
+      normal: { title: 'Morning wrapped up', body: '{name}: An ordinary day is good too. Let\'s wipe the counter this afternoon.' },
+      quiet: { title: 'Morning\'s over', body: '{name}: A quiet day — the door\'s open as always. Take it slow this afternoon.' },
+    },
     greetings: {
       closed: {
         revenge: { line1: 'Lights off at {time} last night \u2014 you gave the night back its quiet.', line2: '{name}: The shop kept watch. You slept well.' },
@@ -285,6 +290,7 @@ export const en = {
     tabSkins: 'Looks',
     tabAchievements: 'Milestones',
     lockedHint: '{count} more nights',
+    lockedSoon: '{count} nights · soon',
     skinSectionTitle: 'Pastry forms',
     skinNote: 'Pastry forms unlock slowly with cumulative good nights — they only add up, never reset, and grow rarer the further you go.',
     achUnlocked: 'Done',
@@ -323,6 +329,13 @@ export const en = {
     hold: 'Hold',
     exhale: 'Exhale',
     breathingCycle: '4s in · 4s hold · 6s out',
+    minutes: '{n} min',
+    ch: {
+      rain: { name: 'Rain', desc: 'A soft drizzle outside' },
+      wind: { name: 'Breeze', desc: 'Leaves rustling softly' },
+      cafe: { name: 'Café', desc: 'Faint chatter in the distance' },
+      fireplace: { name: 'Fireplace', desc: 'Logs crackling away' },
+    },
   },
 
   logbook: {
@@ -330,6 +343,9 @@ export const en = {
     openTime: 'Opened',
     closeTime: 'Closed',
     status: 'Status',
+    moodBusy: 'Lively',
+    moodNormal: 'Calm',
+    moodQuiet: 'Quiet',
     guestCount: 'Guests',
     guestUnit: '',
     worryLabel: 'Note',

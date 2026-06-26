@@ -219,6 +219,11 @@ export const zh = {
     // Midday
     middayGuests: '今天上午来了 {count} 位客人。',
     middayStart: '开始备菜',
+    midday: {
+      busy: { title: '早点快卖完啦', body: '{name}：今天真热闹！下午咱们一起备菜，试试新配方。' },
+      normal: { title: '上午收摊了', body: '{name}：平常的一天也挺好的。下午一起擦擦柜台吧。' },
+      quiet: { title: '上午结束了', body: '{name}：今天安静一点，不过门照常开着。下午慢慢来。' },
+    },
     // 个性化问候
     greetings: {
       closed: {
@@ -300,6 +305,7 @@ export const zh = {
     tabSkins: '换装',
     tabAchievements: '成就',
     lockedHint: '再早睡 {count} 晚',
+    lockedSoon: '满 {count} 晚 · 待上新',
     skinSectionTitle: '点心形态',
     skinNote: '点心形态靠累计早睡的夜晚慢慢解锁——只累计、断了不清零、越往后越珍贵。',
     achUnlocked: '已点亮',
@@ -340,6 +346,13 @@ export const zh = {
     hold: '屏住',
     exhale: '呼气',
     breathingCycle: '4 秒吸 · 4 秒屏 · 6 秒呼',
+    minutes: '{n} 分钟',
+    ch: {
+      rain: { name: '雨声', desc: '窗外淅淅沥沥' },
+      wind: { name: '微风', desc: '树叶沙沙地响' },
+      cafe: { name: '咖啡馆', desc: '远处有人小声说话' },
+      fireplace: { name: '壁炉', desc: '柴火噼啪作响' },
+    },
   },
 
   // ── 营业账本 ──
@@ -348,6 +361,9 @@ export const zh = {
     openTime: '开门',
     closeTime: '关灯',
     status: '状态',
+    moodBusy: '热闹',
+    moodNormal: '平常',
+    moodQuiet: '安静',
     guestCount: '客人',
     guestUnit: '位',
     worryLabel: '小纸条',

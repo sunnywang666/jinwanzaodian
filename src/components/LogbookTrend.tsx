@@ -8,6 +8,7 @@
  */
 
 import type { LogEntry } from '../lib/storage'
+import { formatEntryDate } from '../lib/storage'
 import { useT, type Lang } from '../lib/i18n'
 import { summarizeNights, detectWarnings, scaleToClock, formatDuration } from '../lib/sleepAnalysis'
 
@@ -329,7 +330,7 @@ export function LogbookTrend({ entries, spiritName, showSleep = true }: LogbookT
               <circle cx={p.x} cy={p.y} r="3.5" fill="#f5ead8" stroke="rgba(138,97,74,0.6)" strokeWidth="1.5" />
               {/* Date label on x-axis */}
               <text x={p.x} y={H - 4} textAnchor="middle" fontSize="7" fill="rgba(78,64,55,0.3)" fontFamily="system-ui">
-                {validEntries[i].date.replace(/\d+年/, '')}
+                {formatEntryDate(validEntries[i], lang)}
               </text>
             </g>
           ))}

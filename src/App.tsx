@@ -58,7 +58,7 @@ import { MessageBoardOverlay } from './overlays/MessageBoardOverlay'
 import { RecipeBookConfirmView } from './views/RecipeBookConfirmView'
 import { GuestBookConfirmView } from './views/GuestBookConfirmView'
 import { GuestBookOpenView } from './views/GuestBookOpenView'
-import { useAmbientAudio, CHANNELS } from './lib/ambientAudio'
+import { useAmbientAudio } from './lib/ambientAudio'
 import { getNow } from './lib/timeSimulator'
 import { useT } from './lib/i18n'
 
@@ -241,6 +241,17 @@ export default function App() {
     return () => window.clearInterval(id)
   }, [autoSceneEnabled, profile, eveningPrepare.plannedLightsOffTime, tonightClosed, todayMood, view])
 
+  // 跨零点：App 整夜常驻、停在首页时，到了新的一天自动进开门仪式（无需手动刷新）
+  useEffect(() => {
+    if (!profile) return
+    const id = window.setInterval(() => {
+      if (view === 'home' && lastOpenDate !== getTodayString()) {
+        setView('morningOpening')
+      }
+    }, 60_000)
+    return () => window.clearInterval(id)
+  }, [profile, view, lastOpenDate])
+
   // ── Visibility tracking ──
   useEffect(() => {
     if (!profile) return
@@ -296,10 +307,16 @@ export default function App() {
     setTourDone(false)
     setSleepInsights(defaults.settings.sleepInsights)
     setEveningPrepare({ plannedLightsOffTime: '23:00', worry: '', savedAt: null })
-    setLogEntries(isDemoMode() ? createDefaultLogEntries() : [])
-    setGuestProgress({})
+    const resetEntries = isDemoMode() ? createDefaultLogEntries() : []
+    setLogEntries(resetEntries)
+    setGuestProgress(injectDemoGuestSeeds({}))
     setDishProgress({})
-    setSpiritProgress(defaults.spirit.progress)
+    // 演示版重置后也从示例 7 晚推导累计早睡，避免"客人变新客/累计早睡=0"与示例数据不自洽
+    setSpiritProgress(
+      isDemoMode()
+        ? evaluateSpiritUnlocks(defaults.spirit.progress, resetEntries).updated
+        : defaults.spirit.progress,
+    )
     setLastOpenDate(null)
     setView('home')
     setGuestBookPage(0)
@@ -384,7 +401,9 @@ export default function App() {
           nightWakes: prevEntry.nightWakes ?? countNightReturns(prevEntry.realCloseTimestamp, nowIso),
         }
       : null
-    const lastNightSleep = sleepInsights ? analyzeNight(mergedPrev) : null
+    // 只在"昨晚确实打烊了"(tonightClosed) 才展示昨晚睡眠小结，
+    // 否则 logEntries[0] 是更早的旧夜，会把几天前的休息时长当昨晚显示。
+    const lastNightSleep = sleepInsights && tonightClosed ? analyzeNight(mergedPrev) : null
     const sleepSummary = summarizeNights(mergedPrev ? [mergedPrev, ...logEntries.slice(1)] : logEntries)
     const sleepWarning = sleepInsights ? (detectWarnings(sleepSummary, lang)[0] ?? null) : null
 
@@ -470,7 +489,7 @@ export default function App() {
                 className="pointer-events-auto animate-pulse rounded-full bg-ink/20 px-3 py-1.5 text-xs text-paper backdrop-blur-sm transition hover:bg-ink/30"
                 onClick={() => setView('radio')}
               >
-                ♫ {CHANNELS.find((c) => c.id === ambientAudio.currentChannel)?.name ?? '播放中'}
+                ♫ {t(`radio.ch.${ambientAudio.currentChannel}.name`)}
               </button>
             ) : null}
 
@@ -513,7 +532,7 @@ export default function App() {
         onSceneChange={(scene) => {
           autoSceneSuppressedUntil.current = Date.now() + 5 * 60 * 1000
           if (tonightClosed && scene !== 'lightsOff') {
-            if (!window.confirm('铺子已经打烊了，确定要重新开门吗？')) return
+            if (!window.confirm(t('home.confirmReopen'))) return
             setTonightClosed(false)
           }
           setDemoScene(scene)
