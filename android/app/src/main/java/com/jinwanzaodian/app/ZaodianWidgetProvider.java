@@ -19,6 +19,7 @@ public class ZaodianWidgetProvider extends AppWidgetProvider {
 
     static final String PREFS = "zaodian_widget";
     static final String KEY_LIGHTS_OFF = "lightsOff";
+    static final String KEY_SKIN = "skin";
 
     @Override
     public void onUpdate(Context context, AppWidgetManager mgr, int[] ids) {
@@ -28,9 +29,11 @@ public class ZaodianWidgetProvider extends AppWidgetProvider {
     static void updateOne(Context context, AppWidgetManager mgr, int id) {
         SharedPreferences sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String lightsOff = sp.getString(KEY_LIGHTS_OFF, "23:00");
+        String skin = sp.getString(KEY_SKIN, "base");
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_zaodian);
         views.setTextViewText(R.id.widget_line, buildMessage(lightsOff));
+        views.setImageViewResource(R.id.widget_spirit, resolveSpiritDrawable(context, skin));
 
         Intent launch = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
         if (launch != null) {
@@ -41,6 +44,16 @@ public class ZaodianWidgetProvider extends AppWidgetProvider {
         }
 
         mgr.updateAppWidget(id, views);
+    }
+
+    /** 按皮肤 key 取 `widget_spirit_{皮肤}`，没有对应图（如待上新皮肤）则回退 base 图 */
+    static int resolveSpiritDrawable(Context context, String skin) {
+        if (skin != null && skin.matches("[a-z0-9_]+")) {
+            int id = context.getResources().getIdentifier(
+                "widget_spirit_" + skin, "drawable", context.getPackageName());
+            if (id != 0) return id;
+        }
+        return R.drawable.widget_spirit;
     }
 
     /** 随时辰给一句，核心是今晚关灯承诺 */

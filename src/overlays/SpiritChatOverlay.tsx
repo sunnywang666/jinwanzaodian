@@ -9,9 +9,8 @@
  */
 
 import { useState, useRef, useEffect } from 'react'
-import { spiritAssets } from '../lib/assets'
 import { type ChatMessage } from '../lib/demoData'
-import { AssetImage } from '../components/AssetImage'
+import { SpiritSprite } from '../components/SpiritSprite'
 import { GameOverlay } from '../components/GameOverlay'
 import type { DemoScene, NightType, SpiritForm } from '../lib/storage'
 import { useT } from '../lib/i18n'
@@ -231,7 +230,6 @@ export function SpiritChatOverlay({
   onGoToNightClosing,
   onClose,
 }: SpiritChatOverlayProps) {
-  const spiritImg = spiritAssets[spiritForm]
   const { t, lang } = useT()
   const [messages, setMessages] = useState<ChatMessage[]>(() =>
     getInitialMessages(spiritName, currentScene, lang),
@@ -309,13 +307,7 @@ export function SpiritChatOverlay({
       >
         {/* Header — clean, no "去小屋" link */}
         <div className="flex items-center gap-3 px-4 pb-2 pt-[9dvh]">
-          <AssetImage
-            src={spiritImg.src}
-            fallbackSrc={spiritImg.fallbackSrc}
-            alt={spiritName}
-            variant="character"
-            className="h-12 drop-shadow-[0_4px_12px_rgba(138,97,74,0.15)]"
-          />
+          <SpiritSprite body={spiritForm} face="normal" alt={spiritName} className="h-12 drop-shadow-[0_4px_12px_rgba(138,97,74,0.15)]" />
           <h1 className="text-base font-semibold text-ink">{spiritName}</h1>
         </div>
 
@@ -333,13 +325,7 @@ export function SpiritChatOverlay({
             return (
               <div key={message.id} className={`flex items-end gap-2 ${fromSpirit ? 'justify-start' : 'justify-end'}`}>
                 {fromSpirit ? (
-                  <AssetImage
-                    src={spiritImg.src}
-                    fallbackSrc={spiritImg.fallbackSrc}
-                    alt={spiritName}
-                    variant="character"
-                    className="h-9 shrink-0"
-                  />
+                  <SpiritSprite body={spiritForm} face="normal" alt={spiritName} className="h-9 shrink-0" />
                 ) : null}
                 <p
                   className={`max-w-[78%] rounded-[22px] px-4 py-3 text-sm leading-6 ${
@@ -356,13 +342,7 @@ export function SpiritChatOverlay({
 
           {isThinking ? (
             <div className="flex items-end gap-2 justify-start">
-              <AssetImage
-                src={spiritImg.src}
-                fallbackSrc={spiritImg.fallbackSrc}
-                alt={spiritName}
-                variant="character"
-                className="h-9 shrink-0"
-              />
+              <SpiritSprite body={spiritForm} face="normal" alt={spiritName} className="h-9 shrink-0" />
               <div className="flex items-center gap-1 rounded-[22px] bg-white/60 px-4 py-3 backdrop-blur-sm">
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink/30" style={{ animationDelay: '0ms' }} />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink/30" style={{ animationDelay: '150ms' }} />

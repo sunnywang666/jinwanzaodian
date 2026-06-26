@@ -8,14 +8,15 @@
 import { registerPlugin, Capacitor } from '@capacitor/core'
 
 interface ZaodianWidgetPlugin {
-  update(options: { lightsOff: string }): Promise<void>
+  update(options: { lightsOff: string; skin: string }): Promise<void>
 }
 
 const ZaodianWidget = registerPlugin<ZaodianWidgetPlugin>('ZaodianWidget')
 
-export function updateWidget(lightsOff: string): void {
+/** 把今晚关灯时间 + 当前皮肤同步给桌面小组件（皮肤决定组件里显示哪只精灵） */
+export function updateWidget(lightsOff: string, skin: string = 'base'): void {
   if (Capacitor.getPlatform() !== 'android') return
-  ZaodianWidget.update({ lightsOff }).catch(() => {
+  ZaodianWidget.update({ lightsOff, skin }).catch(() => {
     /* 没装组件 / 调用失败都不影响 app */
   })
 }

@@ -10,8 +10,7 @@
 
 import { useState } from 'react'
 import type { LogEntry, SpiritForm } from '../lib/storage'
-import { spiritAssets } from '../lib/assets'
-import { AssetImage } from '../components/AssetImage'
+import { SpiritSprite } from '../components/SpiritSprite'
 import { GameOverlay } from '../components/GameOverlay'
 import {
   isFormUnlocked,
@@ -62,7 +61,6 @@ export function SpiritHutOverlay({
 }: SpiritHutOverlayProps) {
   const { t } = useT()
   const [tab, setTab] = useState<'skins' | 'achievements'>('skins')
-  const currentAsset = spiritAssets[currentForm]
 
   const skinsUnlocked = SKIN_ORDER.filter((f) => isFormUnlocked(spiritProgress, f)).length
   const records = sleepRecords(logEntries)
@@ -84,9 +82,8 @@ export function SpiritHutOverlay({
       <section className="flex h-full flex-col bg-[#f5ead8] px-4 pb-5 pt-[11dvh]">
         {/* 头部：当前形态大图 + 名字 + 累计 */}
         <div className="flex flex-col items-center px-4 pb-4 text-center">
-          <div className="flex h-32 w-32 items-center justify-center">
-            <AssetImage src={currentAsset.src} fallbackSrc={currentAsset.fallbackSrc} alt={spiritName} variant="character"
-              className="h-28 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]" />
+          <div className="flex h-32 items-center justify-center">
+            <SpiritSprite body={currentForm} face="normal" className="h-28 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]" alt={spiritName} />
           </div>
           <h1 className="mt-3 text-xl font-semibold text-ink">{spiritName}</h1>
           {SKIN_ORDER.includes(currentForm) ? (
@@ -116,7 +113,6 @@ export function SpiritHutOverlay({
               {SKIN_ORDER.map((form) => {
                 const unlocked = isFormUnlocked(spiritProgress, form)
                 const isActive = currentForm === form
-                const asset = spiritAssets[form]
                 const need = getSkinGoodNightsRequired(form)
                 const remaining = Math.max(0, need - spiritProgress.totalGoodNights)
                 return (
@@ -125,12 +121,12 @@ export function SpiritHutOverlay({
                       isActive ? 'bg-butter/45 ring-2 ring-[#d4a574]/50' : unlocked ? 'bg-paper/70 hover:bg-paper/85' : 'bg-paper/35'
                     }`}
                     onClick={() => { if (unlocked) onSelectForm(form) }}>
-                    <div className="relative flex h-16 items-center justify-center">
+                    <div className="relative flex h-14 items-center justify-center">
                       {unlocked ? (
-                        <AssetImage src={asset.src} fallbackSrc={asset.fallbackSrc} alt={t(`spiritHut.skins.${form}`)} variant="character" className="h-16" />
+                        <SpiritSprite body={form} face="normal" className="h-14" alt={t(`spiritHut.skins.${form}`)} />
                       ) : (
                         // 未解锁：剪影（不加载真图，纯色块占位）
-                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-ink/15">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ink/15">
                           <span className="text-lg text-ink/30">🔒</span>
                         </div>
                       )}

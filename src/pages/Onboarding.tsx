@@ -10,7 +10,8 @@
  */
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { getCoverTransparent, getSpiritAsset } from '../lib/assets'
+import { getCoverTransparent } from '../lib/assets'
+import { SpiritSprite } from '../components/SpiritSprite'
 import { onboardingSkins, personaQuestions, resolvePersona } from '../lib/demoData'
 import {
   clearOnboardingDraft,
@@ -22,7 +23,6 @@ import {
   type OnboardingProfile,
   type SpiritBody,
 } from '../lib/storage'
-import { AssetImage } from '../components/AssetImage'
 import { SoftButton } from '../components/SoftButton'
 import { useT, type Lang } from '../lib/i18n'
 import { isDemoMode } from '../lib/devMode'
@@ -145,7 +145,7 @@ function SpiritCarousel({ selected, onSelect }: SpiritCarouselProps) {
             const off = Math.abs(rawOffset > count / 2 ? rawOffset - count : rawOffset)
             return (
               <div key={item.form} style={getItemStyle(index)} onClick={() => { if (off !== 0) onSelect(item.form) }}>
-                <AssetImage src={item.image.src} fallbackSrc={item.image.fallbackSrc} alt={item.name} variant="character" className="h-44 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]" />
+                <SpiritSprite body={item.form} face="normal" alt={item.name} className="h-44 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]" />
               </div>
             )
           })}
@@ -244,7 +244,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     const qIdx = draft.questionIndex
     const qKey = quizKeys[qIdx]
     const questionText = t(`onboarding.quiz.${qKey}.question`)
-    const spirit = getSpiritAsset('base')
 
     // Build conversation history from previous answers
     const chatHistory: Array<{ speaker: 'spirit' | 'user'; text: string }> = []
@@ -261,7 +260,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         <section className="flex flex-1 flex-col px-5 py-5">
           {/* Spirit header */}
           <div className="flex items-center gap-3 pb-3">
-            <AssetImage src={spirit.src} fallbackSrc={spirit.fallbackSrc} alt="" variant="character" className="h-10 drop-shadow-[0_4px_12px_rgba(138,97,74,0.15)]" />
+            <SpiritSprite body="base" face="normal" className="h-10 drop-shadow-[0_4px_12px_rgba(138,97,74,0.15)]" />
             <p className="text-xs text-ink/40">{t('onboarding.quiz.spiritAsk', { name: '' })}</p>
           </div>
 
@@ -320,12 +319,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   /* ── Step 2: Result + Spirit appears ── */
   if (draft.step === 2) {
-    const spirit = getSpiritAsset('base')
     return (
       <OnboardingFrame onReset={reset} onSkip={skip}>
         <section className="flex flex-1 flex-col justify-center px-5 py-5 text-center">
           <div className="relative mx-auto flex h-48 w-48 items-center justify-center">
-            <AssetImage src={spirit.src} fallbackSrc={spirit.fallbackSrc} alt="" variant="character" className="h-36 drop-shadow-[0_8px_24px_rgba(138,97,74,0.2)]" />
+            <SpiritSprite body="base" face="normal" className="h-36 drop-shadow-[0_8px_24px_rgba(138,97,74,0.2)]" />
           </div>
           <p className="mt-4 text-sm text-ink/45">{t('onboarding.result.intro')}</p>
           <h1 className="mt-2 text-3xl font-semibold text-brown">{t(`onboarding.types.${result}`)}</h1>
@@ -364,7 +362,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       <OnboardingFrame onReset={reset} onSkip={skip}>
         <section className="flex flex-1 flex-col justify-center px-5 py-5 text-center">
           <div className="mx-auto flex h-36 w-36 items-center justify-center">
-            <AssetImage src={currentSkin.image.src} fallbackSrc={currentSkin.image.fallbackSrc} alt={currentSkin.name} variant="character" className="h-28 drop-shadow-[0_6px_18px_rgba(138,97,74,0.18)]" />
+            <SpiritSprite body={currentSkin.form} face="normal" alt={currentSkin.name} className="h-28 drop-shadow-[0_6px_18px_rgba(138,97,74,0.18)]" />
           </div>
           <h1 className="mt-5 text-2xl font-semibold text-ink">{t('onboarding.namingTitle')}</h1>
           <div className="mx-auto mt-6 w-full max-w-[280px]">

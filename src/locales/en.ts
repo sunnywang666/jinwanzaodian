@@ -300,7 +300,7 @@ export const en = {
     achGroupRest: 'Restful sleep',
     skins: {
       base: 'White Dough', xiaolongbao: 'Soup Dumpling', bagel: 'Bagel', croissant: 'Croissant',
-      donut: 'Donut', baozi: 'Bun', waffle: 'Waffle', mochi: 'Mochi',
+      donut: 'Donut', waffle: 'Waffle', matcha: 'Matcha Bun', baozi: 'Bun', mochi: 'Mochi',
     },
   },
 

@@ -9,6 +9,23 @@ const mappings = [
   // 主背景源图『暂定主页面背景图』现以 scene-day.png 为准（旧的 shop-main-background.png 已废弃删除）
   { target: 'scene-day.png', patterns: ['暂定主页面背景图'] },
   { target: 'cover-shop.png', patterns: ['早点整体美术参考图'] },
+  // ── 精灵·身体（无脸，整 1024 画布，用于"身体+表情"合成；勿裁剪） ──
+  { target: 'spirit-body-base.png', patterns: ['基础白面团版'] },
+  { target: 'spirit-body-xiaolongbao.png', patterns: ['基础小笼包版'] },
+  { target: 'spirit-body-bagel.png', patterns: ['基础贝果版'] },
+  { target: 'spirit-body-croissant.png', patterns: ['基础写实可颂版', '写实可颂版'] },
+  { target: 'spirit-body-waffle.png', patterns: ['基础华夫饼版'] },
+  { target: 'spirit-body-donut.png', patterns: ['基础甜甜圈版'] },
+  { target: 'spirit-body-matcha.png', patterns: ['基础抹茶生乳包版'] },
+  // ── 精灵·表情（无身体，整 1024 画布；勿裁剪） ──
+  { target: 'spirit-face-normal.png', patterns: ['常规表情'] },
+  { target: 'spirit-face-daze.png', patterns: ['发呆表情'] },
+  { target: 'spirit-face-sleepy.png', patterns: ['迷茫瞌睡表情'] },
+  // ── 精灵客人（加入现有客人系统） ──
+  { target: 'guest-spirit-1.png', patterns: ['特殊客人1'] },
+  { target: 'guest-spirit-2.png', patterns: ['特殊客人2'] },
+  { target: 'guest-spirit-3.png', patterns: ['特殊客人3'] },
+  { target: 'guest-spirit-family-1.png', patterns: ['特殊客人家族1-1', '家族1-1'] },
   { target: 'ui-recipe-book-inner.png', patterns: ['UI-菜品图鉴内页'] },
   { target: 'asset-recipe-book-cover.png', patterns: ['资产-菜品图鉴'] },
   { target: 'ui-guest-book-inner.png', patterns: ['UI-客人图鉴内页'] },

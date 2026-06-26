@@ -21,6 +21,11 @@ const demoGuestSeeds: Array<{ key: string; visitCount: number }> = [
   { key: 'fox', visitCount: 3 },
   { key: 'sparrow', visitCount: 2 },
   { key: 'bird', visitCount: 2 },
+  // 精灵客人
+  { key: 'spirit1', visitCount: 7 },
+  { key: 'spirit2', visitCount: 4 },
+  { key: 'spirit3', visitCount: 3 },
+  { key: 'spiritFamily1_1', visitCount: 1 },
 ]
 
 /**

@@ -17,7 +17,7 @@ import { useEffect, useRef, useState } from 'react'
 import { dishes as allDishes } from '../lib/demoData'
 import { guestReferences as allGuests } from '../lib/guestReferences'
 import { getFamiliarityLabel, type FamiliarityLevel } from '../lib/guestProgression'
-import { spiritAssets } from '../lib/assets'
+import { SpiritSprite } from './SpiritSprite'
 import type { SpiritForm } from '../lib/storage'
 
 interface GuestProgressLite {
@@ -59,6 +59,7 @@ const ARRIVAL = {
 /** 想法 emoji（按爱吃猜一个，纯氛围） */
 const THOUGHT: Record<string, string> = {
   cat: '🐟', fox: '🥣', rabbit: '🍵', bear: '🥟', raccoon: '🥛', sparrow: '🥚', bird: '🥛',
+  spirit1: '🥛', spirit2: '🥟', spirit3: '🥣', spiritFamily1_1: '🥢',
 }
 
 /** 按客人爱吃的食物挑一份要端上的餐点 */
@@ -88,7 +89,6 @@ export function ShopGuests({
   onSpiritTap,
   guestProgress,
 }: ShopGuestsProps) {
-  const spiritImg = spiritAssets[spiritForm]
   const present = guestKeys
     .map((key) => allGuests.find((g) => g.key === key))
     .filter((g): g is (typeof allGuests)[number] => Boolean(g))
@@ -163,8 +163,7 @@ export function ShopGuests({
         onClick={() => onSpiritTap?.()}
         aria-label={spiritName}
       >
-        <img src={spiritImg.src} alt={spiritName} style={{ width: '100%', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(138,97,74,0.2))' }}
-          onError={(e) => { if (spiritImg.fallbackSrc) (e.target as HTMLImageElement).src = spiritImg.fallbackSrc }} />
+        <SpiritSprite body={spiritForm} face="normal" alt={spiritName} className="w-full" style={{ filter: 'drop-shadow(0 4px 8px rgba(138,97,74,0.2))' }} />
         {serving ? (
           <div className="absolute left-1/2 top-[-8px] flex -translate-x-1/2 gap-[3px]">
             {[0, 0.35, 0.7].map((d, k) => (

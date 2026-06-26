@@ -20,10 +20,14 @@ public class ZaodianWidgetPlugin extends Plugin {
     @PluginMethod
     public void update(PluginCall call) {
         String lightsOff = call.getString("lightsOff", "23:00");
+        String skin = call.getString("skin", "base");
         Context ctx = getContext();
 
         SharedPreferences sp = ctx.getSharedPreferences(ZaodianWidgetProvider.PREFS, Context.MODE_PRIVATE);
-        sp.edit().putString(ZaodianWidgetProvider.KEY_LIGHTS_OFF, lightsOff).apply();
+        sp.edit()
+            .putString(ZaodianWidgetProvider.KEY_LIGHTS_OFF, lightsOff)
+            .putString(ZaodianWidgetProvider.KEY_SKIN, skin)
+            .apply();
 
         AppWidgetManager mgr = AppWidgetManager.getInstance(ctx);
         int[] ids = mgr.getAppWidgetIds(new ComponentName(ctx, ZaodianWidgetProvider.class));

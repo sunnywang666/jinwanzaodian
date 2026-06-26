@@ -73,11 +73,38 @@ export const spiritAssets = {
   confusedBagel: trimmedAsset('dough-spirit-confused-bagel.png'), // 贝果·迷糊脸
   sleep: trimmedAsset('dough-spirit-confused-bagel.png'),    // 睡（迷糊贝果）
   // ↓ 靠累计早睡解锁的新形态，图待补（未解锁时显示剪影，不会加载这些文件）
-  donut: trimmedAsset('dough-spirit-donut.png'),             // 甜甜圈（待补图）
-  baozi: trimmedAsset('dough-spirit-baozi.png'),             // 包子（待补图）
-  waffle: trimmedAsset('dough-spirit-waffle.png'),           // 华夫饼（待补图）
-  mochi: trimmedAsset('dough-spirit-mochi.png'),             // 麻糬（待补图）
+  donut: asset('spirit-body-donut.png'),                     // 甜甜圈（新合成身体图，无脸；场景迁移到 SpiritSprite 后此项弃用）
+  waffle: asset('spirit-body-waffle.png'),                   // 华夫饼
+  matcha: asset('spirit-body-matcha.png'),                   // 抹茶生乳包
+  baozi: trimmedAsset('dough-spirit-confused-bagel.png'),    // 包子（待补图，占位）
+  mochi: trimmedAsset('dough-spirit-confused-bagel.png'),    // 麻糬（待补图，占位）
 } satisfies Record<SpiritForm | 'normal' | 'confusedAwake', AssetSource>
+
+// ── 精灵"身体 + 表情"合成系统 ──
+// 身体(无脸) 与 表情(无身体) 同为 1024 整画布，叠两层即对齐。用 asset()(根目录,未裁剪)以保持对齐。
+export const spiritBodyAssets = {
+  base: asset('spirit-body-base.png'),
+  xiaolongbao: asset('spirit-body-xiaolongbao.png'),
+  bagel: asset('spirit-body-bagel.png'),
+  croissant: asset('spirit-body-croissant.png'),
+  waffle: asset('spirit-body-waffle.png'),
+  donut: asset('spirit-body-donut.png'),
+  matcha: asset('spirit-body-matcha.png'),
+} as const
+export const spiritFaceAssets = {
+  normal: asset('spirit-face-normal.png'),
+  daze: asset('spirit-face-daze.png'),
+  sleepy: asset('spirit-face-sleepy.png'),
+} as const
+export type SpiritBodyKey = keyof typeof spiritBodyAssets
+export type SpiritFaceKey = keyof typeof spiritFaceAssets
+
+export const guestSpiritAssets = {
+  spirit1: asset('guest-spirit-1.png'),
+  spirit2: asset('guest-spirit-2.png'),
+  spirit3: asset('guest-spirit-3.png'),
+  spiritFamily1: asset('guest-spirit-family-1.png'),
+} as const
 
 export const animalAssets = {
   fox: trimmedAsset('animal-fox.png'),

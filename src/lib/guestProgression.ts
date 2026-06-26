@@ -39,7 +39,11 @@ export function getFamiliarityLabel(level: FamiliarityLevel): string {
 
 // ── Guest appearance logic ──
 
-const ALL_GUEST_KEYS = ['cat', 'rabbit', 'raccoon', 'bear', 'fox', 'sparrow', 'bird'] as const
+const ALL_GUEST_KEYS = [
+  'cat', 'rabbit', 'raccoon', 'bear', 'fox', 'sparrow', 'bird',
+  // 精灵客人，与动物客人同一套作息/熟络度机制
+  'spirit1', 'spirit2', 'spirit3', 'spiritFamily1_1',
+] as const
 
 export function rollTodayGuests(
   mood: 'busy' | 'normal' | 'quiet',

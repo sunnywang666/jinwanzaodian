@@ -1,4 +1,4 @@
-import { sceneAssets, sceneByDemo, spiritAssets } from '../lib/assets'
+import { sceneAssets, sceneByDemo } from '../lib/assets'
 import type { DemoScene, SpiritForm } from '../lib/storage'
 import type { GuestProgressMap } from '../lib/guestProgression'
 import { sceneItems, type SceneItemTarget } from '../lib/sceneItems'
@@ -6,6 +6,7 @@ import { AssetImage } from './AssetImage'
 import { ClockOverlay } from './ClockOverlay'
 import { SceneItemButton } from './SceneItemButton'
 import { ShopGuests } from './ShopGuests'
+import { SpiritSprite } from './SpiritSprite'
 
 interface ShopSceneInteractiveProps {
   scene: DemoScene
@@ -52,18 +53,25 @@ export function ShopSceneInteractive({
 
         <ClockOverlay />
         <div className="absolute inset-0">
+          {/* 精灵改用 SpiritSprite 单独渲染（见下），其它物件照常 */}
           {sceneItems
-            // 有活精灵时隐藏原静态「面点精灵」热点，避免两个精灵重复
-            .filter((item) => !(hasLiveGuests && item.id === 'spirit'))
-            // 静态精灵热点反映当前选择的皮肤
-            .map((item) =>
-              item.id === 'spirit'
-                ? { ...item, src: spiritAssets[spiritForm].src, fallbackSrc: spiritAssets[spiritForm].fallbackSrc }
-                : item,
-            )
+            .filter((item) => item.id !== 'spirit')
             .map((item) => (
               <SceneItemButton key={item.id} item={item} debug={debug} onOpen={onItemOpen} />
             ))}
+
+          {/* 静态精灵（没有活精灵时显示）：身体+表情合成，反映当前皮肤 */}
+          {!hasLiveGuests ? (
+            <button
+              type="button"
+              aria-label={spiritName ?? '面点精灵'}
+              className="absolute"
+              style={{ left: '19%', top: '32%', width: '7%', zIndex: 7 }}
+              onClick={() => onSpiritTap?.()}
+            >
+              <SpiritSprite body={spiritForm} face="normal" className="w-full" />
+            </button>
+          ) : null}
         </div>
 
         {showGuests ? (

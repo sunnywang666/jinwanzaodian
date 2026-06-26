@@ -22,7 +22,8 @@ export type NightType = '报复型' | '惯性型' | '焦虑型' | '工作型' | 
 
 export type SpiritForm =
   | 'base' | 'whiteDough' | 'xiaolongbao' | 'bagel' | 'confusedBagel' | 'croissant'
-  | 'donut' | 'baozi' | 'waffle' | 'mochi' // 靠累计早睡解锁的新形态（待补图）
+  | 'donut' | 'waffle' | 'matcha' // 靠累计早睡解锁的新形态（已有图）
+  | 'baozi' | 'mochi' // 规划中、待补图
   | 'sleep'
 
 export type SpiritBody = 'base' | 'xiaolongbao' | 'bagel' | 'croissant'

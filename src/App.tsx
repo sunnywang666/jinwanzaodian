@@ -36,7 +36,7 @@ import { usePersistStore } from './hooks/usePersistStore'
 import { startReminderScheduler, type StoredReminderSettings } from './lib/notifications'
 import { isNativePlatform, syncNativeReminders, registerNativeTapHandler } from './lib/nativeNotifications'
 import { isDemoMode } from './lib/devMode'
-import { getSceneForCurrentTime } from './lib/timeScene'
+import { getSceneForCurrentTime, isMorningOpenTime } from './lib/timeScene'
 import { clearLastScreenOffTime, clearVisibilityData, countNightReturns, getLastScreenOffTime, startVisibilityTracking } from './lib/visibility'
 import { calculateTrend } from './lib/trendCalculation'
 import { analyzeNight, summarizeNights, detectWarnings } from './lib/sleepAnalysis'
@@ -127,7 +127,8 @@ export default function App() {
 
   // ── View routing ──
   const todayStr = getTodayString()
-  const needsMorningOpening = profile !== null && lastOpenDate !== todayStr
+  // 今天还没开过门 + 当前正是清晨时段 → 才进开门仪式；下午/晚上落首页按时辰走各自场景
+  const needsMorningOpening = profile !== null && lastOpenDate !== todayStr && isMorningOpenTime()
   const autoSceneSuppressedUntil = useRef(0)
 
   // Deep link from a tapped reminder notification (/?reminder=evening|closing)
@@ -150,10 +151,10 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // 把今晚关灯时间同步给桌面小组件（仅安卓原生有效）
+  // 把今晚关灯时间 + 当前皮肤同步给桌面小组件（仅安卓原生有效）
   useEffect(() => {
-    updateWidget(eveningPrepare.plannedLightsOffTime)
-  }, [eveningPrepare.plannedLightsOffTime])
+    updateWidget(eveningPrepare.plannedLightsOffTime, spiritForm)
+  }, [eveningPrepare.plannedLightsOffTime, spiritForm])
 
   // ── Centralized persistence: one save for all state ──
   usePersistStore({
@@ -241,16 +242,20 @@ export default function App() {
     return () => window.clearInterval(id)
   }, [autoSceneEnabled, profile, eveningPrepare.plannedLightsOffTime, tonightClosed, todayMood, view])
 
-  // 跨零点：App 整夜常驻、停在首页时，到了新的一天自动进开门仪式（无需手动刷新）
+  // 落到首页时按时辰分流：清晨(6:00–11:00)且今天还没开门 → 进开门仪式（客人也随之到来）。
+  // 覆盖：注册当天第一次清晨进店、跨零点整夜常驻、傍晚设定关灯后回到首页恰逢清晨。
+  // 下午/晚上不强行开门，交给自动场景显示备菜/打烊。
   useEffect(() => {
-    if (!profile) return
-    const id = window.setInterval(() => {
-      if (view === 'home' && lastOpenDate !== getTodayString()) {
+    if (!profile || !tourDone) return
+    const check = () => {
+      if (view === 'home' && lastOpenDate !== getTodayString() && isMorningOpenTime()) {
         setView('morningOpening')
       }
-    }, 60_000)
+    }
+    check() // 立即查一次：进首页就开门，不用等下一次轮询
+    const id = window.setInterval(check, 60_000)
     return () => window.clearInterval(id)
-  }, [profile, view, lastOpenDate])
+  }, [profile, tourDone, view, lastOpenDate])
 
   // ── Visibility tracking ──
   useEffect(() => {
@@ -340,7 +345,9 @@ export default function App() {
               worry: '',
               savedAt: null,
             })
-            setLastOpenDate(getTodayString())
+            // 不在此把"上次开门"设成今天——否则注册当天清晨永远进不了开门仪式、铺子空无一客。
+            // 留空(null)，由引导结束后回到首页的清晨分流来开门（见上方 effect）。
+            setLastOpenDate(null)
             const initialDish = evaluateDishUnlocks({}, [], {})
             setDishProgress(initialDish.updated)
           }}

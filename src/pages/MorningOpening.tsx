@@ -13,7 +13,8 @@
  */
 
 import { useState } from 'react'
-import { spiritAssets, sceneAssets, animalAssets } from '../lib/assets'
+import { sceneAssets, animalAssets } from '../lib/assets'
+import { SpiritSprite } from '../components/SpiritSprite'
 import { guestReferences as allGuests } from '../lib/guestReferences'
 import { AssetImage } from '../components/AssetImage'
 import { SoftButton } from '../components/SoftButton'
@@ -197,7 +198,6 @@ export function MorningOpening({
 }: MorningOpeningProps) {
   const [beat, setBeat] = useState(0)
   const { t, lang } = useT()
-  const spiritImg = spiritAssets[spiritForm]
 
   const hasWorry = lastNightWorry !== null && lastNightWorry.trim() !== ''
   const greeting = getSpiritGreeting(t, spiritName, nightType, lastNightClosed, lastCloseTime)
@@ -261,13 +261,7 @@ export function MorningOpening({
           <div className="relative z-10 flex flex-col items-center">
             {/* 困困的精灵 */}
             <div className="spirit-breathe opacity-60" style={{ filter: 'brightness(0.7) saturate(0.6)' }}>
-              <AssetImage
-                src={spiritImg.src}
-                fallbackSrc={spiritImg.fallbackSrc}
-                alt={spiritName}
-                variant="character"
-                className="h-32 drop-shadow-[0_6px_20px_rgba(138,97,74,0.1)]"
-              />
+              <SpiritSprite body={spiritForm} face="sleepy" alt={spiritName} className="h-32 drop-shadow-[0_6px_20px_rgba(138,97,74,0.1)]" />
             </div>
 
             <p className="morning-fade mt-6 text-sm text-[#e8ddd0]/40">
@@ -301,13 +295,7 @@ export function MorningOpening({
           <div className="relative z-10 flex flex-col items-center">
             {/* 精灵醒来 */}
             <div className="morning-scale">
-              <AssetImage
-                src={spiritImg.src}
-                fallbackSrc={spiritImg.fallbackSrc}
-                alt={spiritName}
-                variant="character"
-                className="h-36 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]"
-              />
+              <SpiritSprite body={spiritForm} face="normal" alt={spiritName} className="h-36 drop-shadow-[0_8px_24px_rgba(138,97,74,0.18)]" />
             </div>
 
             <h1 className="morning-fade mt-6 text-2xl font-semibold text-ink" style={{ animationDelay: '200ms' }}>
@@ -374,13 +362,7 @@ export function MorningOpening({
               </>
             ) : (
               <>
-                <AssetImage
-                  src={spiritImg.src}
-                  fallbackSrc={spiritImg.fallbackSrc}
-                  alt={spiritName}
-                  variant="character"
-                  className="morning-scale h-28"
-                />
+                <SpiritSprite body={spiritForm} face="normal" alt={spiritName} className="morning-scale h-28" />
                 <p className="morning-fade mt-6 text-base leading-7 text-ink/60" style={{ animationDelay: '200ms' }}>
                   {reward.text}
                 </p>
@@ -407,13 +389,7 @@ export function MorningOpening({
       {beat === 6 && sleepWarning ? (
         <section className="relative flex flex-1 flex-col items-center justify-center bg-[#f5ead8] px-6 text-center">
           <div className="relative z-10 flex flex-col items-center">
-            <AssetImage
-              src={spiritImg.src}
-              fallbackSrc={spiritImg.fallbackSrc}
-              alt={spiritName}
-              variant="character"
-              className="morning-scale h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]"
-            />
+            <SpiritSprite body={spiritForm} face="normal" alt={spiritName} className="morning-scale h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]" />
             <p className="morning-fade mt-6 text-sm text-ink/45" style={{ animationDelay: '200ms' }}>
               {t('sleep.warnTitle')}
             </p>
@@ -475,13 +451,7 @@ export function MorningOpening({
       {beat === 3 && hasWorry ? (
         <section className="flex flex-1 flex-col items-center justify-center bg-[#f5ead8] px-6 text-center">
           <div className="relative z-10 flex flex-col items-center">
-            <AssetImage
-              src={spiritImg.src}
-              fallbackSrc={spiritImg.fallbackSrc}
-              alt={spiritName}
-              variant="character"
-              className="morning-scale h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]"
-            />
+            <SpiritSprite body={spiritForm} face="normal" alt={spiritName} className="morning-scale h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]" />
 
             <p className="morning-fade mt-6 text-sm text-ink/45" style={{ animationDelay: '200ms' }}>
               {t('morning.worryReturn', { name: spiritName })}
@@ -564,7 +534,6 @@ interface MiddayTransitionProps {
 
 export function MiddayTransition({ spiritName, spiritForm = 'base', guestCount, shopMood, guestKeys = [], onContinue }: MiddayTransitionProps) {
   const { t } = useT()
-  const spiritImg = spiritAssets[spiritForm]
   const todayGuests = guestKeys
     .map((key) => allGuests.find((g) => g.key === key))
     .filter((g): g is (typeof allGuests)[number] => Boolean(g))
@@ -574,13 +543,7 @@ export function MiddayTransition({ spiritName, spiritForm = 'base', guestCount, 
       {/* guest-appear keyframe（MiddayTransition 独立渲染，需自带，否则头像排无淡入动画） */}
       <style>{`@keyframes guestAppear{from{opacity:0;transform:translateY(6px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}.guest-appear{animation:guestAppear 400ms ease-out both}`}</style>
       <section className="flex max-w-[380px] flex-col items-center px-6 text-center">
-        <AssetImage
-          src={spiritImg.src}
-          fallbackSrc={spiritImg.fallbackSrc}
-          alt={spiritName}
-          variant="character"
-          className="h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]"
-        />
+        <SpiritSprite body={spiritForm} face="normal" alt={spiritName} className="h-28 drop-shadow-[0_6px_16px_rgba(138,97,74,0.14)]" />
         <h2 className="mt-6 text-xl font-semibold text-ink">{t(`morning.midday.${shopMood}.title`)}</h2>
         <p className="mt-3 text-base leading-7 text-ink/60">
           {t('morning.middayGuests', { count: String(guestCount) })}

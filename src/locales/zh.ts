@@ -315,7 +315,7 @@ export const zh = {
     achGroupRest: '安睡',
     skins: {
       base: '白面团', xiaolongbao: '小笼包', bagel: '贝果', croissant: '可颂',
-      donut: '甜甜圈', baozi: '包子', waffle: '华夫饼', mochi: '麻糬',
+      donut: '甜甜圈', waffle: '华夫饼', matcha: '抹茶生乳包', baozi: '包子', mochi: '麻薯',
     },
   },
 

@@ -32,6 +32,15 @@ const moodToScene: Record<'busy' | 'normal' | 'quiet', DemoScene> = {
   quiet: 'quiet',
 }
 
+/**
+ * 现在是否处于「清晨开门」时段（6:00–11:00）——铺子热闹、客人会来的窗口。
+ * 用于决定落到首页时该不该触发开门仪式：早上才开门，下午/晚上走各自的场景，不强行开门。
+ */
+export function isMorningOpenTime(): boolean {
+  const now = minutesFromDate(getNow())
+  return now >= timeToMinutes(6, 0) && now < timeToMinutes(11, 0)
+}
+
 export function getSceneForCurrentTime(options: TimeSceneOptions): DemoScene {
   const { lightsOffTime, tonightClosed, todayMood } = options
 

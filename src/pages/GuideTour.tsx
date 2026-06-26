@@ -14,7 +14,8 @@
 import { useState } from 'react'
 import { AssetImage } from '../components/AssetImage'
 import { SoftButton } from '../components/SoftButton'
-import { spiritAssets, sceneAssets } from '../lib/assets'
+import { sceneAssets } from '../lib/assets'
+import { SpiritSprite } from '../components/SpiritSprite'
 import { sceneItems } from '../lib/sceneItems'
 import { useT } from '../lib/i18n'
 
@@ -119,13 +120,7 @@ export function GuideTour({ spiritName, onGoToEveningPrepare, onFinishToHome }: 
         <div className="flex h-[34dvh] items-center justify-center">
           {isWelcome || isFinale ? (
             <div style={{ animation: 'tourBob 4s ease-in-out infinite' }}>
-              <AssetImage
-                src={spiritAssets.base.src}
-                fallbackSrc={spiritAssets.base.fallbackSrc}
-                alt={spiritName}
-                variant="character"
-                className="h-40 drop-shadow-[0_10px_30px_rgba(138,97,74,0.28)]"
-              />
+              <SpiritSprite body="base" face="normal" alt={spiritName} className="h-40 drop-shadow-[0_10px_30px_rgba(138,97,74,0.28)]" />
             </div>
           ) : objItem ? (
             <div className="flex flex-col items-center gap-3">
@@ -138,13 +133,7 @@ export function GuideTour({ spiritName, onGoToEveningPrepare, onFinishToHome }: 
                 />
               </div>
               {/* 小精灵在旁边指着 */}
-              <AssetImage
-                src={spiritAssets.base.src}
-                fallbackSrc={spiritAssets.base.fallbackSrc}
-                alt={spiritName}
-                variant="character"
-                className="h-10 opacity-90"
-              />
+              <SpiritSprite body="base" face="normal" alt={spiritName} className="h-10 opacity-90" />
             </div>
           ) : null}
         </div>

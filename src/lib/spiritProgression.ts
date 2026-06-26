@@ -33,13 +33,17 @@ interface SkinMilestone {
 interface SkinDef { form: SpiritForm; need: number; comingSoon: boolean }
 
 const SKIN_CATALOG: SkinDef[] = [
+  // 四个起手身体（免费，有图）
   { form: 'base', need: 0, comingSoon: false },
   { form: 'xiaolongbao', need: 0, comingSoon: false },
   { form: 'bagel', need: 0, comingSoon: false },
   { form: 'croissant', need: 0, comingSoon: false },
-  { form: 'donut', need: 10, comingSoon: true },
-  { form: 'baozi', need: 25, comingSoon: true },
-  { form: 'waffle', need: 60, comingSoon: true },
+  // 靠累计早睡解锁（已有图）
+  { form: 'donut', need: 10, comingSoon: false },
+  { form: 'waffle', need: 25, comingSoon: false },
+  { form: 'matcha', need: 60, comingSoon: false },
+  // 规划中，待补图（停留"待上新"剪影，不解锁）
+  { form: 'baozi', need: 90, comingSoon: true },
   { form: 'mochi', need: 120, comingSoon: true },
 ]
 

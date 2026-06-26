@@ -146,4 +146,81 @@ export const guestEncounters: GuestEncounters = {
       en: 'Now before you even turn on the radio, it\'s already perched in its spot, waiting. The quiet of this shop — it can\'t find that anywhere else. Its reason for needing this place is probably the same as yours.',
     },
   ],
+
+  // ── 精灵客人的来往（文案为占位，待用户定稿）──
+  spirit1: [
+    {
+      zh: '它软软地挪到柜台边，不说话，只是把自己靠得近一点。豆浆放过去，它捧着，看热气慢慢散。',
+      en: 'It shuffles softly to the counter, says nothing, just leans a little closer. You set down the soy milk; it cradles the cup, watching the steam drift away.',
+    },
+    {
+      zh: '它来得越来越勤了。每次都坐同一个角落，像在认领一小块属于自己的安静。',
+      en: 'It comes more and more often. Always the same corner, as if claiming a small patch of quiet for itself.',
+    },
+    {
+      zh: '有天它终于开口，声音很轻："这里……可以待着吗？"问完又有点不好意思地缩了缩。',
+      en: 'One day it finally spoke, very softly: "Can I… stay here?" Then shrank back, a little shy.',
+    },
+    {
+      zh: '现在它进门就熟门熟路地坐下，不必再问。它说在别处它总怕自己太软，在这儿不用。',
+      en: 'Now it sits down like it belongs, no need to ask. It says elsewhere it always fears being too soft — here it doesn\'t have to.',
+    },
+  ],
+
+  spirit2: [
+    {
+      zh: '它揣着手坐着，半天没动。你递过去一个热包子，它愣了一下，才小声说了句"谢谢"。',
+      en: 'It sits with its hands tucked in, still for a while. You hand it a warm bun; it freezes, then murmurs a quiet "thank you."',
+    },
+    {
+      zh: '它开始会主动挑你不忙的时候来，像是算好了不打扰你。',
+      en: 'It started timing its visits for when you\'re not busy, as if careful not to be in the way.',
+    },
+    {
+      zh: '有天它破例多说了几句，讲到一半自己先红了脸，把剩下的话又咽了回去。',
+      en: 'One day it talked a bit more than usual — blushed halfway through, and swallowed the rest of the words back.',
+    },
+    {
+      zh: '现在它愿意把心里那点甜露出来了。它说藏着太久会发酸，在你这儿，刚好可以慢慢化开。',
+      en: 'Now it lets the sweetness inside show. It says hidden too long it turns sour — here, it can slowly melt instead.',
+    },
+  ],
+
+  spirit3: [
+    {
+      zh: '它圆滚滚地滚进来，撞到凳子腿也不恼，咧着嘴笑，整个身子轻轻晃。',
+      en: 'It rolls in, round and bouncy, unbothered even when it bumps a stool leg — grinning, its whole body wobbling gently.',
+    },
+    {
+      zh: '它记住了你爱听的那档节目，每次都掐着点来，好跟你一起听。',
+      en: 'It memorized the radio show you like, showing up right on time each day to listen along with you.',
+    },
+    {
+      zh: '有天你看起来没什么精神，它没说什么，只是滚到你脚边，靠着你晃了一会儿。',
+      en: 'One day you looked low. It said nothing, just rolled to your feet and wobbled against you for a while.',
+    },
+    {
+      zh: '现在它一进门就先看你的脸色。它说圆的东西最懂怎么把人撞软一点——它就是来干这个的。',
+      en: 'Now it reads your face the moment it enters. It says round things know best how to nudge someone soft — that\'s what it\'s here for.',
+    },
+  ],
+
+  spiritFamily1_1: [
+    {
+      zh: '它来得很晚，几乎踩着打烊的点。门快拉下时才慢悠悠晃进来，像是白天另有去处，这是它一天的最后一站。',
+      en: 'It comes late, almost on the closing bell. It ambles in just as the shutters are coming down, as if it had somewhere else to be all day, and this is its last stop.',
+    },
+    {
+      zh: '它有自己的一套规矩：先绕铺子走一圈，看看哪儿变了，才挑个角落坐下。',
+      en: 'It has its own routine: first a slow lap around the shop to see what\'s changed, then it picks a corner and settles.',
+    },
+    {
+      zh: '有天它难得多留了会儿，含含糊糊说起白天在外面跑的事，没说全，但你听得出它过得不轻松。',
+      en: 'One day it lingered, rarely so, and mumbled a bit about its day out and about — not the whole story, but enough to tell its days aren\'t easy.',
+    },
+    {
+      zh: '现在它把这儿当成收尾的地方。忙了一整天，它就来你这儿坐到灯灭，像是给自己的一天，找了个能安心打烊的角落。',
+      en: 'Now it treats this as where its day winds down. After a long day, it comes to sit until the lights go out — as if it, too, has found a corner where its own day can safely close.',
+    },
+  ],
 }
