@@ -6,7 +6,8 @@ const sourceDirs = [path.join(rootDir, '堆'), path.join(rootDir, 'public', 'ass
 const targetDir = path.join(rootDir, 'public', 'assets')
 
 const mappings = [
-  { target: 'shop-main-background.png', patterns: ['暂定主页面背景图'] },
+  // 主背景源图『暂定主页面背景图』现以 scene-day.png 为准（旧的 shop-main-background.png 已废弃删除）
+  { target: 'scene-day.png', patterns: ['暂定主页面背景图'] },
   { target: 'cover-shop.png', patterns: ['早点整体美术参考图'] },
   { target: 'ui-recipe-book-inner.png', patterns: ['UI-菜品图鉴内页'] },
   { target: 'asset-recipe-book-cover.png', patterns: ['资产-菜品图鉴'] },

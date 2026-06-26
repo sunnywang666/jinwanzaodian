@@ -4,7 +4,11 @@ import sharp from 'sharp'
 
 const assetsDir = path.resolve('public/assets')
 const outputDir = path.join(assetsDir, 'trimmed')
-const skipFiles = new Set(['shop-main-background.png', 'cover-shop.png'])
+// 背景/封面图是整幅满铺，不该裁透明边（旧的 shop-main-background.png 已废弃删除，改为现役 scene-* 全保护）
+const skipFiles = new Set([
+  'scene-morning.png', 'scene-day.png', 'scene-evening.png', 'scene-night.png',
+  'cover-shop.png', 'cover-shop-transparent.png',
+])
 
 async function trimPng(filename) {
   if (skipFiles.has(filename)) {

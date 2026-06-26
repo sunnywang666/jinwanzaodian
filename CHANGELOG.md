@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.40
+
+删除重复背景图，给 APK 瘦身约 1.9MB。
+
+- `public/assets` 里 `shop-*` 三张背景与 `scene-*` 经 MD5 确认**完全重复**，且运行程序只用 `scene-*`。删 `shop-main-background.png`(=scene-day) / `shop-evening-prepare.png`(=scene-evening) / `shop-night-close.png`(=scene-night)。
+- `sync-assets.mjs`：主背景源图『暂定主页面背景图』的同步目标，由废弃的 `shop-main-background.png` 改为现役 `scene-day.png`。
+- `trim-transparent-assets.mjs`：`skipFiles` 改为保护现役 `scene-*` 四张 + `cover-*` 两张（满铺背景不裁透明边），移除已删的 `shop-main-background.png`。
+- 程序实际使用的背景未变：`scene-morning/day/evening/night` + `cover-shop`/`cover-shop-transparent`。（注：早晨 `scene-morning` 本就没有 shop- 旧名重复。）
+- 更新 `package.json` 版本号为 `6.40.0`。
+
 ## v6.39
 
 D. 删除死代码（已与用户逐一核对：均为被现役 `*Overlay`/组件取代的早期原型，本就没打进包）。
