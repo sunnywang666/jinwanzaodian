@@ -305,9 +305,8 @@ export function SpiritChatOverlay({
           background: 'linear-gradient(180deg, #f5ead8 0%, #efe1cb 40%, #e8d8c4 100%)',
         }}
       >
-        {/* Header — clean, no "去小屋" link */}
-        <div className="flex items-center gap-3 px-4 pb-2 pt-[9dvh]">
-          <SpiritSprite body={spiritForm} face="normal" alt={spiritName} className="h-12 drop-shadow-[0_4px_12px_rgba(138,97,74,0.15)]" />
+        {/* Header — 只留名字当标题；精灵头像已在每条消息左侧（微信式），顶部不再重复放一个 */}
+        <div className="flex items-center justify-center px-4 pb-2 pt-[9dvh]">
           <h1 className="text-base font-semibold text-ink">{spiritName}</h1>
         </div>
 

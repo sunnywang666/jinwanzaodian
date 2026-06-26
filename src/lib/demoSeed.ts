@@ -34,15 +34,17 @@ const demoGuestSeeds: Array<{ key: string; visitCount: number }> = [
  */
 export function injectDemoGuestSeeds(progress: GuestProgressMap): GuestProgressMap {
   if (!isDemoMode()) return progress
-  const today = new Date().toISOString().split('T')[0]!
   const seeded: GuestProgressMap = { ...progress }
-  for (const seed of demoGuestSeeds) {
-    if (seeded[seed.key]) continue
+  const now = new Date()
+  demoGuestSeeds.forEach((seed, i) => {
+    if (seeded[seed.key]) return
+    // 错开"上次来访"日期（0~4 天前），让留言板的时间不是清一色"今天"
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (i % 5))
     seeded[seed.key] = {
       totalVisits: seed.visitCount,
-      lastVisitDate: today,
+      lastVisitDate: d.toISOString().split('T')[0]!,
       familiarityLevel: getFamiliarityLevel(seed.visitCount),
     }
-  }
+  })
   return seeded
 }

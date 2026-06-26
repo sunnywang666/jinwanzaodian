@@ -178,6 +178,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   useEffect(() => { saveOnboardingDraft(draft) }, [draft])
 
+  // 人格测试聊天：答一题就把对话滚到底，最新的问题始终露在选项上方（选项常驻底部）
+  const quizScrollRef = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    if (draft.step !== 1) return
+    const el = quizScrollRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [draft.step, draft.questionIndex])
+
   const reset = () => { clearOnboardingDraft(); setDraft(defaultOnboardingDraft); setBeat(0) }
   const setStep = (step: number) => setDraft((c) => updateDraft({ step }, c))
   const result: NightType = draft.nightType ?? resolvePersona(draft.personaAnswers)
@@ -257,22 +265,23 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
     return (
       <OnboardingFrame onReset={reset} onSkip={skip}>
-        <section className="flex flex-1 flex-col px-5 py-5">
+        {/* 固定一屏高：只有聊天区滚动，选项常驻底部、全部可见 */}
+        <section className="flex h-[100dvh] flex-col px-5 py-5">
           {/* Spirit header */}
-          <div className="flex items-center gap-3 pb-3">
+          <div className="flex shrink-0 items-center gap-3 pb-3">
             <SpiritSprite body="base" face="normal" className="h-10 drop-shadow-[0_4px_12px_rgba(138,97,74,0.15)]" />
             <p className="text-xs text-ink/40">{t('onboarding.quiz.spiritAsk', { name: '' })}</p>
           </div>
 
           {/* Progress */}
-          <div className="flex gap-1.5 py-2">
+          <div className="flex shrink-0 gap-1.5 py-2">
             {quizKeys.map((_, index) => (
               <div key={index} className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${index <= qIdx ? 'bg-butter' : 'bg-ink/10'}`} />
             ))}
           </div>
 
           {/* Chat history */}
-          <div className="mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto">
+          <div ref={quizScrollRef} className="mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto">
             {chatHistory.map((msg, i) => (
               <div key={i} className={`flex ${msg.speaker === 'spirit' ? 'justify-start' : 'justify-end'}`}>
                 <p className={`max-w-[85%] rounded-[20px] px-4 py-3 text-sm leading-6 ${
@@ -288,8 +297,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             </div>
           </div>
 
-          {/* Options as reply buttons */}
-          <div className="mt-4 grid gap-2 pb-2">
+          {/* Options as reply buttons — 常驻底部不收缩 */}
+          <div className="mt-4 grid shrink-0 gap-2 pb-2">
             {optionKeys.map((key) => (
               <button
                 key={key}

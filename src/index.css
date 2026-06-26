@@ -10,6 +10,15 @@
   font-display: swap;
 }
 
+/* 衬线正文字体（华文宋体 GB2312 子集，打进包里），保证手机和浏览器一致显示宋体衬线 */
+@font-face {
+  font-family: "ZaodianSerif";
+  src: url("./assets/fonts/zaodian-serif.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color: #4e4037;
   background:
@@ -17,10 +26,14 @@
     radial-gradient(circle at bottom right, rgba(223, 204, 173, 0.6), transparent 35%),
     linear-gradient(180deg, #f7f0e4 0%, #efe2cd 100%);
   font-family:
+    "ZaodianSerif",
     "Iowan Old Style",
     "Palatino Linotype",
     "Noto Serif SC",
+    "Noto Serif CJK SC",
+    "Source Han Serif SC",
     "Songti SC",
+    "SimSun",
     serif;
   line-height: 1.5;
   font-weight: 400;
@@ -104,10 +117,14 @@ textarea {
   .font-tianrandai {
     font-family:
       "TianRanDai",
+      "ZaodianSerif",
       "Iowan Old Style",
       "Palatino Linotype",
       "Noto Serif SC",
+      "Noto Serif CJK SC",
+      "Source Han Serif SC",
       "Songti SC",
+      "SimSun",
       serif;
   }
 

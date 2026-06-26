@@ -47,6 +47,9 @@
 - 原生壳用 **Capacitor**（`android/` 已生成，可打 APK；iOS 需 Mac + Xcode，尚未打包）。
 - 桌面小组件（仅安卓）：3×1，显示精灵 + 今晚关灯一句话，点开 App、每 30 分钟刷新。精灵**跟随当前皮肤**——`scripts/build-widget-skins.mjs` 把各皮肤「身体+普通表情」合成为 `drawable-nodpi/widget_spirit_{皮肤}`，`ZaodianWidgetProvider` 按皮肤选图、无图回退白面团；React 侧见 `src/lib/widget.ts`（把关灯时间 + 皮肤同步给组件）。补新身体图后重跑该脚本。
 - 进店分流：落到首页按时辰走（`timeScene.ts`）。清晨 6:00–11:00 且今天还没开门 → 开门仪式 + 客人到来（`isMorningOpenTime`）；下午/晚上不强行开门，显示备菜/打烊场景。
+- 字体：正文用打进包的衬线宋体（`src/assets/fonts/zaodian-serif.ttf`，华文宋体裁成 GB2312 子集 ~2.7MB），`index.css` 里 `@font-face` 注册为 `ZaodianSerif` 并置于字体栈首位——避免安卓回退成黑体、和浏览器不一致。手写体仍是 `TianRanDai`（书本/确认页用）。
+- 挂钟（`ClockOverlay`）：渲染在首页固定高宽比舞台内，位置/大小存 localStorage；演示版调试模式下可直接拖动 + 调大小（用来对准盖住背景画的钟）。
+- 留言板（`MessageBoardOverlay`）：铺子的熟客留言墙，每位客人一句按性格写死、随熟络度变化的专属台词 + 头像 + 日期，不用实时 LLM（离线演示要稳定、性格台词手写更贴角色）。
 - 演示数据与真实数据分离：客人身份在 `src/lib/guestReferences.ts`，演示进度种子在 `src/lib/demoSeed.ts`，仅 `isDemoMode()`（`src/lib/devMode.ts`）时注入。
 
 ## 构建 / 测试 / 资产命令

@@ -51,7 +51,7 @@ export function ShopSceneInteractive({
           className="h-full w-full object-contain"
         />
 
-        <ClockOverlay />
+        <ClockOverlay debug={debug} />
         <div className="absolute inset-0">
           {/* 精灵改用 SpiritSprite 单独渲染（见下），其它物件照常 */}
           {sceneItems

@@ -76,6 +76,52 @@ function BreathingGuide({ active }: { active: boolean }) {
   )
 }
 
+/* ── 频道图标（白噪音四频道：雨声/微风/咖啡馆/壁炉）── */
+
+function ChannelIcon({ id }: { id: string }) {
+  const p = {
+    width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none',
+    stroke: 'currentColor', strokeWidth: 1.8,
+    strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const,
+  }
+  switch (id) {
+    case 'rain':
+      return (
+        <svg {...p}>
+          <path d="M7 15.5a4 4 0 01-.5-7.97A5 5 0 0116.5 6.5 3.5 3.5 0 0117 15.5H7z" />
+          <line x1="8.5" y1="18" x2="7.5" y2="20.5" />
+          <line x1="12" y1="18" x2="11" y2="21" />
+          <line x1="15.5" y1="18" x2="14.5" y2="20.5" />
+        </svg>
+      )
+    case 'wind':
+      return (
+        <svg {...p}>
+          <path d="M3 8.5h9a2.5 2.5 0 10-2.5-2.5" />
+          <path d="M3 12.5h13a2.5 2.5 0 11-2.5 2.5" />
+          <path d="M3 16.5h7a2 2 0 11-2 2" />
+        </svg>
+      )
+    case 'cafe':
+      return (
+        <svg {...p}>
+          <path d="M4 9h12v3.5a5 5 0 01-5 5H9a5 5 0 01-5-5V9z" />
+          <path d="M16 10h1.5a2.5 2.5 0 010 5H16" />
+          <line x1="7.5" y1="3.5" x2="7.5" y2="5.5" />
+          <line x1="11" y1="3.5" x2="11" y2="5.5" />
+        </svg>
+      )
+    case 'fireplace':
+      return (
+        <svg {...p}>
+          <path d="M12 3.5c1.2 2.8-1.8 4-1.8 6.8a3.8 3.8 0 007.6.2c0-1.2-.5-2.3-1.2-3 .1 1.9-1.4 2.4-1.9 1.4C13 7 12 5.6 12 3.5z" />
+        </svg>
+      )
+    default:
+      return null
+  }
+}
+
 /* ── Main ── */
 
 export function RadioOverlay({ audio, onClose }: RadioOverlayProps) {
@@ -127,14 +173,14 @@ export function RadioOverlay({ audio, onClose }: RadioOverlayProps) {
                 onClick={() => audio.play(ch.id)}
               >
                 <span
-                  className="flex h-12 w-12 items-center justify-center rounded-full text-xs font-semibold transition-all duration-300"
+                  className="flex h-12 w-12 items-center justify-center rounded-full transition-all duration-300"
                   style={{
                     background: isActive ? ch.color : 'rgba(255,255,255,0.35)',
                     color: isActive ? '#fff' : 'rgba(78,64,55,0.45)',
                     boxShadow: isActive ? `0 4px 20px ${ch.color}35` : 'none',
                   }}
                 >
-                  {chName(ch.id).charAt(0)}
+                  <ChannelIcon id={ch.id} />
                 </span>
                 <span className={`text-[11px] transition-all ${isActive ? 'text-ink font-semibold' : 'text-ink/35'}`}>
                   {chName(ch.id)}

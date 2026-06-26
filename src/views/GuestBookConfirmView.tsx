@@ -36,7 +36,7 @@ export function GuestBookConfirmView({ onConfirm, onCancel }: GuestBookConfirmVi
       </div>
       <div className="absolute inset-0 bg-[rgba(72,68,67,0.42)]" />
 
-      <p className="font-tianrandai absolute inset-x-0 top-[12%] z-10 px-6 text-center text-[clamp(34px,8vw,58px)] tracking-[0.08em] text-[#fffaf1] drop-shadow-[0_5px_10px_rgba(0,0,0,0.25)]">
+      <p className="font-tianrandai absolute inset-x-0 top-[12%] z-10 whitespace-nowrap px-4 text-center text-[clamp(20px,6.5vw,46px)] tracking-[0.04em] text-[#fffaf1] drop-shadow-[0_5px_10px_rgba(0,0,0,0.25)]">
         {t('confirm.guestBook')}
       </p>
 

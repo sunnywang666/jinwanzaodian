@@ -33,8 +33,8 @@ export function RecipeBookConfirmView({ onConfirm, onCancel }: RecipeBookConfirm
       </div>
       <div className="absolute inset-0 bg-[rgba(72,68,67,0.42)]" />
 
-      <p className="font-tianrandai absolute inset-x-0 top-[12%] z-10 px-6 text-center tracking-[0.06em] text-[#fffaf1] drop-shadow-[0_4px_8px_rgba(0,0,0,0.25)]"
-        style={{ fontSize: 'clamp(22px, 5vw, 34px)' }}
+      <p className="font-tianrandai absolute inset-x-0 top-[12%] z-10 whitespace-nowrap px-4 text-center tracking-[0.04em] text-[#fffaf1] drop-shadow-[0_4px_8px_rgba(0,0,0,0.25)]"
+        style={{ fontSize: 'clamp(20px, 6.5vw, 46px)' }}
       >
         {t('confirm.recipeBook')}
       </p>
