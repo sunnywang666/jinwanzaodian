@@ -118,23 +118,3 @@ export function getDishUnlockHint(key: string): string {
   return '???'
 }
 
-// ── Storage helpers ──
-
-const STORAGE_KEY = 'jinwanzaodian:dish-progress'
-
-export function loadDishProgress(): DishProgressMap {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as DishProgressMap) : {}
-  } catch {
-    return {}
-  }
-}
-
-export function saveDishProgress(value: DishProgressMap) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(value))
-}
-
-export function clearDishProgress() {
-  localStorage.removeItem(STORAGE_KEY)
-}

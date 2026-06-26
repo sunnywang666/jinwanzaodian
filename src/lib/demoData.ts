@@ -1,6 +1,6 @@
 import { foodAssets, spiritAssets } from './assets'
 import type { AssetSource } from './assets'
-import type { DemoScene, LogEntry, NightType, ShopMood, SpiritBody, SpiritForm } from './storage'
+import type { LogEntry, NightType, ShopMood, SpiritBody, SpiritForm } from './storage'
 
 export interface PersonaOption {
   key: string
@@ -48,7 +48,6 @@ const revengeType = '报复型' as NightType
 const habitType = '惯性型' as NightType
 const anxietyType = '焦虑型' as NightType
 const workType = '工作型' as NightType
-const owlType = '猫头鹰型' as NightType
 const undefinedType = '说不清' as NightType
 
 const busyMood = '热闹' as ShopMood
@@ -103,43 +102,12 @@ export const personaQuestions: PersonaQuestion[] = [
   },
 ]
 
-export const personaCopy = {
-  [revengeType]: '你不是不困，只是想把一点属于自己的时间拿回来。',
-  [habitType]: '你知道差不多该停了，只是手和眼睛还没一起停下来。',
-  [anxietyType]: '夜里最吵的不是手机，是脑子里还没放下的事情。',
-  [workType]: '你总想把事情做完再休息，可铺子也需要店长先关灯。',
-  [owlType]: '你的节奏天生更晚一点，铺子会更柔和地陪你调整。',
-  [undefinedType]: '今晚先不用急着定义自己，铺子会慢慢陪你看清节奏。',
-} as Record<NightType, string>
-
 export const onboardingSkins: OnboardingSkinOption[] = [
   { form: 'base', name: '白面团', image: spiritAssets.base },
   { form: 'xiaolongbao', name: '小笼包', image: spiritAssets.xiaolongbao },
   { form: 'bagel', name: '贝果', image: spiritAssets.bagel },
   { form: 'croissant', name: '可颂', image: spiritAssets.croissant },
 ]
-
-export const demoSceneOptions: Array<{ key: DemoScene; label: string }> = [
-  { key: 'busy', label: '热闹' },
-  { key: 'quiet', label: '安静' },
-  { key: 'daytime', label: '备菜' },
-  { key: 'nap', label: '打盹' },
-  { key: 'evening', label: '傍晚' },
-  { key: 'night', label: '打烊' },
-  { key: 'lightsOff', label: '熄灯' },
-]
-
-export const sceneCopy: Record<DemoScene, { title: string; body: string; mood: ShopMood }> = {
-  cover: { title: '铺子刚刚开门', body: '柜台后有一点暖光，今天也从这里开始。', mood: normalMood },
-  busy: { title: '清晨热闹起来了', body: '昨晚睡得早些，今天来吃早点的人也多些。', mood: busyMood },
-  normal: { title: '平常的一天', body: '没有哪里需要被责怪，铺子稳稳开着。', mood: normalMood },
-  quiet: { title: '今天安静一点', body: '门照常开着，明天也还在。', mood: quietMood },
-  daytime: { title: '白天在备菜', body: '你和精灵一起揉面、擦柜台、准备明天。', mood: normalMood },
-  nap: { title: '午后短短打个盹', body: '这只是铺子里的松弛片刻，不算任务。', mood: normalMood },
-  evening: { title: '傍晚准备明天', body: '先把关灯时间和心事都写下来。', mood: normalMood },
-  night: { title: '该关灯歇业了', body: '把铺子收好，再把手机放远一点。', mood: quietMood },
-  lightsOff: { title: '铺子已经熄灯', body: '灯关了，剩下的夜晚会自己安静下来。', mood: quietMood },
-}
 
 export const dishes: Dish[] = [
   {
@@ -224,24 +192,6 @@ export const spiritOptions: SpiritOption[] = [
   },
 ]
 
-export const initialChatMessages: ChatMessage[] = [
-  { id: 'intro-1', speaker: 'spirit', text: '店长，今天铺子开着。我在柜台后面，先陪你待一会儿。' },
-  { id: 'intro-2', speaker: 'user', text: '我只是来看看铺子。' },
-  { id: 'intro-3', speaker: 'spirit', text: '看看就好。今天不用急着把所有事都整理清楚。' },
-]
-
-export const quickReplies: Array<{ label: string; response: string }> = [
-  { label: '昨晚又晚了', response: '没关系，铺子今天只是安静一点。我们先把豆浆热一热。' },
-  { label: '今天有点累', response: '那今天就少做一点，铺子也可以慢慢来。' },
-  { label: '今晚想早点关灯', response: '好呀，我们傍晚先把明天的小纸条写好。' },
-]
-
-export const messageBoardNotes = [
-  '今天的油条很好吃。——阿橘',
-  '早上窗边的光很安静。——蓝蓝',
-  '没关系，明天见。——铺子',
-]
-
 function formatDate(date: Date) {
   return `${date.getMonth() + 1}月${date.getDate()}日`
 }
@@ -298,37 +248,6 @@ export function createDefaultLogEntries(): LogEntry[] {
       isRealData: true,
     }
   })
-}
-
-export interface MiddayTransitionCopyEntry {
-  title: string
-  body: (spiritName: string) => string
-}
-
-export const morningGreetings = {
-  closed: {
-    title: '\u65E9\u5B89\uFF0C\u5E97\u957F',
-    body: (spiritName: string) => spiritName + ' \u5DF2\u7ECF\u5728\u67DC\u53F0\u540E\u9762\u7B49\u4F60\u4E86\u3002\u6628\u665A\u4F11\u606F\u5F97\u4E0D\u9519\uFF0C\u4ECA\u5929\u4ECE\u5BB9\u4E00\u70B9\u3002',
-  },
-  notClosed: {
-    title: '\u65E9\u5B89\uFF0C\u5E97\u957F',
-    body: (spiritName: string) => spiritName + ' \u63C9\u4E86\u63C9\u773C\u775B\uFF0C\u6253\u4E86\u4E2A\u54C8\u6B20\u3002\u6628\u665A\u94FA\u5B50\u6CA1\u6765\u5F97\u53CA\u6253\u70CA\uFF0C\u4E0D\u8FC7\u6CA1\u5173\u7CFB\uFF0C\u4ECA\u5929\u4E5F\u7167\u5E38\u5F00\u95E8\u3002',
-  },
-}
-
-export const middayTransitionCopy: Record<'busy' | 'normal' | 'quiet', MiddayTransitionCopyEntry> = {
-  busy: {
-    title: '\u65E9\u70B9\u5FEB\u5356\u5B8C\u5566',
-    body: (spiritName: string) => spiritName + '\uFF1A\u4ECA\u5929\u771F\u70ED\u95F9\uFF01\u4E0B\u5348\u54B1\u4EEC\u4E00\u8D77\u5907\u83DC\uFF0C\u8BD5\u8BD5\u65B0\u914D\u65B9\u3002',
-  },
-  normal: {
-    title: '\u4E0A\u5348\u6536\u644A\u4E86',
-    body: (spiritName: string) => spiritName + '\uFF1A\u5E73\u5E38\u7684\u4E00\u5929\u4E5F\u631A\u597D\u7684\u3002\u4E0B\u5348\u4E00\u8D77\u64E6\u64E6\u67DC\u53F0\u5427\u3002',
-  },
-  quiet: {
-    title: '\u4E0A\u5348\u7ED3\u675F\u4E86',
-    body: (spiritName: string) => spiritName + '\uFF1A\u4ECA\u5929\u5B89\u9759\u4E00\u70B9\uFF0C\u4E0D\u8FC7\u95E8\u7167\u5E38\u5F00\u7740\u3002\u4E0B\u5348\u6162\u6162\u6765\u3002',
-  },
 }
 
 export function getGuestCountByMood(mood: 'busy' | 'normal' | 'quiet'): number {

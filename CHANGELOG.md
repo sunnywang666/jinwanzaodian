@@ -1,5 +1,16 @@
 # Changelog
 
+## v6.39
+
+D. 删除死代码（已与用户逐一核对：均为被现役 `*Overlay`/组件取代的早期原型，本就没打进包）。
+
+- 删 9 个孤儿文件：`pages/{Menu,Logbook,SpiritHut,SpiritChatPage,DemoMode}`、`overlays/RadioChatOverlay`、`components/{DemoControls,SceneHotspot}`、`lib/hotspots`。
+- 删 `demoData` 死导出：`personaCopy`、`sceneCopy`、`demoSceneOptions`、`initialChatMessages`、`quickReplies`、`messageBoardNotes`、`morningGreetings`、`middayTransitionCopy`(+`MiddayTransitionCopyEntry`)，及随之失效的 `owlType` 常量、`DemoScene` 导入。
+- 删统一存档前遗留、零调用的函数：`spiritProgression` 的 `getFormMilestoneHint`/`load·save·clearSpiritProgress`（+`ALL_BODIES`/`STORAGE_KEY`/`DEFAULT_STATE`）、`dishProgression` 的 `load·save·clearDishProgress`（+`STORAGE_KEY`）。
+- 保留：`ChatMessage` 接口、`getFamiliarityLabel` 等仍在用的导出。
+- 验证：45 单测 + tsc + 构建全过；体积略减。
+- 更新 `package.json` 版本号为 `6.39.0`。
+
 ## v6.38
 
 通读修复一批（A 真 bug + B 英文露中文 + C 健壮性）。

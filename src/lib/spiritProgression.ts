@@ -43,9 +43,6 @@ const SKIN_CATALOG: SkinDef[] = [
   { form: 'mochi', need: 120, comingSoon: true },
 ]
 
-// 起手身体：need 0 的四个，默认全解锁，不靠早睡。
-const ALL_BODIES: SpiritForm[] = SKIN_CATALOG.filter((s) => s.need === 0).map((s) => s.form)
-
 // 里程碑只含"有图（非 comingSoon）"的形态，evaluateSpiritUnlocks 据此解锁；
 // comingSoon 的形态不进里程碑 → 永不自动解锁，不会破图。
 const MILESTONES: SkinMilestone[] = SKIN_CATALOG
@@ -113,43 +110,3 @@ export function getSkinGoodNightsRequired(form: SpiritForm): number {
   return SKIN_CATALOG.find((s) => s.form === form)?.need ?? 0
 }
 
-/** Get milestone info for a locked form */
-export function getFormMilestoneHint(form: SpiritForm, currentGoodNights: number): string {
-  const milestone = MILESTONES.find((m) => m.form === form)
-  if (!milestone || milestone.goodNightsRequired === 0) return '已解锁'
-  const remaining = milestone.goodNightsRequired - currentGoodNights
-  if (remaining <= 0) return '已解锁'
-  return `再早睡 ${remaining} 晚即可解锁`
-}
-
-// ── Storage helpers ──
-
-const STORAGE_KEY = 'jinwanzaodian:spirit-progress'
-
-const DEFAULT_STATE: SpiritProgressState = {
-  totalGoodNights: 0,
-  unlockedForms: [...ALL_BODIES],
-}
-
-export function loadSpiritProgress(): SpiritProgressState {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return { totalGoodNights: 0, unlockedForms: [...ALL_BODIES] }
-    const parsed = JSON.parse(raw) as SpiritProgressState
-    // Ensure all four bodies are always present (also backfills old saves)
-    for (const form of ALL_BODIES) {
-      if (!parsed.unlockedForms.includes(form)) parsed.unlockedForms.push(form)
-    }
-    return parsed
-  } catch {
-    return { totalGoodNights: 0, unlockedForms: [...ALL_BODIES] }
-  }
-}
-
-export function saveSpiritProgress(value: SpiritProgressState) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(value))
-}
-
-export function clearSpiritProgress() {
-  localStorage.removeItem(STORAGE_KEY)
-}
