@@ -184,7 +184,7 @@ export function ShopGuests({
             src={dish.src}
             alt=""
             onError={(e) => { if (dish.fallbackSrc) (e.target as HTMLImageElement).src = dish.fallbackSrc }}
-            style={{ position: 'absolute', left: `calc(${seat.left} + 6%)`, top: `calc(${seat.top} + 16%)`, width: '12%', zIndex: 7,
+            style={{ position: 'absolute', left: `calc(${seat.left} + 6%)`, top: `calc(${seat.top} + 16%)`, width: '12%', aspectRatio: '1.15', objectFit: 'contain', zIndex: 7,
               opacity: show ? 1 : 0, transform: show ? 'translateY(0) scale(1)' : 'translateY(-8px) scale(.6)',
               transition: 'opacity .4s, transform .4s cubic-bezier(.34,1.56,.64,1)', filter: 'drop-shadow(0 3px 6px rgba(54,38,26,0.2))', pointerEvents: 'none' }}
           />
