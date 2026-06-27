@@ -1,22 +1,21 @@
 /**
- * GuideTour.tsx — 新手店铺导览
+ * GuideTour.tsx — 新手店铺导览（聚光灯版）
  *
- * 在 onboarding"开张"之后、第一次进铺子前跑一次：
- *  1. 精灵带店长认识铺子里的关键物件（菜谱本/客人本/账本/黑板/小屋）。
- *  2. 收尾解决"下午冷启动空铺子"的留人问题——把白天的安静重新框成
- *     "铺子本来只在清晨热闹"，并给一个此刻就能做的动作（定今晚关灯时间 = 预承诺）
- *     + 一个明早再来的理由（阿橘说要来吃油条）。
- *
- * 不依赖坐标点位：用"精灵旁白 + 物件缩略图 + 位置提示"的方式讲解，
- * 在任何屏幕尺寸 / 原生壳里都稳。
+ * onboarding"开张"后、第一次进铺子前跑一次：
+ *  - 全屏暗蒙版盖住整个铺子（和 onboarding 一脉相承）。
+ *  - 讲到哪个物件，就在**真实场景模板**上把那个物件原地照亮（按 sceneItems 真实坐标重绘高亮版，
+ *    位置/大小和首页完全一致，不靠估算）。
+ *  - 面点精灵浮在屏幕下方中间、带对话气泡讲解；**点屏幕任意处 = 知道了，下一个**。
+ *  - 结尾把"白天冷清"框成"铺子本来只在清晨热闹"，给一个此刻能做的动作（定今晚关灯）+
+ *    明早再来的理由；标题/文案按当前是不是清晨分两套。
  */
 
 import { useState } from 'react'
-import { AssetImage } from '../components/AssetImage'
-import { SoftButton } from '../components/SoftButton'
 import { sceneAssets } from '../lib/assets'
 import { SpiritSprite } from '../components/SpiritSprite'
 import { sceneItems } from '../lib/sceneItems'
+import { isMorningOpenTime } from '../lib/timeScene'
+import { SoftButton } from '../components/SoftButton'
 import { useT } from '../lib/i18n'
 
 interface GuideTourProps {
@@ -29,7 +28,6 @@ type ObjStep = {
   id: string
   name: { zh: string; en: string }
   desc: { zh: string; en: string }
-  where: { zh: string; en: string }
 }
 
 const OBJECT_STEPS: ObjStep[] = [
@@ -37,41 +35,41 @@ const OBJECT_STEPS: ObjStep[] = [
     id: 'spirit',
     name: { zh: '面点精灵', en: 'Your spirit' },
     desc: { zh: '我会一直在铺子里陪你。想聊天，随时点我。', en: 'I’ll always be here in the shop. Tap me anytime to talk.' },
-    where: { zh: '柜台后', en: 'Behind the counter' },
   },
   {
     id: 'recipeBook',
     name: { zh: '菜谱本', en: 'Recipe book' },
     desc: { zh: '记着你会做的早点。早睡、和客人混熟，手艺会越攒越多。', en: 'The dishes you can make. They grow as you sleep well and befriend guests.' },
-    where: { zh: '墙上左侧的菜单板', en: 'The menu board on the left wall' },
   },
   {
     id: 'guestBook',
-    name: { zh: '客人电话本', en: 'Guest book' },
+    name: { zh: '客人图鉴', en: 'Guest book' },
     desc: { zh: '来过的客人会一页页攒起来，混熟了还会教你做家乡菜。', en: 'Guests who visit fill it page by page — close ones even teach you their home dishes.' },
-    where: { zh: '柜台上', en: 'On the counter' },
   },
   {
     id: 'logbook',
     name: { zh: '营业账本', en: 'Logbook' },
     desc: { zh: '记你几点开门、几点关灯。你最近过得怎么样，都在这本上。', en: 'When you open and close up. How you’ve been lately — it’s all in here.' },
-    where: { zh: '柜台上', en: 'On the counter' },
   },
   {
     id: 'messageBoard',
-    name: { zh: '黑板', en: 'Message board' },
+    name: { zh: '留言板', en: 'Message board' },
     desc: { zh: '客人留下的话、铺子的碎语，都贴在这。', en: 'Notes from guests and little murmurs of the shop, pinned here.' },
-    where: { zh: '墙上显眼处', en: 'On the wall' },
   },
   {
     id: 'spiritHut',
     name: { zh: '精灵小屋', en: 'My hut' },
     desc: { zh: '我的家，夜里打烊后我回这儿睡。也能在这给我换个点心样子。', en: 'My home — I sleep here after closing. You can also change my pastry look here.' },
-    where: { zh: '柜台后角落', en: 'A corner behind the counter' },
   },
 ]
 
 const TOTAL = OBJECT_STEPS.length + 2 // welcome + objects + finale
+
+const ANIM = `
+@keyframes tourBob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-7px) } }
+@keyframes tourSpot { 0%,100% { filter: drop-shadow(0 0 12px rgba(250,224,156,0.9)) drop-shadow(0 0 22px rgba(250,224,156,0.5)); transform: scale(1) } 50% { filter: drop-shadow(0 0 18px rgba(250,224,156,1)) drop-shadow(0 0 34px rgba(250,224,156,0.7)); transform: scale(1.05) } }
+@keyframes tourFade { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: translateY(0) } }
+`
 
 export function GuideTour({ spiritName, onGoToEveningPrepare, onFinishToHome }: GuideTourProps) {
   const { lang } = useT()
@@ -80,146 +78,132 @@ export function GuideTour({ spiritName, onGoToEveningPrepare, onFinishToHome }: 
 
   const isWelcome = step === 0
   const isFinale = step === TOTAL - 1
-  const obj = !isWelcome && !isFinale ? OBJECT_STEPS[step - 1] : null
-  const objItem = obj ? sceneItems.find((s) => s.id === obj.id) : undefined
+  const obj = !isWelcome && !isFinale ? OBJECT_STEPS[step - 1]! : null
+  // 精灵那步不点亮场景里的旧静态精灵——浮在屏幕中间那只就代表它
+  const litItem = obj && obj.id !== 'spirit' ? sceneItems.find((s) => s.id === obj.id) : null
+  const contextItems = sceneItems.filter((s) => s.id !== 'spirit')
 
+  const morning = isMorningOpenTime()
   const next = () => setStep((s) => Math.min(s + 1, TOTAL - 1))
-  const prev = () => setStep((s) => Math.max(s - 1, 0))
+
+  const bubbleText = isWelcome
+    ? (zh ? `我是${spiritName}，铺子里的面点精灵。先带你认认门，几步就好。` : `I’m ${spiritName}, the dough spirit here. Let me show you around — just a few steps.`)
+    : obj
+      ? obj.desc[lang]
+      : ''
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col">
-      {/* 铺子背景 + 暖色压暗 */}
-      <div className="absolute inset-0 bg-[#2a2520]">
-        <AssetImage
-          src={sceneAssets.mainBackground.src}
-          fallbackSrc={sceneAssets.mainBackground.fallbackSrc}
-          alt=""
-          variant="scene"
-          renderFallbackCard={false}
-          className="h-full w-full object-cover opacity-25"
-        />
-      </div>
-      <div
-        className="absolute inset-0"
-        style={{ background: 'radial-gradient(circle at 50% 38%, rgba(245,234,216,0.28) 0%, rgba(42,37,32,0.62) 70%)' }}
-      />
+    <div
+      className="fixed inset-0 z-[60] bg-[#2a2520]"
+      onClick={isFinale ? undefined : next}
+    >
+      <style>{ANIM}</style>
 
-      {/* 跳过（z-30：必须高于下方居中内容容器的 z-10，否则手机宽屏下被透明容器盖住点不到） */}
+      {/* 铺子模板（固定高宽比，坐标与首页一致） */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="relative w-full" style={{ aspectRatio: '1024 / 1536', maxHeight: '100%' }}>
+          {/* 背景 */}
+          <img
+            src={sceneAssets.mainBackground.src}
+            alt=""
+            className="absolute inset-0 h-full w-full object-contain"
+            onError={(e) => { const f = sceneAssets.mainBackground.fallbackSrc; if (f) (e.target as HTMLImageElement).src = f }}
+          />
+          {/* 场景物件（铺底，会被蒙版压暗） */}
+          {contextItems.map((it) => (
+            <img
+              key={it.id}
+              src={it.src}
+              alt=""
+              className="absolute h-auto"
+              style={{ left: `${it.x}%`, top: `${it.y}%`, width: `${it.width}%`, zIndex: it.zIndex }}
+              onError={(e) => { if (it.fallbackSrc) (e.target as HTMLImageElement).src = it.fallbackSrc }}
+            />
+          ))}
+          {/* 暗蒙版 */}
+          <div className="absolute inset-0" style={{ zIndex: 20, background: 'rgba(31,27,24,0.76)' }} />
+          {/* 当前讲到的物件：原地重绘高亮版，浮在蒙版之上 */}
+          {litItem ? (
+            <img
+              key={`lit-${litItem.id}`}
+              src={litItem.src}
+              alt={litItem.label}
+              className="absolute h-auto"
+              style={{ left: `${litItem.x}%`, top: `${litItem.y}%`, width: `${litItem.width}%`, zIndex: 30, animation: 'tourSpot 2s ease-in-out infinite' }}
+              onError={(e) => { if (litItem.fallbackSrc) (e.target as HTMLImageElement).src = litItem.fallbackSrc }}
+            />
+          ) : null}
+        </div>
+      </div>
+
+      {/* 跳过 */}
       <button
         type="button"
-        className="absolute right-4 top-[7dvh] z-30 rounded-full bg-white/12 px-4 py-1.5 text-xs text-paper/80 backdrop-blur-sm transition hover:bg-white/20"
-        onClick={onFinishToHome}
+        className="absolute right-4 top-[7dvh] z-[80] rounded-full bg-white/12 px-4 py-1.5 text-xs text-paper/80 backdrop-blur-sm transition hover:bg-white/20"
+        onClick={(e) => { e.stopPropagation(); onFinishToHome() }}
       >
         {zh ? '跳过' : 'Skip'}
       </button>
 
-      {/* 内容 */}
-      <div className="relative z-10 mx-auto flex w-full max-w-[430px] flex-1 flex-col items-center justify-center px-7 text-center">
+      {!isFinale ? (
+        /* ── 精灵 + 对话气泡（浮在下方中间），点屏幕任意处下一个 ── */
+        <div className="pointer-events-none absolute inset-x-0 bottom-[10dvh] z-[70] flex flex-col items-center px-6">
+          <div
+            key={step}
+            className="mb-3 max-w-[300px] rounded-[22px] bg-paper/95 px-5 py-4 text-center shadow-[0_10px_28px_rgba(0,0,0,0.35)]"
+            style={{ animation: 'tourFade 280ms ease-out' }}
+          >
+            {obj ? <p className="text-base font-semibold text-ink">{obj.name[lang]}</p> : null}
+            <p className={`${obj ? 'mt-1' : ''} text-sm leading-6 text-ink/70`}>{bubbleText}</p>
+          </div>
+          <SpiritSprite body="base" face="normal" alt={spiritName} className="h-24 drop-shadow-[0_10px_30px_rgba(138,97,74,0.3)]" style={{ animation: 'tourBob 4s ease-in-out infinite' }} />
 
-        {/* 精灵 / 物件主视觉 */}
-        <div className="flex h-[34dvh] items-center justify-center">
-          {isWelcome || isFinale ? (
-            <div style={{ animation: 'tourBob 4s ease-in-out infinite' }}>
-              <SpiritSprite body="base" face="normal" alt={spiritName} className="h-40 drop-shadow-[0_10px_30px_rgba(138,97,74,0.28)]" />
-            </div>
-          ) : objItem ? (
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex h-32 w-32 items-center justify-center rounded-[28px] bg-paper/85 p-4 shadow-[0_12px_30px_rgba(54,38,26,0.3)]">
-                <img
-                  src={objItem.src}
-                  alt={obj!.name[lang]}
-                  className="h-full w-full object-contain"
-                  onError={(e) => { if (objItem.fallbackSrc) (e.target as HTMLImageElement).src = objItem.fallbackSrc }}
-                />
-              </div>
-              {/* 小精灵在旁边指着 */}
-              <SpiritSprite body="base" face="normal" alt={spiritName} className="h-10 opacity-90" />
-            </div>
-          ) : null}
-        </div>
-
-        {/* 文案卡 */}
-        <div className="mt-2 w-full rounded-[24px] bg-paper/90 px-6 py-6 backdrop-blur-sm shadow-[0_10px_28px_rgba(54,38,26,0.22)]">
-          {isWelcome ? (
-            <>
-              <h1 className="text-xl font-semibold text-ink">
-                {zh ? '这家「今晚早点」，现在归你啦' : 'This little shop is yours now'}
-              </h1>
-              <p className="mt-3 text-sm leading-7 text-ink/65">
-                {zh
-                  ? `我是${spiritName}，铺子里的面点精灵。先带你认认门，几步就好。`
-                  : `I’m ${spiritName}, the dough spirit of this shop. Let me show you around — just a few steps.`}
-              </p>
-            </>
-          ) : isFinale ? (
-            <>
-              <h1 className="text-xl font-semibold text-ink">
-                {zh ? '现在铺子安安静静的，别急' : 'The shop is quiet right now — that’s okay'}
-              </h1>
-              <p className="mt-3 text-sm leading-7 text-ink/65">
-                {zh
-                  ? '铺子只在清晨真正热闹。白天我们慢慢备菜，傍晚定个今晚几点关灯——你早点歇，明早就能开门，客人就来。'
-                  : 'The shop only truly bustles at dawn. We prep slowly through the day; in the evening we set tonight’s lights-off — rest early and the shop opens to guests tomorrow morning.'}
-              </p>
-              <p className="mt-3 text-sm leading-6 text-brown/70">
-                {zh ? '阿橘说了，明早要来吃油条呢。' : 'Ginger said it’s coming for youtiao tomorrow morning.'}
-              </p>
-            </>
-          ) : obj ? (
-            <>
-              <div className="flex items-center justify-center gap-2">
-                <h2 className="text-lg font-semibold text-ink">{obj.name[lang]}</h2>
-                <span className="rounded-full bg-[#d4a574]/22 px-2.5 py-[2px] text-[11px] font-medium text-[#8a614a]">
-                  {obj.where[lang]}
-                </span>
-              </div>
-              <p className="mt-3 text-sm leading-7 text-ink/65">{obj.desc[lang]}</p>
-            </>
-          ) : null}
-
-          {/* 进度点 */}
-          <div className="mt-5 flex items-center justify-center gap-1.5">
+          {/* 进度点 + 提示 */}
+          <div className="mt-3 flex items-center gap-1.5">
             {Array.from({ length: TOTAL }).map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 rounded-full transition-all ${i === step ? 'w-4 bg-[#8a614a]/70' : 'w-1.5 bg-ink/25'}`}
-              />
+              <span key={i} className={`h-1.5 rounded-full transition-all ${i === step ? 'w-4 bg-[#f0ddb3]' : 'w-1.5 bg-paper/30'}`} />
             ))}
           </div>
-
-          {/* 导航 */}
-          {isFinale ? (
-            <div className="mt-5 flex flex-col gap-2">
-              <SoftButton type="button" variant="primary" block onClick={onGoToEveningPrepare}>
-                {zh ? '去定今晚几点关灯' : 'Set tonight’s lights-off'}
-              </SoftButton>
-              <button
-                type="button"
-                className="py-2 text-sm text-ink/45 transition hover:text-ink/65"
-                onClick={onFinishToHome}
-              >
-                {zh ? '先自己逛逛' : 'Look around first'}
-              </button>
-            </div>
-          ) : (
-            <div className="mt-5 flex items-center justify-between gap-3">
-              <button
-                type="button"
-                disabled={step === 0}
-                className="rounded-full px-4 py-2.5 text-sm text-ink/45 transition hover:text-ink/70 disabled:opacity-0"
-                onClick={prev}
-              >
-                {zh ? '上一步' : 'Back'}
-              </button>
-              <SoftButton type="button" variant="primary" onClick={next}>
-                {zh ? '下一步' : 'Next'}
-              </SoftButton>
-            </div>
-          )}
+          <p className="mt-2 text-xs text-paper/55">{zh ? '点屏幕任意处继续' : 'Tap anywhere to continue'}</p>
         </div>
-      </div>
+      ) : (
+        /* ── 结尾：按是否清晨分两套文案 ── */
+        <div className="absolute inset-0 z-[70] flex flex-col items-center justify-center px-7 text-center" onClick={(e) => e.stopPropagation()}>
+          <SpiritSprite body="base" face="normal" alt={spiritName} className="h-28 drop-shadow-[0_10px_30px_rgba(138,97,74,0.3)]" style={{ animation: 'tourBob 4s ease-in-out infinite' }} />
+          <h1 className="mt-5 text-xl font-semibold text-paper">
+            {morning
+              ? (zh ? '这会儿铺子正热闹' : 'The shop is bustling right now')
+              : (zh ? '现在铺子安安静静的，别急' : 'The shop is quiet right now — that’s okay')}
+          </h1>
+          <p className="mt-3 max-w-[320px] text-sm leading-7 text-paper/70">
+            {morning
+              ? (zh
+                  ? '清晨正是铺子最热闹的时候，客人都来了。先去定个今晚几点关灯，回头就能开门招呼。'
+                  : 'Dawn is when the shop is liveliest — the guests are here. Set tonight’s lights-off first, then open up to greet them.')
+              : (zh
+                  ? '铺子只在清晨真正热闹。白天我们慢慢备菜，傍晚定个今晚几点关灯——你早点歇，明早就能开门，客人就来。'
+                  : 'The shop only truly bustles at dawn. We prep through the day; in the evening, set tonight’s lights-off — rest early and it opens to guests tomorrow morning.')}
+          </p>
+          <p className="mt-3 text-sm leading-6 text-[#f0ddb3]/80">
+            {morning
+              ? (zh ? '阿橘正等着吃油条呢。' : 'Ginger is waiting for its youtiao.')
+              : (zh ? '阿橘说了，明早要来吃油条呢。' : 'Ginger said it’s coming for youtiao tomorrow morning.')}
+          </p>
 
-      <style>{`@keyframes tourBob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-7px) } }`}</style>
+          <div className="mt-7 flex w-full max-w-[300px] flex-col gap-2">
+            <SoftButton type="button" variant="primary" block onClick={onGoToEveningPrepare}>
+              {zh ? '去定今晚几点关灯' : 'Set tonight’s lights-off'}
+            </SoftButton>
+            <button
+              type="button"
+              className="py-2 text-sm text-paper/55 transition hover:text-paper/80"
+              onClick={onFinishToHome}
+            >
+              {zh ? '先自己逛逛' : 'Look around first'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
