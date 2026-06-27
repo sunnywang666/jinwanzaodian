@@ -10,7 +10,7 @@
 
 import { useEffect, useState } from 'react'
 import { AssetImage } from '../components/AssetImage'
-import { bookAssets, sceneAssets } from '../lib/assets'
+import { bookAssets, type AssetSource } from '../lib/assets'
 import { guestReferences as guests } from '../lib/guestReferences'
 import {
   getFamiliarityLabel,
@@ -22,6 +22,8 @@ import { useT } from '../lib/i18n'
 
 interface GuestBookOpenViewProps {
   page: number
+  /** 当前时段的铺子背景，跟首页一致 */
+  background: AssetSource
   guestProgress: GuestProgressMap
   onBackToHome: () => void
   onPrev: () => void
@@ -47,7 +49,7 @@ const familiarityStyles: Record<FamiliarityLevel, { bg: string; text: string }> 
 }
 
 export function GuestBookOpenView({
-  page, guestProgress, onBackToHome, onPrev, onNext,
+  page, background, guestProgress, onBackToHome, onPrev, onNext,
 }: GuestBookOpenViewProps) {
   const [displayPage, setDisplayPage] = useState(page)
   const [isVisible, setIsVisible] = useState(false)
@@ -92,7 +94,7 @@ export function GuestBookOpenView({
   return (
     <section className="absolute inset-0 z-30 h-full overflow-hidden">
       <div className="absolute inset-0 bg-[#d7d3cf]">
-        <AssetImage src={sceneAssets.mainBackground.src} fallbackSrc={sceneAssets.mainBackground.fallbackSrc}
+        <AssetImage src={background.src} fallbackSrc={background.fallbackSrc}
           alt="" variant="scene" renderFallbackCard={false} className="h-full w-full object-cover object-center" />
       </div>
       <div className="absolute inset-0 bg-[rgba(72,68,67,0.4)]" />

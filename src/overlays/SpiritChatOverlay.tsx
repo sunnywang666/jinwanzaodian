@@ -10,6 +10,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { type ChatMessage } from '../lib/demoData'
+import { loadChatHistory, saveChatHistory } from '../lib/chatStore'
 import { SpiritSprite } from '../components/SpiritSprite'
 import { GameOverlay } from '../components/GameOverlay'
 import type { DemoScene, NightType, SpiritForm } from '../lib/storage'
@@ -21,9 +22,16 @@ interface SpiritChatOverlayProps {
   nightType: NightType
   currentScene: DemoScene
   tonightWorry: string
+  /** 是否刚从傍晚预承诺写完心事跳进来：是→精灵顺着心事开场给方法，且不再让用户重写心事 */
+  fromEveningPrepare?: boolean
   onGoToEveningPrepare: () => void
   onGoToNightClosing: () => void
   onClose: () => void
+}
+
+const nightTypeKeyMap: Record<string, string> = {
+  '报复型': 'revenge', '惯性型': 'inertia', '焦虑型': 'anxiety',
+  '工作型': 'work', '猫头鹰型': 'owl', '说不清': 'unsure',
 }
 
 /* ── System prompts by night type ── */
@@ -161,12 +169,13 @@ interface QuickReply {
   fallback?: string
 }
 
-function getQuickReplies(scene: DemoScene, lang: 'zh' | 'en'): QuickReply[] {
+function getQuickReplies(scene: DemoScene, lang: 'zh' | 'en', hasWorry: boolean): QuickReply[] {
   const en = lang === 'en'
   if (scene === 'evening' || scene === 'night') {
     return [
       { label: en ? 'A bit tired today' : '今天有点累', action: 'chat', fallback: en ? 'Then do less today; the shop can go slow too.' : '那今天就少做一点，铺子也可以慢慢来。' },
-      { label: en ? "Write tonight's worry" : '写下今晚的心事', action: 'navigate', target: 'eveningPrepare' },
+      // 已经写过心事就改成"再改改"，不再让人重复写
+      { label: hasWorry ? (en ? "Edit tonight's note" : '再改改心事') : (en ? "Write tonight's worry" : '写下今晚的心事'), action: 'navigate', target: 'eveningPrepare' },
       { label: en ? 'Time to close up' : '该打烊了', action: 'navigate', target: 'nightClosing' },
     ]
   }
@@ -187,7 +196,12 @@ function getQuickReplies(scene: DemoScene, lang: 'zh' | 'en'): QuickReply[] {
 
 /* ── Time-based initial messages ── */
 
-function getInitialMessages(spiritName: string, scene: DemoScene, lang: 'zh' | 'en'): ChatMessage[] {
+function getInitialMessages(
+  spiritName: string,
+  scene: DemoScene,
+  lang: 'zh' | 'en',
+  opts: { fromEvening?: boolean; hasWorry?: boolean } = {},
+): ChatMessage[] {
   const hour = new Date().getHours()
   const en = lang === 'en'
 
@@ -201,7 +215,10 @@ function getInitialMessages(spiritName: string, scene: DemoScene, lang: 'zh' | '
   if (scene === 'evening' || scene === 'night' || hour >= 20) {
     return [
       { id: 'init-1', speaker: 'spirit', text: en ? "Shopkeeper, the shop's open. I'm behind the counter — let me keep you company." : '店长，今天铺子开着。我在柜台后面，先陪你待一会儿。' },
-      { id: 'init-2', speaker: 'spirit', text: en ? "If something's on your mind, you can jot it on a note first." : '如果有什么放不下的事，可以先写在纸条上。' },
+      // 已经写过心事就不再让他"先写在纸条上"
+      { id: 'init-2', speaker: 'spirit', text: opts.hasWorry
+        ? (en ? 'If anything else is on your mind, just tell me.' : '还有什么放不下的，直接跟我说就好。')
+        : (en ? "If something's on your mind, you can jot it on a note first." : '如果有什么放不下的事，可以先写在纸条上。') },
     ]
   }
 
@@ -226,20 +243,27 @@ export function SpiritChatOverlay({
   nightType,
   currentScene,
   tonightWorry,
+  fromEveningPrepare = false,
   onGoToEveningPrepare,
   onGoToNightClosing,
   onClose,
 }: SpiritChatOverlayProps) {
   const { t, lang } = useT()
-  const [messages, setMessages] = useState<ChatMessage[]>(() =>
-    getInitialMessages(spiritName, currentScene, lang),
-  )
+  const hasWorry = tonightWorry.trim().length > 0
+  const typeKey = nightTypeKeyMap[nightType] ?? 'unsure'
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    // 有历史就接着聊；没有再放开场白（从傍晚带心事来则开场留空，交给下面的心事响应）
+    const saved = loadChatHistory()
+    if (saved.length) return saved
+    if (fromEveningPrepare && hasWorry) return []
+    return getInitialMessages(spiritName, currentScene, lang, { hasWorry })
+  })
   const [isThinking, setIsThinking] = useState(false)
   const [inputText, setInputText] = useState('')
   const [apiError, setApiError] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const quickReplies = getQuickReplies(currentScene, lang)
+  const quickReplies = getQuickReplies(currentScene, lang, hasWorry)
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -247,12 +271,43 @@ export function SpiritChatOverlay({
     }
   }, [messages, isThinking])
 
+  // 持久化聊天记录（关掉再开能接着上次聊）
+  useEffect(() => {
+    saveChatHistory(messages)
+  }, [messages])
+
   // 自动清除 API 错误提示
   useEffect(() => {
     if (!apiError) return
     const timer = setTimeout(() => setApiError(false), 5000)
     return () => clearTimeout(timer)
   }, [apiError])
+
+  // 从傍晚带着心事进来：自动把这条心事抛给精灵，让它顺着心事回应 + 给对症方法（只跑一次）。
+  // 断网兜底用按人格写好的 evening.method 文案，保证演示也有"对症方法"。
+  const didAutoRespond = useRef(false)
+  useEffect(() => {
+    if (didAutoRespond.current || !fromEveningPrepare || !hasWorry) return
+    didAutoRespond.current = true
+    const stamp = Date.now()
+    const opener: ChatMessage = {
+      id: `spirit-open-${stamp}`,
+      speaker: 'spirit',
+      text: lang === 'en' ? 'I saw what you just set down. Let me sit with it with you.' : '你刚写下的心事，我看到了。我陪你一起捋捋。',
+    }
+    const userMsg: ChatMessage = { id: `user-${stamp}`, speaker: 'user', text: tonightWorry.trim() }
+    const base = [...messages, opener, userMsg]
+    setMessages(base)
+    setIsThinking(true)
+    callChat(base, nightType, spiritName, tonightWorry, lang)
+      .then((reply) => setMessages((cur) => [...cur, { id: `spirit-${stamp}`, speaker: 'spirit', text: reply }]))
+      .catch(() => {
+        setApiError(true)
+        setMessages((cur) => [...cur, { id: `spirit-${stamp}`, speaker: 'spirit', text: t(`evening.method.${typeKey}`, { name: spiritName }) }])
+      })
+      .finally(() => setIsThinking(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const sendMessage = async (userText: string) => {
     if (!userText.trim()) return

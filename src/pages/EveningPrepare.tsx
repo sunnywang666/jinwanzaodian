@@ -36,7 +36,7 @@ export function EveningPrepare({ initialValue, spiritName, nightType, onSave, on
   const [worry, setWorry] = useState(initialValue.worry)
   const [savedAt, setSavedAt] = useState(initialValue.savedAt)
   const [justSaved, setJustSaved] = useState(false)
-  const { t } = useT()
+  const { t, lang } = useT()
 
   const typeKey = nightTypeKeyMap[nightType] ?? 'unsure'
 
@@ -95,11 +95,17 @@ export function EveningPrepare({ initialValue, spiritName, nightType, onSave, on
             {justSaved ? t('common.saved') : t('evening.saveBtn')}
           </SoftButton>
           {justSaved ? (
-            <div className="mt-3 text-center">
+            <div className="mt-3 flex flex-col items-center gap-2.5">
               <p className="text-sm font-medium text-[#7a9a6f]">{t('evening.savedMsg')}</p>
-              <button type="button" className="mt-2 text-sm text-brown/50 transition hover:text-brown/70" onClick={onGoToSpiritChat}>
-                {t('evening.backToChat', { name: spiritName })}
-              </button>
+              {/* 保存后给两个明确出口：去和精灵聊聊（顺着心事给方法）/ 回铺子完成 */}
+              <div className="flex w-full gap-2">
+                <SoftButton type="button" variant="secondary" block onClick={onClose}>
+                  {lang === 'en' ? 'Back to shop' : '回铺子'}
+                </SoftButton>
+                <SoftButton type="button" variant="primary" block onClick={onGoToSpiritChat}>
+                  {lang === 'en' ? `Chat with ${spiritName}` : `和${spiritName}聊聊`}
+                </SoftButton>
+              </div>
             </div>
           ) : null}
         </div>

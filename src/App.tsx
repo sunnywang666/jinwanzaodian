@@ -37,6 +37,8 @@ import { startReminderScheduler, type StoredReminderSettings } from './lib/notif
 import { isNativePlatform, syncNativeReminders, registerNativeTapHandler } from './lib/nativeNotifications'
 import { isDemoMode } from './lib/devMode'
 import { getSceneForCurrentTime, isMorningOpenTime } from './lib/timeScene'
+import { sceneByDemo } from './lib/assets'
+import { clearChatHistory } from './lib/chatStore'
 import { clearLastScreenOffTime, clearVisibilityData, countNightReturns, getLastScreenOffTime, startVisibilityTracking } from './lib/visibility'
 import { calculateTrend } from './lib/trendCalculation'
 import { analyzeNight, summarizeNights, detectWarnings } from './lib/sleepAnalysis'
@@ -121,6 +123,8 @@ export default function App() {
   // ── Ephemeral state (outside store) ──
   const [guestBookPage, setGuestBookPage] = useState(0)
   const [debugHotspots, setDebugHotspots] = useState(false)
+  // 是否「刚从傍晚预承诺写完心事」跳进对话——决定精灵开场是否顺着心事给方法
+  const [chatFromEvening, setChatFromEvening] = useState(false)
   const [returnMessage, setReturnMessage] = useState<string | null>(() => loadReturnMessage())
   const ambientAudio = useAmbientAudio()
   const { t, lang } = useT()
@@ -300,6 +304,7 @@ export default function App() {
   function resetAll() {
     clearStore()
     clearVisibilityData()
+    clearChatHistory()
     const defaults = createDefaultStore()
     setProfile(null)
     setSpiritForm('base')
@@ -489,7 +494,7 @@ export default function App() {
             </button>
           ) : <div />}
 
-          <div className="flex gap-2 items-start">
+          <div className="flex items-center gap-2">
             {ambientAudio.isPlaying ? (
               <button
                 type="button"
@@ -500,18 +505,28 @@ export default function App() {
               </button>
             ) : null}
 
+            {/* 演示版：演示导航开关 */}
             {isDemoMode() ? (
               <button
                 type="button"
-                className="pointer-events-auto rounded-full bg-ink/20 px-3 py-1.5 text-xs text-paper backdrop-blur-sm transition hover:bg-ink/30"
-                onClick={() => {
-                  if (!window.confirm(t('app.resetConfirm'))) return
-                  resetAll()
-                }}
+                className={`pointer-events-auto rounded-full px-3 py-1.5 text-xs backdrop-blur-sm transition ${debugHotspots ? 'bg-butter/70 text-ink' : 'bg-ink/20 text-paper'}`}
+                onClick={() => setDebugHotspots((c) => !c)}
               >
-                {t('app.resetBtn')}
+                {lang === 'en' ? 'Demo' : '演示'}
               </button>
             ) : null}
+
+            {/* 设置 */}
+            <button
+              type="button"
+              aria-label={t('settings.title')}
+              className="pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full bg-ink/20 text-paper backdrop-blur-sm transition hover:bg-ink/30"
+              onClick={() => setView('settings')}
+            >
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M6.5.5a1 1 0 00-1 .91L5.42 2.8a5.5 5.5 0 00-1.5.87L2.6 3.13a1 1 0 00-1.14.44L.46 5.43a1 1 0 00.22 1.25l1.14.93a5.6 5.6 0 000 1.78l-1.14.93a1 1 0 00-.22 1.25l1 1.86a1 1 0 001.14.44l1.32-.54a5.5 5.5 0 001.5.87l.08 1.39a1 1 0 001 .91h2a1 1 0 001-.91l.08-1.39a5.5 5.5 0 001.5-.87l1.32.54a1 1 0 001.14-.44l1-1.86a1 1 0 00-.22-1.25l-1.14-.93a5.6 5.6 0 000-1.78l1.14-.93a1 1 0 00.22-1.25l-1-1.86a1 1 0 00-1.14-.44l-1.32.54a5.5 5.5 0 00-1.5-.87L9.5 1.41a1 1 0 00-1-.91h-2zM8 5.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z" />
+              </svg>
+            </button>
           </div>
         </div>
       ) : null}
@@ -525,7 +540,7 @@ export default function App() {
         onArrivalComplete={() => setArrivalPending(false)}
         spiritName={profile.spiritName}
         spiritForm={spiritForm}
-        onOpenSpiritChat={() => setView('spiritChat')}
+        onOpenSpiritChat={() => { setChatFromEvening(false); setView('spiritChat') }}
         onToggleDebugHotspots={() => setDebugHotspots((c) => !c)}
         onOpenHotspot={(target) => {
           if (target === 'guestBook') { setGuestBookPage(0); setView('guestBookConfirm'); return }
@@ -548,37 +563,35 @@ export default function App() {
           if (scene === 'daytime' && !middayDone) setView('middayTransition')
         }}
         onOpenSettings={() => setView('settings')}
-        sceneOptions={{
-          lightsOffTime: eveningPrepare.plannedLightsOffTime,
-          tonightClosed,
-          todayMood,
-        }}
-        onTimeSimChange={() => {
-          const suggested = getSceneForCurrentTime({
-            lightsOffTime: eveningPrepare.plannedLightsOffTime,
-            tonightClosed,
-            todayMood,
-          })
-          setDemoScene(suggested)
-          const newToday = getTodayString()
-          if (lastOpenDate !== newToday && profile) {
-            setView('morningOpening')
+        onDemoJump={(event) => {
+          // 演示期间别让"自动按真实时间切场景"把背景又切回去（拿掉时间模拟后 getNow=真实时间），
+          // 这样事件结束回到首页能看到对应时段的背景图（清晨/白天/傍晚/夜晚）。
+          autoSceneSuppressedUntil.current = Date.now() + 30 * 60 * 1000
+          if (event === 'morningOpening') { setView('morningOpening'); return }
+          if (event === 'middayTransition') {
+            // 没客人就先 roll 一批，午间过场才有人可散
+            if (homeGuestKeys.length === 0) setHomeGuestKeys(rollTodayGuests('normal', guestProgress))
+            setDemoScene('daytime'); setView('middayTransition'); return
           }
+          if (event === 'eveningPrepare') { setDemoScene('evening'); setView('eveningPrepare'); return }
+          if (event === 'nightClosing') { setDemoScene('night'); setView('nightClosing') }
         }}
+        onReplayTour={() => setTourDone(false)}
       />
 
       {view === 'recipeBookConfirm' ? (
-        <RecipeBookConfirmView onConfirm={() => setView('recipeBookOpen')} onCancel={() => setView('home')} />
+        <RecipeBookConfirmView background={sceneByDemo[demoScene]} onConfirm={() => setView('recipeBookOpen')} onCancel={() => setView('home')} />
       ) : null}
       {view === 'recipeBookOpen' ? (
-        <RecipeBookOverlay dishProgress={dishProgress} onClose={() => setView('home')} />
+        <RecipeBookOverlay background={sceneByDemo[demoScene]} dishProgress={dishProgress} onClose={() => setView('home')} />
       ) : null}
       {view === 'guestBookConfirm' ? (
-        <GuestBookConfirmView onConfirm={() => setView('guestBookOpen')} onCancel={() => setView('home')} />
+        <GuestBookConfirmView background={sceneByDemo[demoScene]} onConfirm={() => setView('guestBookOpen')} onCancel={() => setView('home')} />
       ) : null}
       {view === 'guestBookOpen' ? (
         <GuestBookOpenView
           page={guestBookPage}
+          background={sceneByDemo[demoScene]}
           guestProgress={guestProgress}
           onBackToHome={() => setView('home')}
           onPrev={() => setGuestBookPage((c) => (c - 1 + guests.length) % guests.length)}
@@ -592,9 +605,10 @@ export default function App() {
           nightType={profile.nightType}
           currentScene={demoScene}
           tonightWorry={eveningPrepare.worry}
+          fromEveningPrepare={chatFromEvening}
           onGoToEveningPrepare={() => setView('eveningPrepare')}
           onGoToNightClosing={() => setView('nightClosing')}
-          onClose={() => setView('home')}
+          onClose={() => { setChatFromEvening(false); setView('home') }}
         />
       ) : null}
       {view === 'spiritHut' ? (
@@ -624,7 +638,7 @@ export default function App() {
           spiritName={profile.spiritName}
           nightType={profile.nightType}
           onSave={(value) => setEveningPrepare(value)}
-          onGoToSpiritChat={() => setView('spiritChat')}
+          onGoToSpiritChat={() => { setChatFromEvening(true); setView('spiritChat') }}
           onClose={() => setView('home')}
         />
       ) : null}

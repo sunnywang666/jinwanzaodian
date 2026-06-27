@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react'
-import { bookAssets, sceneAssets } from '../lib/assets'
+import { bookAssets, type AssetSource } from '../lib/assets'
 import { dishes } from '../lib/demoData'
 import { AssetImage } from '../components/AssetImage'
 import { GameOverlay } from '../components/GameOverlay'
@@ -15,6 +15,8 @@ import { getDishUnlockHint, type DishProgressMap } from '../lib/dishProgression'
 import { useT } from '../lib/i18n'
 
 interface RecipeBookOverlayProps {
+  /** 当前时段的铺子背景，跟首页一致 */
+  background: AssetSource
   dishProgress: DishProgressMap
   onClose: () => void
 }
@@ -115,7 +117,7 @@ function RecipePage({
   )
 }
 
-export function RecipeBookOverlay({ dishProgress, onClose }: RecipeBookOverlayProps) {
+export function RecipeBookOverlay({ background, dishProgress, onClose }: RecipeBookOverlayProps) {
   const [page, setPage] = useState(0)
   const { t } = useT()
   const spreadCount = Math.ceil(dishes.length / 2)
@@ -132,8 +134,8 @@ export function RecipeBookOverlay({ dishProgress, onClose }: RecipeBookOverlayPr
         {/* 铺子背景 + 半透明遮罩 */}
         <div className="absolute inset-0 bg-[#d7d3cf]">
           <AssetImage
-            src={sceneAssets.mainBackground.src}
-            fallbackSrc={sceneAssets.mainBackground.fallbackSrc}
+            src={background.src}
+            fallbackSrc={background.fallbackSrc}
             alt="早点铺主场景"
             variant="scene"
             renderFallbackCard={false}

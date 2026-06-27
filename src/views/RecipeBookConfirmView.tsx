@@ -1,14 +1,16 @@
 import { useEffect } from 'react'
-import { bookAssets, sceneAssets } from '../lib/assets'
+import { bookAssets, type AssetSource } from '../lib/assets'
 import { AssetImage } from '../components/AssetImage'
 import { useT } from '../lib/i18n'
 
 interface RecipeBookConfirmViewProps {
+  /** 当前时段的铺子背景，跟首页一致 */
+  background: AssetSource
   onConfirm: () => void
   onCancel: () => void
 }
 
-export function RecipeBookConfirmView({ onConfirm, onCancel }: RecipeBookConfirmViewProps) {
+export function RecipeBookConfirmView({ background, onConfirm, onCancel }: RecipeBookConfirmViewProps) {
   const { t } = useT()
 
   useEffect(() => {
@@ -23,8 +25,8 @@ export function RecipeBookConfirmView({ onConfirm, onCancel }: RecipeBookConfirm
     <section className="absolute inset-0 z-30 overflow-hidden">
       <div className="absolute inset-0 bg-[#d7d3cf]">
         <AssetImage
-          src={sceneAssets.mainBackground.src}
-          fallbackSrc={sceneAssets.mainBackground.fallbackSrc}
+          src={background.src}
+          fallbackSrc={background.fallbackSrc}
           alt=""
           variant="scene"
           renderFallbackCard={false}

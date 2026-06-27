@@ -6,10 +6,9 @@
  */
 
 import { ShopSceneInteractive } from '../components/ShopSceneInteractive'
-import { TimeSimPanel } from '../components/TimeSimPanel'
+import { DemoPanel, type DemoEvent } from '../components/DemoPanel'
 import type { SceneItemTarget } from '../lib/sceneItems'
 import type { DemoScene, SpiritForm } from '../lib/storage'
-import type { TimeSceneOptions } from '../lib/timeScene'
 import type { GuestProgressMap } from '../lib/guestProgression'
 import { useT } from '../lib/i18n'
 import { getNow } from '../lib/timeSimulator'
@@ -17,14 +16,15 @@ import { isDemoMode } from '../lib/devMode'
 
 interface HomeProps {
   scene: DemoScene
+  /** 演示面板开关（仅演示版） */
   debugHotspots: boolean
   onToggleDebugHotspots: () => void
   onOpenHotspot: (target: SceneItemTarget) => void
   onSceneChange: (scene: DemoScene) => void
   onOpenSettings: () => void
-  /** For time sim panel */
-  sceneOptions: TimeSceneOptions
-  onTimeSimChange: () => void
+  /** 演示版：直接跳到某个时段事件 / 重看导览（重置在设置里） */
+  onDemoJump: (event: DemoEvent) => void
+  onReplayTour: () => void
   /** 今天在铺子里的客人 */
   guestKeys?: string[]
   /** 刚从开门仪式进来 → 播出餐迎客动画一次 */
@@ -41,10 +41,10 @@ interface HomeProps {
 export function Home({
   scene, debugHotspots, onToggleDebugHotspots,
   onOpenHotspot, onSceneChange, onOpenSettings,
-  sceneOptions, onTimeSimChange,
+  onDemoJump, onReplayTour,
   guestKeys = [], playArrival = false, onArrivalComplete, spiritName, spiritForm = 'base', onOpenSpiritChat, guestProgress,
 }: HomeProps) {
-  const { t } = useT()
+  const { t, lang } = useT()
   const sceneText = t(`scene.${scene}.body`)
   const now = getNow()
   const nowLabel = new Intl.DateTimeFormat('zh-CN', { hour: '2-digit', minute: '2-digit' }).format(now)
@@ -53,7 +53,7 @@ export function Home({
     <section className="relative h-full w-full">
       <ShopSceneInteractive
         scene={scene}
-        debug={debugHotspots}
+        debug={false}
         onItemOpen={onOpenHotspot}
         guestKeys={guestKeys}
         playArrival={playArrival}
@@ -80,27 +80,9 @@ export function Home({
         </p>
       </div>
 
-      <div className="absolute right-3 top-14 z-20 flex flex-col items-end gap-2">
-        <button type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-ink/15 text-paper backdrop-blur-sm transition hover:bg-ink/25"
-          onClick={onOpenSettings} aria-label={t('settings.title')}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M6.5.5a1 1 0 00-1 .91L5.42 2.8a5.5 5.5 0 00-1.5.87L2.6 3.13a1 1 0 00-1.14.44L.46 5.43a1 1 0 00.22 1.25l1.14.93a5.6 5.6 0 000 1.78l-1.14.93a1 1 0 00-.22 1.25l1 1.86a1 1 0 001.14.44l1.32-.54a5.5 5.5 0 001.5.87l.08 1.39a1 1 0 001 .91h2a1 1 0 001-.91l.08-1.39a5.5 5.5 0 001.5-.87l1.32.54a1 1 0 001.14-.44l1-1.86a1 1 0 00-.22-1.25l-1.14-.93a5.6 5.6 0 000-1.78l1.14-.93a1 1 0 00.22-1.25l-1-1.86a1 1 0 00-1.14-.44l-1.32.54a5.5 5.5 0 00-1.5-.87L9.5 1.41a1 1 0 00-1-.91h-2zM8 5.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z" />
-          </svg>
-        </button>
-
-        {isDemoMode() ? (
-          <button type="button"
-            className={`rounded-full px-3 py-1.5 text-xs backdrop-blur-sm transition ${debugHotspots ? 'bg-butter/70 text-ink' : 'bg-ink/15 text-paper'}`}
-            onClick={onToggleDebugHotspots}>
-            {t('home.debug')}
-          </button>
-        ) : null}
-      </div>
-
       {debugHotspots ? (
-        <div className="absolute inset-x-3 bottom-3 z-20 rounded-[24px] bg-paper/75 px-3 py-3 backdrop-blur-sm">
-          <TimeSimPanel sceneOptions={sceneOptions} onTimeChange={onTimeSimChange} />
+        <div className="absolute inset-x-3 bottom-3 z-20 rounded-[24px] bg-paper/85 px-3.5 py-3.5 shadow-[0_8px_24px_rgba(54,38,26,0.18)] backdrop-blur-sm">
+          <DemoPanel onJump={onDemoJump} onReplayTour={onReplayTour} />
         </div>
       ) : null}
     </section>
