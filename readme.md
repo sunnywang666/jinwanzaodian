@@ -1,4 +1,23 @@
-# 今晚早点 · README / AGENTS
+# 今晚早点 · Sleep Early Tonight
+
+一个温柔的早睡陪伴 App：你经营一家只在清晨开门的早点铺，铺子开得好不好，取决于你昨晚有没有早睡。React + Capacitor，可打包安卓 APK。
+
+A cozy sleep-companion app: you run a breakfast shop that only opens at dawn, and how well it does depends on whether you went to bed early last night. Built with React + Capacitor, ships as an Android APK.
+
+**▶ Web demo: https://jinwanzaodian.vercel.app** （演示版预填示例数据 / demo build with sample data）
+
+<img src="docs/screenshots/home-demo.png" width="320" alt="今晚早点首屏：狐狸店长的早点铺">
+
+**亮点 / Highlights**
+- 6 种熬夜人格各配双语 LLM system prompt，面点精灵接真模型陪聊，断网自动降级到手写文案池 / six night-owl personas each with a bilingual LLM prompt; graceful offline fallbacks when the API is unreachable
+- 客人熟络度系统（新客→熟客）驱动叙事解锁，全部主视觉为真实插画素材 / a guest-familiarity system unlocks stories; all visuals are real illustrations
+- 双版本 APK（正式/演示）同机共存；vitest 单测覆盖纯逻辑层 / dual APK builds side by side; vitest coverage on the logic layer
+
+**技术栈 / Stack**：React + TypeScript + Vite + Tailwind + Capacitor (Android)，LLM 经 Vercel serverless 代理（key 不进前端）。
+
+以下为开发文档（AGENTS 向）。The rest of this file is the developer/agents doc.
+
+---
 
 > 一句话：一个温柔的早睡陪伴 App。你经营一家「只在清晨开门」的早点铺，铺子开得好不好取决于你昨晚有没有早睡。
 > 核心循环：傍晚预承诺（定关灯时间 + 写下心事）→ 提醒 → 夜晚打烊仪式（关灯、放下手机）→ 清晨回报（精灵迎接、客人来、解锁菜品/皮肤）。
